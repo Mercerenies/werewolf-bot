@@ -1,5 +1,6 @@
 
 package com.mercerenies.werewolf
+package command
 
 import org.javacord.api.interaction.{SlashCommand, SlashCommandBuilder, SlashCommandInteraction}
 

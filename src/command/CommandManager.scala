@@ -1,17 +1,20 @@
 
 package com.mercerenies.werewolf
+package command
 
 import org.javacord.api.listener.interaction.SlashCommandCreateListener
 import org.javacord.api.event.interaction.SlashCommandCreateEvent
 import org.javacord.api.DiscordApi
 
-import scala.concurrent.Future
+import scala.concurrent.{Future, ExecutionContext}
 import scala.collection.JavaConverters.*
 import scala.jdk.FutureConverters.*
 
 final class CommandManager(
   private val commands: CommandList,
   private val api: DiscordApi,
+)(
+  using ExecutionContext,
 ) {
 
   private object Listener extends SlashCommandCreateListener {
@@ -25,8 +28,8 @@ final class CommandManager(
 
   }
 
-  api.bulkOverwriteGlobalApplicationCommands(commands.map(_.toBuilder).asJava)
-
-  api.addSlashCommandCreateListener(Listener)
+  api.bulkOverwriteGlobalApplicationCommands(commands.map(_.toBuilder).asJava).asScala.foreach { _ =>
+    api.addSlashCommandCreateListener(Listener)
+  }
 
 }
