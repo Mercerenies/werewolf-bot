@@ -21,8 +21,9 @@ final class CommandManager(
 
     override def onSlashCommandCreate(event: SlashCommandCreateEvent): Unit = {
       val interaction = event.getSlashCommandInteraction
+      val namedArgs: List[String] = interaction.getOptions.asScala.toList.map(_.getName)
       commands.find { _.name == interaction.getCommandName() }.foreach { matchingCommand =>
-        matchingCommand.perform(interaction)
+        matchingCommand.invoke(interaction, namedArgs)
       }
     }
 
