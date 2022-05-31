@@ -8,7 +8,6 @@ import org.javacord.api.interaction.SlashCommand
 import org.javacord.api.interaction.callback.InteractionCallbackDataFlag
 import org.javacord.api.util.logging.FallbackLoggerConfiguration
 
-import scala.io.Source
 import scala.concurrent.ExecutionContext
 
 @main def main() = {
@@ -18,17 +17,10 @@ import scala.concurrent.ExecutionContext
   config.produceApi().foreach { api =>
     commands.register(api)
   }
+
 }
 
 private def commands: CommandList =
   CommandList(
     PingCommand,
   )
-
-/*
-    api.addMessageCreateListener { event =>
-      if (event.getMessageContent().equalsIgnoreCase("!ping")) {
-        event.getChannel().sendMessage("Pong!")
-      }
-    }
- */
