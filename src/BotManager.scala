@@ -2,6 +2,7 @@
 package com.mercerenies.werewolf
 
 import command.{CommandList, Command}
+import event.GamesReactionListener
 
 import org.javacord.api.DiscordApi
 
@@ -22,6 +23,12 @@ final class BotManager(
   )
 
   private val commandManager = commands.register(api)
+
+  private val reactionListener = GamesReactionListener(games)
+
+  api.addReactionAddListener(reactionListener)
+  api.addReactionRemoveListener(reactionListener)
+  api.addReactionRemoveAllListener(reactionListener)
 
 }
 
