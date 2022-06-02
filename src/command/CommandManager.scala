@@ -29,7 +29,7 @@ final class CommandManager(
 
   }
 
-  api.bulkOverwriteGlobalApplicationCommands(commands.map(_.toBuilder).asJava).asScala.foreach { _ =>
+  api.bulkOverwriteGlobalApplicationCommands(commands.map(_.toBuilder).asJava).asScala.foreach { x =>
     api.addSlashCommandCreateListener(Listener)
   }
 

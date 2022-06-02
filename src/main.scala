@@ -13,14 +13,10 @@ import scala.concurrent.ExecutionContext
 @main def main() = {
   given ExecutionContext = ExecutionContext.global
   val config = BotConfig()
-
+  BotManager.initialize(config)
+/*
   config.produceApi().foreach { api =>
     commands.register(api)
   }
-
+ */
 }
-
-private def commands: CommandList =
-  CommandList(
-    PingCommand,
-  )
