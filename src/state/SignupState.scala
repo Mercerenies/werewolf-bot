@@ -2,8 +2,10 @@
 package com.mercerenies.werewolf
 package state
 
-import TextDecorator.*
+import util.TextDecorator.*
+import util.Emoji
 
+import org.javacord.api.DiscordApi
 import org.javacord.api.entity.channel.TextChannel
 import org.javacord.api.entity.user.User
 import org.javacord.api.entity.message.Message
@@ -12,6 +14,10 @@ import org.javacord.api.entity.Mentionable
 import org.javacord.api.interaction.SlashCommandInteraction
 import org.javacord.api.interaction.callback.InteractionImmediateResponseBuilder
 
+import scalaz.{Id => _, *}
+import Scalaz.{Id => _, *}
+
+import scala.jdk.OptionConverters.*
 import scala.jdk.FutureConverters.*
 import scala.concurrent.{Future, ExecutionContext}
 
@@ -19,25 +25,71 @@ import scala.concurrent.{Future, ExecutionContext}
 final class SignupState(
   override val channelId: Id[TextChannel & Nameable],
   override val hostId: Id[User],
-  private val gameStartMessage: Id[Message],
+  private val gameStartMessageId: Id[Message],
+  private val signupsMessageId: Id[Message],
+)(
+  using ExecutionContext,
 ) extends GameState {
 
-  override def onReactionsUpdated(message: Message): Unit = {}
+  private def getChannel(api: DiscordApi): Option[TextChannel & Nameable] =
+    api.getChannelById(channelId.toLong).toScala.map {
+      case ch: (TextChannel & Nameable) => ch
+      case ch => throw Exception(s"Named TextChannel ${ch} has changed identity and is no longer valid")
+    }
+
+  // Yes, I realize Option[Future[A]] is a weird type, but the Option
+  // part is determined before we invoke a Future. It's easy to
+  // convert this to Future[Option[A]], but the reverse translation is
+  // hard to come by.
+
+  private def getGameStartMessage(api: DiscordApi): Option[Future[Message]] =
+    getChannel(api).map { channel => api.getMessageById(gameStartMessageId.toLong, channel).asScala }
+
+  private def getSignupsMessage(api: DiscordApi): Option[Future[Message]] =
+    getChannel(api).map { channel => api.getMessageById(signupsMessageId.toLong, channel).asScala }
+
+  def updateSignupList(api: DiscordApi): Future[Unit] =
+    ^(getGameStartMessage(api), getSignupsMessage(api)) { (_, _) } match {
+      case None => {
+        println(s"Channel ${channelId} should be hosting a sign-up but does not exist")
+        Future.successful(())
+      }
+      case Some((m1, m2)) => {
+        for {
+          gameStartMessage <- m1
+          signupsMessage <- m2
+        } yield {
+          () /////
+        }
+      }
+    }
+
+  override def onReactionsUpdated(message: Message): Unit = {
+    updateSignupList(message.getApi)
+  }
 
 }
 
 object SignupState {
 
+  private val joinEmoji = Emoji.Clipboard
+
   private def gameStartMessage(host: Mentionable): String =
     s"${host.getMentionTag} has started a game of One Night Ultimate Werewolf in this channel. " +
-    bold("Signups are open.") + " React to this post to join the game."
+    bold("Signups are open.") + s" React to this post with ${joinEmoji} to join the game."
 
-  def createGame(channel: TextChannel & Nameable, host: User)(using ExecutionContext): Future[SignupState] =
+  def createGame(channel: TextChannel & Nameable, host: User)(using ExecutionContext): Future[SignupState] = {
+    val api = channel.getApi
     val text = gameStartMessage(host)
-    for (
-      message <- channel.sendMessage(text).asScala
-    ) yield {
-      SignupState(Id(channel), Id(host), Id(message))
+    for {
+      startMessage <- channel.sendMessage(text).asScala
+      signupsMessage <- channel.sendMessage("(Please wait)").asScala
+      _ <- startMessage.addReaction(joinEmoji).asScala
+      state = SignupState(Id(channel), Id(host), Id(startMessage), Id(signupsMessage))
+      _ <- state.updateSignupList(api)
+    } yield {
+      state
     }
+  }
 
 }
