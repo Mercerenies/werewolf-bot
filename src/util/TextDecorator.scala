@@ -1,5 +1,6 @@
 
 package com.mercerenies.werewolf
+package util
 
 import org.javacord.api.entity.message.MessageDecoration
 
