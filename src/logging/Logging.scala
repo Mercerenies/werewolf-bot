@@ -10,7 +10,7 @@ import scala.reflect.ClassTag
 // more available for Scala, but it does not seem to work in Scala 3,
 // so we're doing it ourselves here. Mix this trait in with any class
 // and get a free field called 'logger'.
-trait Logging[A](using cls: ClassTag[A]) {
+transparent trait Logging[A](using cls: ClassTag[A]) {
 
   val logger = LogManager.getLogger(cls.runtimeClass)
 
