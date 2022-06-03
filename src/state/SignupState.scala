@@ -4,6 +4,7 @@ package state
 
 import util.TextDecorator.*
 import util.Emoji
+import logging.Logging
 
 import org.javacord.api.DiscordApi
 import org.javacord.api.entity.channel.TextChannel
@@ -14,11 +15,9 @@ import org.javacord.api.entity.Mentionable
 import org.javacord.api.interaction.SlashCommandInteraction
 import org.javacord.api.interaction.callback.InteractionImmediateResponseBuilder
 
-import scalaz.{Id => _, *}
-import Scalaz.{Id => _, *}
-
 import scala.jdk.OptionConverters.*
 import scala.jdk.FutureConverters.*
+import scala.jdk.CollectionConverters.*
 import scala.concurrent.{Future, ExecutionContext}
 
 // Parent trait for the states a game can be in.
@@ -29,7 +28,7 @@ final class SignupState(
   private val signupsMessageId: Id[Message],
 )(
   using ExecutionContext,
-) extends GameState {
+) extends GameState with Logging[SignupState] {
 
   private def getChannel(api: DiscordApi): Option[TextChannel & Nameable] =
     api.getChannelById(channelId.toLong).toScala.map {
@@ -48,20 +47,28 @@ final class SignupState(
   private def getSignupsMessage(api: DiscordApi): Option[Future[Message]] =
     getChannel(api).map { channel => api.getMessageById(signupsMessageId.toLong, channel).asScala }
 
-  def updateSignupList(api: DiscordApi): Future[Unit] =
-    ^(getGameStartMessage(api), getSignupsMessage(api)) { (_, _) } match {
+  def getSignups(api: DiscordApi): Future[collection.Seq[User]] =
+    getSignupsMessage(api) match {
       case None => {
-        println(s"Channel ${channelId} should be hosting a sign-up but does not exist")
-        Future.successful(())
+        logger.warn(s"Channel ${channelId} should be hosting a sign-up but does not exist")
+        Future.successful(Nil)
       }
-      case Some((m1, m2)) => {
+      case Some(m) => {
         for {
-          gameStartMessage <- m1
-          signupsMessage <- m2
+          signupsMessage <- m
+          joinReactions <- SignupState.getJoinReactions(signupsMessage)
         } yield {
-          () /////
+          joinReactions.filter { user => !user.isBot }
         }
       }
+    }
+
+  def updateSignupList(api: DiscordApi): Future[Unit] =
+    for {
+      users <- getSignups(api)
+    } yield {
+      ()
+      //val sortedUsers = users.sortBy { get /////
     }
 
   override def onReactionsUpdated(message: Message): Unit = {
@@ -72,7 +79,13 @@ final class SignupState(
 
 object SignupState {
 
-  private val joinEmoji = Emoji.Clipboard
+  private val joinEmoji: String = Emoji.Clipboard
+
+  private def getJoinReactions(message: Message)(using ExecutionContext): Future[collection.Seq[User]] =
+    message.getReactionByEmoji(joinEmoji).toScala match {
+      case None => Future.successful(Nil)
+      case Some(reaction) => reaction.getUsers().asScala.map(_.asScala)
+    }
 
   private def gameStartMessage(host: Mentionable): String =
     s"${host.getMentionTag} has started a game of One Night Ultimate Werewolf in this channel. " +
