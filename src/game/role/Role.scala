@@ -3,11 +3,9 @@ package com.mercerenies.werewolf
 package game
 package role
 
-trait Role {
+import name.NamedEntity
 
-  def name: String
-
-  def aliases: List[String]
+trait Role extends NamedEntity {
 
   def baseAlignment: Alignment
 
