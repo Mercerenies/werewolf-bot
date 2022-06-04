@@ -36,11 +36,11 @@ final class GamesManager(
 
   private def onStartGame(interaction: SlashCommandInteraction): CommandResponse[Unit] =
     interaction.getChannel.toScala match {
-      case None => CommandResponse.ephemeral("Please use this command in a server channel.")
+      case None => CommandResponse.ephemeral("Please use this command in a server channel.").void
       case Some(channel) => {
         GamesManager.toNamed(channel) match {
           case None => {
-            CommandResponse.ephemeral("Sorry, you can't play Werewolf in a DM. Please issue that command in the channel you want to start the game in.")
+            CommandResponse.ephemeral("Sorry, you can't play Werewolf in a DM. Please issue that command in the channel you want to start the game in.").void
           }
           case Some(channel) => {
             if (getGame(Id(channel)).isEmpty) {
@@ -49,7 +49,7 @@ final class GamesManager(
                 ()
               }
             } else {
-              CommandResponse.ephemeral("There is already a game running in this channel.")
+              CommandResponse.ephemeral("There is already a game running in this channel.").void
             }
           }
         }

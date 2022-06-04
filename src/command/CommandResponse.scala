@@ -15,6 +15,12 @@ case class CommandResponse[+R](
   val postCallback: (InteractionOriginalResponseUpdater) => R,
 ) {
 
+  def void: CommandResponse[Unit] =
+    this.andThen { _ => () }
+
+  def andThen[B](fn: R => B): CommandResponse[B] =
+    CommandResponse(message, responseFlags) { updater => fn(postCallback(updater)) }
+
   def execute(interaction: SlashCommandInteraction)(using ExecutionContext): Future[R] = {
     val responder = interaction.createImmediateResponder()
     responder.setContent(message)
@@ -28,10 +34,10 @@ case class CommandResponse[+R](
 
 object CommandResponse {
 
-  def simple(message: String): CommandResponse[Unit] =
-    CommandResponse(message, Nil) { _ => () }
+  def simple(message: String): CommandResponse[InteractionOriginalResponseUpdater] =
+    CommandResponse(message, Nil) { x => x }
 
-  def ephemeral(message: String): CommandResponse[Unit] =
-    CommandResponse(message, List(InteractionCallbackDataFlag.EPHEMERAL)) { _ => () }
+  def ephemeral(message: String): CommandResponse[InteractionOriginalResponseUpdater] =
+    CommandResponse(message, List(InteractionCallbackDataFlag.EPHEMERAL)) { x => x }
 
 }

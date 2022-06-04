@@ -8,6 +8,7 @@ import util.Emoji
 import logging.Logging
 import logging.LogEither.*
 import name.{NameProvider, BaseNameProvider, DisplayNameProvider}
+import command.CommandResponse
 
 import org.javacord.api.DiscordApi
 import org.javacord.api.entity.channel.{TextChannel, Channel}
@@ -119,10 +120,14 @@ final class SignupState(
     // In case of error, log and return ()
     r.warningToLogger(logger).map { _.getOrElse(()) }
 
-  override def onReactionsUpdated(mgr: GamesManager, message: Message): Unit =
+  override def onReactionsUpdated(mgr: GamesManager, message: Message): Unit = {
     if (message.getId == gameStartMessageId.toLong) {
       updateSignupList(mgr.api)
     }
+  }
+
+  override def onStartGame(mgr: GamesManager): CommandResponse[Unit] =
+    throw Exception("") /////
 
 }
 

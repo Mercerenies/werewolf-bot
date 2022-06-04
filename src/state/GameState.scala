@@ -3,6 +3,7 @@ package com.mercerenies.werewolf
 package state
 
 import id.Id
+import command.CommandResponse
 
 import org.javacord.api.entity.user.User
 import org.javacord.api.entity.channel.TextChannel
@@ -16,5 +17,7 @@ trait GameState {
   def hostId: Id[User]
 
   def onReactionsUpdated(mgr: GamesManager, message: Message): Unit
+
+  def onStartGame(mgr: GamesManager): CommandResponse[Unit]
 
 }
