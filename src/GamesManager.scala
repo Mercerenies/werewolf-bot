@@ -2,6 +2,7 @@
 package com.mercerenies.werewolf
 
 import id.Id
+import util.TextDecorator.*
 import logging.Logging
 import command.{Command, CommandResponse}
 import state.{GameState, SignupState}
@@ -12,6 +13,9 @@ import org.javacord.api.entity.user.User
 import org.javacord.api.entity.Nameable
 import org.javacord.api.interaction.callback.InteractionCallbackDataFlag
 import org.javacord.api.interaction.SlashCommandInteraction
+
+import scalaz.{Id => _, *}
+import Scalaz.{Id => _, *}
 
 import scala.collection.mutable.HashMap
 import scala.jdk.OptionConverters.*
@@ -47,33 +51,62 @@ final class GamesManager(
     }
   }
 
-  private def onNewGame(interaction: SlashCommandInteraction): CommandResponse[Unit] =
+  private def withChannel[F[_]: Applicative](interaction: SlashCommandInteraction)(f: (TextChannel & Nameable) => F[CommandResponse[Unit]]): F[CommandResponse[Unit]] =
     interaction.getChannel.toScala match {
-      case None => CommandResponse.ephemeral("Please use this command in a server channel.").void
+      case None => CommandResponse.ephemeral("Please use this command in a server channel.").void.point
       case Some(channel) => {
         GamesManager.toNamed(channel) match {
           case None => {
-            CommandResponse.ephemeral("Sorry, you can't play Werewolf in a DM. Please issue that command in the channel you want to start the game in.").void
+            CommandResponse.ephemeral("Sorry, you can't use Werewolf commands in a DM. Please use that command in the server channel of the game.").void.point
           }
           case Some(channel) => {
-            if (getGame(Id(channel)).isEmpty) {
-              CommandResponse(s"Starting a game of One Night Ultimate Werewolf in ${channel.getName}.", Nil) { _ =>
-                createGame(channel, interaction.getUser)
-                ()
-              }
-            } else {
-              CommandResponse.ephemeral("There is already a game running in this channel.").void
-            }
+            f(channel)
           }
         }
       }
     }
 
+  private def withState[F[_]: Applicative](interaction: SlashCommandInteraction)(f: (GameState) => F[CommandResponse[Unit]]): F[CommandResponse[Unit]] =
+    withChannel(interaction) { channel =>
+      getGame(Id(channel)) match {
+        case None => {
+          CommandResponse.ephemeral("There is no game running in this channel. If you want to host a new game, use " + code("/werewolf new") + ".").void.point
+        }
+        case Some(state) => {
+          f(state)
+        }
+      }
+    }
+
+  // Note: onNewGame doesn't use its Future (it's always
+  // Future.successful), but the other commands do, so this one gets a
+  // Future for consistency with them.
+  private def onNewGame(interaction: SlashCommandInteraction): Future[CommandResponse[Unit]] =
+    withChannel(interaction) { channel =>
+      if (getGame(Id(channel)).isEmpty) {
+        CommandResponse(s"Starting a game of One Night Ultimate Werewolf in ${channel.getName}.", Nil) { _ =>
+          createGame(channel, interaction.getUser)
+          ()
+        }.point
+      } else {
+        CommandResponse.ephemeral("There is already a game running in this channel.").void.point
+      }
+    }
+
+  private def onStartGame(interaction: SlashCommandInteraction): Future[CommandResponse[Unit]] =
+    withState(interaction) { state =>
+      state.onStartGame(this, interaction)
+    }
+
   private val newGameCommand: Command = Command.Term("new", "Host a new Werewolf game in the current channel") { interaction =>
-    onNewGame(interaction).execute(interaction)
+    onNewGame(interaction).map { _.execute(interaction) }
   }
 
-  val commands: List[Command] = List(newGameCommand)
+  private val startGameCommand: Command = Command.Term("start", "Start a game of Werewolf with the current player list") { interaction =>
+    onStartGame(interaction).map { _.execute(interaction) }
+  }
+
+  val commands: List[Command] = List(newGameCommand, startGameCommand)
 
 }
 
