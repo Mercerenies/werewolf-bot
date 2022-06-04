@@ -2,6 +2,7 @@
 package com.mercerenies.werewolf
 
 import id.Id
+import logging.Logging
 import command.{Command, CommandResponse}
 import state.{GameState, SignupState}
 
@@ -19,7 +20,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 final class GamesManager(
   val api: DiscordApi,
-)(using ExecutionContext) {
+)(using ExecutionContext) extends Logging[GamesManager] {
 
   // Mapping from channel ID to game data
   private val games: HashMap[Id[TextChannel & Nameable], GameState] = HashMap()
@@ -31,8 +32,20 @@ final class GamesManager(
     }
   }
 
+  def hasGame(channelId: Id[TextChannel & Nameable]): Boolean =
+    !getGame(channelId).isEmpty
+
   def getGame(channelId: Id[TextChannel & Nameable]): Option[GameState] =
     games.get(channelId)
+
+  def updateGame(channelId: Id[TextChannel & Nameable], newState: GameState): Unit = {
+    if (hasGame(channelId)) {
+      games(channelId) = newState
+    } else {
+      // Warn and do nothing.
+      logger.warn(s"Attempt to update state for nonexistent game in channel ${channelId} to ${newState}")
+    }
+  }
 
   private def onNewGame(interaction: SlashCommandInteraction): CommandResponse[Unit] =
     interaction.getChannel.toScala match {
