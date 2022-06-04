@@ -2,7 +2,7 @@
 package com.mercerenies.werewolf
 
 import id.Id
-import command.Command
+import command.{Command, CommandResponse}
 import state.{GameState, SignupState}
 
 import org.javacord.api.entity.channel.TextChannel
@@ -31,35 +31,31 @@ final class GamesManager(using ExecutionContext) {
   def getGame(channelId: Id[TextChannel & Nameable]): Option[GameState] =
     games.get(channelId)
 
-  private def onStartGame(interaction: SlashCommandInteraction): Unit = {
-    interaction.getChannel.toScala.foreach { channel =>
-      GamesManager.toNamed(channel) match {
-        case None => {
-          interaction.createImmediateResponder()
-            .setContent("Sorry, you can't play Werewolf in a DM. Please issue that command in the channel you want to start the game in.")
-            .setFlags(InteractionCallbackDataFlag.EPHEMERAL)
-            .respond()
-        }
-        case Some(channel) => {
-          if (getGame(Id(channel)).isEmpty) {
-            interaction.createImmediateResponder()
-              .setContent(s"Starting a game of One Night Ultimate Werewolf in ${channel.getName}.")
-              .respond()
-              .asScala.foreach { _ =>
+  private def onStartGame(interaction: SlashCommandInteraction): CommandResponse[Unit] =
+    interaction.getChannel.toScala match {
+      case None => CommandResponse.ephemeral("Please use this command in a server channel.")
+      case Some(channel) => {
+        GamesManager.toNamed(channel) match {
+          case None => {
+            CommandResponse.ephemeral("Sorry, you can't play Werewolf in a DM. Please issue that command in the channel you want to start the game in.")
+          }
+          case Some(channel) => {
+            if (getGame(Id(channel)).isEmpty) {
+              CommandResponse(s"Starting a game of One Night Ultimate Werewolf in ${channel.getName}.", Nil) { _ =>
                 createGame(channel, interaction.getUser)
+                ()
               }
-          } else {
-            interaction.createImmediateResponder()
-              .setContent("There is already a game running in this channel.")
-              .setFlags(InteractionCallbackDataFlag.EPHEMERAL)
-              .respond()
+            } else {
+              CommandResponse.ephemeral("There is already a game running in this channel.")
+            }
           }
         }
       }
     }
-  }
 
-  private val startGameCommand: Command = Command.Term("new", "Start a new Werewolf game")(onStartGame)
+  private val startGameCommand: Command = Command.Term("new", "Start a new Werewolf game") { interaction =>
+    onStartGame(interaction).execute(interaction)
+  }
 
   val commands: List[Command] = List(startGameCommand)
 
