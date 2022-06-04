@@ -34,7 +34,7 @@ final class GamesManager(
   def getGame(channelId: Id[TextChannel & Nameable]): Option[GameState] =
     games.get(channelId)
 
-  private def onStartGame(interaction: SlashCommandInteraction): CommandResponse[Unit] =
+  private def onNewGame(interaction: SlashCommandInteraction): CommandResponse[Unit] =
     interaction.getChannel.toScala match {
       case None => CommandResponse.ephemeral("Please use this command in a server channel.").void
       case Some(channel) => {
@@ -56,11 +56,11 @@ final class GamesManager(
       }
     }
 
-  private val startGameCommand: Command = Command.Term("new", "Start a new Werewolf game") { interaction =>
-    onStartGame(interaction).execute(interaction)
+  private val newGameCommand: Command = Command.Term("new", "Host a new Werewolf game in the current channel") { interaction =>
+    onNewGame(interaction).execute(interaction)
   }
 
-  val commands: List[Command] = List(startGameCommand)
+  val commands: List[Command] = List(newGameCommand)
 
 }
 
