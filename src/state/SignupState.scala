@@ -2,7 +2,8 @@
 package com.mercerenies.werewolf
 package state
 
-import id.{Id, IdGetter}
+import id.Id
+import id.Ids.*
 import util.TextDecorator.*
 import util.Emoji
 import logging.Logging
@@ -53,10 +54,10 @@ final class SignupState(
     s"Could not identify server for ${channelId}"
 
   private def getGameStartMessage(api: DiscordApi): EitherT[String, Future, Message] =
-    IdGetter(api).getMessage(channelId, gameStartMessageId)
+    api.getMessage(channelId, gameStartMessageId)
 
   private def getSignupsMessage(api: DiscordApi): EitherT[String, Future, Message] =
-    IdGetter(api).getMessage(channelId, signupsMessageId)
+    api.getMessage(channelId, signupsMessageId)
 
   def getSignups(api: DiscordApi): Future[collection.Seq[User]] =
     val r = for {
@@ -71,7 +72,7 @@ final class SignupState(
   private def getSignupNames(api: DiscordApi): Future[collection.Seq[String]] =
     val r = for {
       message <- getGameStartMessage(api)
-      server <- IdGetter(api).getServerFromMessage(message)
+      server <- api.getServerFromMessage(message)
       users <- getSignups(api).liftM
     } yield {
       users.map { _.getDisplayName(server) }
