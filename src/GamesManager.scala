@@ -1,6 +1,7 @@
 
 package com.mercerenies.werewolf
 
+import id.Id
 import command.Command
 import state.{GameState, SignupState}
 

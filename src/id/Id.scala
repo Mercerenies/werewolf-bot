@@ -1,5 +1,6 @@
 
 package com.mercerenies.werewolf
+package id
 
 import org.javacord.api.entity.DiscordEntity
 import org.javacord.api.entity.channel.TextChannel

@@ -2,6 +2,8 @@
 package com.mercerenies.werewolf
 package state
 
+import id.Id
+
 import org.javacord.api.entity.user.User
 import org.javacord.api.entity.channel.TextChannel
 import org.javacord.api.entity.message.Message

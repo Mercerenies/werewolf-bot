@@ -2,6 +2,7 @@
 package com.mercerenies.werewolf
 package state
 
+import id.Id
 import util.TextDecorator.*
 import util.Emoji
 import logging.Logging
@@ -111,11 +112,7 @@ final class SignupState(
     val r = for {
       signupsMessage <- getSignupsMessage(api)
       users <- getSignupNames(api).map { _.sorted }.liftM
-      _ <- if (users.isEmpty) { // TODO Why can't we pull the .asScala.liftM out of the 'if'? /////
-          signupsMessage.edit("Signups: (None)").asScala.liftM
-        } else {
-          signupsMessage.edit(s"Signups: " + users.mkString(",")).asScala.liftM
-        }
+      _ <- signupsMessage.edit(SignupState.getSignupMessage(users)).asScala.liftM
     } yield {
       ()
     }
@@ -136,6 +133,13 @@ object SignupState {
     message.getReactionByEmoji(joinEmoji).toScala match {
       case None => Future.successful(Nil)
       case Some(reaction) => reaction.getUsers().asScala.map(_.asScala)
+    }
+
+  private def getSignupMessage(usernames: collection.Seq[String]): String =
+    if (usernames.isEmpty) {
+      "Signups: (None)"
+    } else {
+      "Signups " + usernames.mkString(", ")
     }
 
   private def gameStartMessage(host: Mentionable): String =
