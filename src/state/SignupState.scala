@@ -2,7 +2,7 @@
 package com.mercerenies.werewolf
 package state
 
-import id.Id
+import id.{Id, Ids}
 import id.Ids.*
 import util.TextDecorator.*
 import util.Emoji
@@ -98,7 +98,22 @@ final class SignupState(
   }
 
   override def onStartGame(mgr: GamesManager, interaction: SlashCommandInteraction): Future[CommandResponse[Unit]] =
-    throw Exception("/////")
+    val r = for {
+      message <- getGameStartMessage(mgr.api)
+      server <- mgr.api.getServerFromMessage(message)
+      signups <- getSignups(mgr.api).liftM
+    } yield {
+      val user = interaction.getUser
+      Permissions.mustBeAdminOrHost(server, hostId, user) {
+        val playerCount = signups.length
+        val rolesNeeded = playerCount + 3
+        CommandResponse.simple(bold("Signups are now closed.") + s" There are ${playerCount} player(s). ${user.getMentionTag}, please ping me and indicate a list of ${rolesNeeded} roles to include in the game.").andThen { _ =>
+          mgr.updateGame(channelId, RoleListState(channelId, hostId, signups.toList))
+        }
+      }
+    }
+    // In case of error, log and return ()
+    r.warningToLogger(logger).map { _.getOrElse(Ids.errorResponse) }
 
 }
 

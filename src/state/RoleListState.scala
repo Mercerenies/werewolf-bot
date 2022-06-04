@@ -33,6 +33,7 @@ import Scalaz.{Id => _, *}
 final class RoleListState(
   override val channelId: Id[TextChannel & Nameable],
   override val hostId: Id[User],
+  private val players: List[User],
 )(
   using ExecutionContext,
 ) extends GameState with Logging[RoleListState] {
