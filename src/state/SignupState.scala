@@ -2,7 +2,7 @@
 package com.mercerenies.werewolf
 package state
 
-import id.Id
+import id.{Id, IdGetter}
 import util.TextDecorator.*
 import util.Emoji
 import logging.Logging
@@ -52,45 +52,11 @@ final class SignupState(
   private val noServerError: String =
     s"Could not identify server for ${channelId}"
 
-  private def getChannel[M[_]: Monad](api: DiscordApi): EitherT[String, M, TextChannel & Nameable] =
-    val chan: Option[Channel] = api.getChannelById(channelId.toLong).toScala
-    EitherT.fromOption(noChannelError)(chan.point).map {
-      case ch: (TextChannel & Nameable) => ch
-      // Note that the above is an error we can expect (user deleted
-      // the channel at a bad time), but if the channel still *exists*
-      // but has changed identity, that should never happen and we can
-      // just fail fast.
-      case ch => throw Exception(channelIdChangedPanic)
-    }
-
   private def getGameStartMessage(api: DiscordApi): EitherT[String, Future, Message] =
-    for {
-      channel <- getChannel(api)
-      messageId <- api.getMessageById(gameStartMessageId.toLong, channel).asScala.liftM
-    } yield {
-      messageId
-    }
+    IdGetter(api).getMessage(channelId, gameStartMessageId)
 
   private def getSignupsMessage(api: DiscordApi): EitherT[String, Future, Message] =
-    for {
-      channel <- getChannel(api)
-      messageId <- api.getMessageById(signupsMessageId.toLong, channel).asScala.liftM
-    } yield {
-      messageId
-    }
-
-  private def getNameProvider(api: DiscordApi): EitherT[String, Future, NameProvider] =
-    getGameStartMessage(api).map { message =>
-      message.getServer.toScala match {
-        case None => {
-          logger.warn(noServerError)
-          BaseNameProvider
-        }
-        case Some(server) => {
-          DisplayNameProvider(server)
-        }
-      }
-    }
+    IdGetter(api).getMessage(channelId, signupsMessageId)
 
   def getSignups(api: DiscordApi): Future[collection.Seq[User]] =
     val r = for {
@@ -104,10 +70,11 @@ final class SignupState(
 
   private def getSignupNames(api: DiscordApi): Future[collection.Seq[String]] =
     val r = for {
-      nameProvider <- getNameProvider(api)
+      message <- getGameStartMessage(api)
+      server <- IdGetter(api).getServerFromMessage(message)
       users <- getSignups(api).liftM
     } yield {
-      users.map { nameProvider.getNameOf(_) }
+      users.map { _.getDisplayName(server) }
     }
     // In case of error, log and return Nil
     r.warningToLogger(logger).map { _.getOrElse(Nil) }
