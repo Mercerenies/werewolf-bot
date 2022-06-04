@@ -22,6 +22,8 @@ trait GameState {
 
   def onReactionsUpdated(mgr: GamesManager, message: Message): Unit
 
+  def onMessageCreate(mgr: GamesManager, message: Message): Unit
+
   def onStartGame(mgr: GamesManager, interaction: SlashCommandInteraction): Future[CommandResponse[Unit]]
 
 }

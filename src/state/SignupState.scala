@@ -98,6 +98,10 @@ final class SignupState(
     }
   }
 
+  override def onMessageCreate(mgr: GamesManager, message: Message): Unit = {
+    // No action
+  }
+
   override def onStartGame(mgr: GamesManager, interaction: SlashCommandInteraction): Future[CommandResponse[Unit]] =
     val r = for {
       message <- getGameStartMessage(mgr.api)

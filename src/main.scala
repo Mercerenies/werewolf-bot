@@ -15,9 +15,4 @@ import scala.concurrent.ExecutionContext
   given ExecutionContext = ExecutionContext.global
   val config = BotConfig()
   BotManager.initialize(config)
-/*
-  config.produceApi().foreach { api =>
-    commands.register(api)
-  }
- */
 }

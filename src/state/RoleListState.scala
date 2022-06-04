@@ -45,7 +45,11 @@ final class RoleListState(
     // No action
   }
 
+  override def onMessageCreate(mgr: GamesManager, message: Message): Unit = {
+    /////
+  }
+
   override def onStartGame(mgr: GamesManager, interaction: SlashCommandInteraction): Future[CommandResponse[Unit]] =
-    throw Exception("") /////
+    Future.successful(CommandResponse.ephemeral("This game has already started and is waiting on a role list.").void)
 
 }
