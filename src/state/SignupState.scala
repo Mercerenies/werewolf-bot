@@ -63,13 +63,40 @@ final class SignupState(
       }
     }
 
-  def updateSignupList(api: DiscordApi): Future[Unit] =
-    for {
-      users <- getSignups(api)
-    } yield {
-      ()
-      //val sortedUsers = users.sortBy { get /////
+  private def getSignupNames(api: DiscordApi): Future[collection.Seq[String]] =
+    getGameStartMessage(api) match {
+      case None => {
+        logger.warn(s"Channel ${channelId} should be hosting a sign-up but does not exist")
+        Future.successful(Nil)
+      }
+      case Some(m) => {
+        for {
+          gameStartMessage <- m
+          users <- getSignups(api)
+        } yield {
+          gameStartMessage.getServer.toScala match {
+            case None => {
+              logger.warn(s"Could not identify server of ${gameStartMessage.getId}... continuing with default member names...")
+              users.map { _.getName }
+            }
+            case Some(server) => {
+              users.map { _.getDisplayName(server) }
+            }
+          }
+        }
+      }
     }
+
+  def updateSignupList(api: DiscordApi): Future[Unit] =
+    Future.successful(())
+/*
+    for {
+      server <- getGameStartMessage(api)
+      users <- getSignupNames(api).map { _.sorted }
+    } yield {
+      () /////
+    }
+ */
 
   override def onReactionsUpdated(message: Message): Unit = {
     updateSignupList(message.getApi)
