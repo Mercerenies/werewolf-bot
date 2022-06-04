@@ -6,9 +6,9 @@ import id.Id
 import util.TextDecorator.*
 import util.Emoji
 import logging.Logging
-import logging.LogEither.*
+import logging.LogEither.warningToLogger
 import name.{NameProvider, BaseNameProvider, DisplayNameProvider}
-import command.CommandResponse
+import command.{CommandResponse, Permissions}
 
 import org.javacord.api.DiscordApi
 import org.javacord.api.entity.channel.{TextChannel, Channel}
@@ -129,8 +129,8 @@ final class SignupState(
     }
   }
 
-  override def onStartGame(mgr: GamesManager): CommandResponse[Unit] =
-    throw Exception("") /////
+  override def onStartGame(mgr: GamesManager, interaction: SlashCommandInteraction): Future[CommandResponse[Unit]] =
+    throw Exception("/////")
 
 }
 
