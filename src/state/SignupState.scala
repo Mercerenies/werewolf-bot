@@ -140,7 +140,7 @@ object SignupState {
     if (usernames.isEmpty) {
       "Signups: (None)"
     } else {
-      "Signups " + usernames.mkString(", ")
+      "Signups: " + usernames.mkString(", ")
     }
 
   private def gameStartMessage(host: Mentionable): String =
