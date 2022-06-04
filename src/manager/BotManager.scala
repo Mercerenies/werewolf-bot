@@ -1,5 +1,6 @@
 
 package com.mercerenies.werewolf
+package manager
 
 import command.{CommandList, Command}
 import event.GamesReactionListener

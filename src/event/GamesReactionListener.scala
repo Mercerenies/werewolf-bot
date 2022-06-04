@@ -5,6 +5,7 @@ package event
 import id.Id
 import command.Command
 import state.{GameState, SignupState}
+import manager.GamesManager
 
 import org.javacord.api.entity.channel.TextChannel
 import org.javacord.api.entity.user.User

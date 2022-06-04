@@ -1,5 +1,6 @@
 
 package com.mercerenies.werewolf
+package manager
 
 import id.Id
 import util.TextDecorator.*

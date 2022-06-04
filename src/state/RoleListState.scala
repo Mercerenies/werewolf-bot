@@ -9,6 +9,7 @@ import logging.Logging
 import logging.LogEither.*
 import name.{NameProvider, BaseNameProvider, DisplayNameProvider}
 import command.CommandResponse
+import manager.GamesManager
 
 import org.javacord.api.DiscordApi
 import org.javacord.api.entity.channel.{TextChannel, Channel}

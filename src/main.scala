@@ -2,6 +2,7 @@
 package com.mercerenies.werewolf
 
 import command.{CommandList, PingCommand}
+import manager.BotManager
 
 import org.javacord.api.{DiscordApi, DiscordApiBuilder}
 import org.javacord.api.interaction.SlashCommand

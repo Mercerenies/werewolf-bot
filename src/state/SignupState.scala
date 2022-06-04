@@ -10,6 +10,7 @@ import logging.Logging
 import logging.LogEither.warningToLogger
 import name.{NameProvider, BaseNameProvider, DisplayNameProvider}
 import command.{CommandResponse, Permissions}
+import manager.GamesManager
 
 import org.javacord.api.DiscordApi
 import org.javacord.api.entity.channel.{TextChannel, Channel}

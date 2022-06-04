@@ -4,6 +4,7 @@ package state
 
 import id.Id
 import command.CommandResponse
+import manager.GamesManager
 
 import org.javacord.api.entity.user.User
 import org.javacord.api.entity.channel.TextChannel
