@@ -2,6 +2,8 @@
 package com.mercerenies.werewolf
 package id
 
+import command.CommandResponse
+
 import org.javacord.api.DiscordApi
 import org.javacord.api.entity.{DiscordEntity, Nameable}
 import org.javacord.api.entity.channel.{Channel, TextChannel}
@@ -19,6 +21,9 @@ import Scalaz.{Id => _, *}
 // return values in the EitherT[String, M, ?] monad. For some of these
 // functions, by necessity, M is specialized to Future.
 object Ids {
+
+  val errorResponse: CommandResponse[Unit] =
+    CommandResponse.ephemeral("Sorry, I've encountered an error. Please report this to Mercerenies :)").void
 
   extension(api: DiscordApi)
 
