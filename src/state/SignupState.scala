@@ -28,7 +28,10 @@ import scala.concurrent.{Future, ExecutionContext}
 import scalaz.{Id => _, *}
 import Scalaz.{Id => _, *}
 
-// Parent trait for the states a game can be in.
+// A game in this state is accepting player sign-ups. A game begins in
+// this state and will remain in this state until the host issues a
+// `/wolfie start` command, at which point the game transitions into
+// RoleListState.
 final class SignupState(
   override val channelId: Id[TextChannel & Nameable],
   override val hostId: Id[User],
