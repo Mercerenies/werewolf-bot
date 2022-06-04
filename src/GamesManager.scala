@@ -5,6 +5,7 @@ import id.Id
 import command.{Command, CommandResponse}
 import state.{GameState, SignupState}
 
+import org.javacord.api.DiscordApi
 import org.javacord.api.entity.channel.TextChannel
 import org.javacord.api.entity.user.User
 import org.javacord.api.entity.Nameable
@@ -16,7 +17,9 @@ import scala.jdk.OptionConverters.*
 import scala.jdk.FutureConverters.*
 import scala.concurrent.{ExecutionContext, Future}
 
-final class GamesManager(using ExecutionContext) {
+final class GamesManager(
+  val api: DiscordApi,
+)(using ExecutionContext) {
 
   // Mapping from channel ID to game data
   private val games: HashMap[Id[TextChannel & Nameable], GameState] = HashMap()

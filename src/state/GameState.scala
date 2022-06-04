@@ -15,6 +15,6 @@ trait GameState {
 
   def hostId: Id[User]
 
-  def onReactionsUpdated(message: Message): Unit
+  def onReactionsUpdated(mgr: GamesManager, message: Message): Unit
 
 }

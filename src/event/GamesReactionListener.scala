@@ -34,7 +34,7 @@ final class GamesReactionListener(
       gameState <- getGame(event)
       message <- event.requestMessage.asScala
     } {
-      gameState.onReactionsUpdated(message)
+      gameState.onReactionsUpdated(games, message)
     }
 
   override def onReactionAdd(event: ReactionAddEvent): Unit =

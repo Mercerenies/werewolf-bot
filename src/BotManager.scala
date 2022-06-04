@@ -16,7 +16,7 @@ final class BotManager(
   using ExecutionContext
 ) {
 
-  private val games = GamesManager()
+  private val games = GamesManager(api)
 
   private val commands = CommandList(
     Command.Sub("wolfie", "Base for Werewolf-related commands")(games.commands: _*),

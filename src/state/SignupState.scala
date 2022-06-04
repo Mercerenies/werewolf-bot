@@ -119,9 +119,10 @@ final class SignupState(
     // In case of error, log and return ()
     r.warningToLogger(logger).map { _.getOrElse(()) }
 
-  override def onReactionsUpdated(message: Message): Unit = {
-    updateSignupList(message.getApi)
-  }
+  override def onReactionsUpdated(mgr: GamesManager, message: Message): Unit =
+    if (message.getId == gameStartMessageId.toLong) {
+      updateSignupList(mgr.api)
+    }
 
 }
 
