@@ -2,7 +2,7 @@
 package com.mercerenies.werewolf
 package logging
 
-import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.{LogManager, Logger}
 
 import scala.reflect.ClassTag
 
@@ -12,6 +12,6 @@ import scala.reflect.ClassTag
 // and get a free field called 'logger'.
 transparent trait Logging[A](using cls: ClassTag[A]) {
 
-  val logger = LogManager.getLogger(cls.runtimeClass)
+  val logger: Logger = LogManager.getLogger(cls.runtimeClass)
 
 }
