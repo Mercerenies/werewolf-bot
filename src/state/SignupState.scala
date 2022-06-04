@@ -5,11 +5,14 @@ package state
 import util.TextDecorator.*
 import util.Emoji
 import logging.Logging
+import logging.LogEither.*
+import name.{NameProvider, BaseNameProvider, DisplayNameProvider}
 
 import org.javacord.api.DiscordApi
-import org.javacord.api.entity.channel.TextChannel
+import org.javacord.api.entity.channel.{TextChannel, Channel}
 import org.javacord.api.entity.user.User
 import org.javacord.api.entity.message.Message
+import org.javacord.api.entity.server.Server
 import org.javacord.api.entity.Nameable
 import org.javacord.api.entity.Mentionable
 import org.javacord.api.interaction.SlashCommandInteraction
@@ -19,6 +22,9 @@ import scala.jdk.OptionConverters.*
 import scala.jdk.FutureConverters.*
 import scala.jdk.CollectionConverters.*
 import scala.concurrent.{Future, ExecutionContext}
+
+import scalaz.{Id => _, *}
+import Scalaz.{Id => _, *}
 
 // Parent trait for the states a game can be in.
 final class SignupState(
@@ -30,73 +36,91 @@ final class SignupState(
   using ExecutionContext,
 ) extends GameState with Logging[SignupState] {
 
-  private def getChannel(api: DiscordApi): Option[TextChannel & Nameable] =
-    api.getChannelById(channelId.toLong).toScala.map {
+  import scalaz.EitherT.eitherTHoist
+
+  private val noChannelError: String =
+    s"Channel ${channelId} should be hosting a sign-up but does not exist"
+
+  private val channelIdChangedPanic: String =
+    s"Named TextChannel ${channelId} has changed identity and is no longer valid"
+
+  private val noServerError: String =
+    s"Could not identify server for ${channelId}"
+
+  private def getChannel[M[_]: Monad](api: DiscordApi): EitherT[String, M, TextChannel & Nameable] =
+    val chan: Option[Channel] = api.getChannelById(channelId.toLong).toScala
+    EitherT.fromOption(noChannelError)(chan.point).map {
       case ch: (TextChannel & Nameable) => ch
-      case ch => throw Exception(s"Named TextChannel ${ch} has changed identity and is no longer valid")
+      // Note that the above is an error we can expect (user deleted
+      // the channel at a bad time), but if the channel still *exists*
+      // but has changed identity, that should never happen and we can
+      // just fail fast.
+      case ch => throw Exception(channelIdChangedPanic)
     }
 
-  // Yes, I realize Option[Future[A]] is a weird type, but the Option
-  // part is determined before we invoke a Future. It's easy to
-  // convert this to Future[Option[A]], but the reverse translation is
-  // hard to come by.
+  private def getGameStartMessage(api: DiscordApi): EitherT[String, Future, Message] =
+    for {
+      channel <- getChannel(api)
+      messageId <- api.getMessageById(gameStartMessageId.toLong, channel).asScala.liftM
+    } yield {
+      messageId
+    }
 
-  private def getGameStartMessage(api: DiscordApi): Option[Future[Message]] =
-    getChannel(api).map { channel => api.getMessageById(gameStartMessageId.toLong, channel).asScala }
+  private def getSignupsMessage(api: DiscordApi): EitherT[String, Future, Message] =
+    for {
+      channel <- getChannel(api)
+      messageId <- api.getMessageById(signupsMessageId.toLong, channel).asScala.liftM
+    } yield {
+      messageId
+    }
 
-  private def getSignupsMessage(api: DiscordApi): Option[Future[Message]] =
-    getChannel(api).map { channel => api.getMessageById(signupsMessageId.toLong, channel).asScala }
+  private def getNameProvider(api: DiscordApi): EitherT[String, Future, NameProvider] =
+    getGameStartMessage(api).map { message =>
+      message.getServer.toScala match {
+        case None => {
+          logger.warn(noServerError)
+          BaseNameProvider
+        }
+        case Some(server) => {
+          DisplayNameProvider(server)
+        }
+      }
+    }
 
   def getSignups(api: DiscordApi): Future[collection.Seq[User]] =
-    getSignupsMessage(api) match {
-      case None => {
-        logger.warn(s"Channel ${channelId} should be hosting a sign-up but does not exist")
-        Future.successful(Nil)
-      }
-      case Some(m) => {
-        for {
-          signupsMessage <- m
-          joinReactions <- SignupState.getJoinReactions(signupsMessage)
-        } yield {
-          joinReactions.filter { user => !user.isBot }
-        }
-      }
+    val r = for {
+      message <- getGameStartMessage(api)
+      joinReactions <- SignupState.getJoinReactions(message).liftM
+    } yield {
+      joinReactions.filter { user => !user.isBot }
     }
+    // In case of error, log and return Nil
+    r.warningToLogger(logger).map { _.getOrElse(Nil) }
 
   private def getSignupNames(api: DiscordApi): Future[collection.Seq[String]] =
-    getGameStartMessage(api) match {
-      case None => {
-        logger.warn(s"Channel ${channelId} should be hosting a sign-up but does not exist")
-        Future.successful(Nil)
-      }
-      case Some(m) => {
-        for {
-          gameStartMessage <- m
-          users <- getSignups(api)
-        } yield {
-          gameStartMessage.getServer.toScala match {
-            case None => {
-              logger.warn(s"Could not identify server of ${gameStartMessage.getId}... continuing with default member names...")
-              users.map { _.getName }
-            }
-            case Some(server) => {
-              users.map { _.getDisplayName(server) }
-            }
-          }
-        }
-      }
+    val r = for {
+      nameProvider <- getNameProvider(api)
+      users <- getSignups(api).liftM
+    } yield {
+      users.map { nameProvider.getNameOf(_) }
     }
+    // In case of error, log and return Nil
+    r.warningToLogger(logger).map { _.getOrElse(Nil) }
 
   def updateSignupList(api: DiscordApi): Future[Unit] =
-    Future.successful(())
-/*
-    for {
-      server <- getGameStartMessage(api)
-      users <- getSignupNames(api).map { _.sorted }
+    val r = for {
+      signupsMessage <- getSignupsMessage(api)
+      users <- getSignupNames(api).map { _.sorted }.liftM
+      _ <- if (users.isEmpty) { // TODO Why can't we pull the .asScala.liftM out of the 'if'? /////
+          signupsMessage.edit("Signups: (None)").asScala.liftM
+        } else {
+          signupsMessage.edit(s"Signups: " + users.mkString(",")).asScala.liftM
+        }
     } yield {
-      () /////
+      ()
     }
- */
+    // In case of error, log and return ()
+    r.warningToLogger(logger).map { _.getOrElse(()) }
 
   override def onReactionsUpdated(message: Message): Unit = {
     updateSignupList(message.getApi)
