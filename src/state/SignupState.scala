@@ -11,6 +11,7 @@ import logging.LogEither.warningToLogger
 import name.{NameProvider, BaseNameProvider, DisplayNameProvider}
 import command.{CommandResponse, Permissions}
 import manager.GamesManager
+import game.Rules
 
 import org.javacord.api.DiscordApi
 import org.javacord.api.entity.channel.{TextChannel, Channel}
@@ -111,7 +112,7 @@ final class SignupState(
       val user = interaction.getUser
       Permissions.mustBeAdminOrHost(server, hostId, user) {
         val playerCount = signups.length
-        val rolesNeeded = playerCount + 3
+        val rolesNeeded = Rules.rolesNeeded(playerCount)
         CommandResponse.simple(bold("Signups are now closed.") + s" There are ${playerCount} player(s). ${user.getMentionTag}, please ping me and indicate a list of ${rolesNeeded} roles to include in the game.").andThen { _ =>
           mgr.updateGame(channelId, RoleListState(channelId, hostId, signups.toList))
         }

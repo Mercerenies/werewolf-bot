@@ -10,6 +10,7 @@ import logging.LogEither.*
 import name.{NameProvider, BaseNameProvider, DisplayNameProvider}
 import command.CommandResponse
 import manager.GamesManager
+import game.Rules
 import game.role.Role
 import game.parser.ListParser
 
@@ -53,9 +54,7 @@ final class RoleListState(
     (message.getAuthor.getId == hostId.toLong) &&
       (util.mentions(message, Id(mgr.api.getYourself)))
 
-  // TODO This is also calculated in SignupState and should be
-  // centralized somewhere.
-  private def requiredRoleCount = players.length + 3
+  private def requiredRoleCount = Rules.rolesNeeded(players.length)
 
   // TODO Default message if you ping the bot in a channel that
   // doesn't have a game?
