@@ -7,12 +7,8 @@ import role.{Role, RoleInstance}
 
 import scala.collection.mutable.HashMap
 
-// Invariant: Every RoleInstance contained on this board shall be
-// coherent, where "coherent" is defined in RoleInstance.scala. This
-// invariant is not enforced by the constructor, which is why the
-// constructor is private. To make an instance of Board, use
-// Board.create, which takes a Map[Position, Role] and constructs the
-// RoleInstances correctly, ensuring that the invariant holds.
+// The (private) constructor takes a HashMap and uses it mutably. Use
+// Board.create or Board.apply to construct a Board directly.
 final class Board private(
   private val mapping: HashMap[Position, RoleInstance],
 ) {
@@ -21,7 +17,10 @@ final class Board private(
 
 object Board {
 
+  def apply(mapping: Map[Position, RoleInstance]) =
+    new Board(HashMap.from(mapping))
+
   def create(roles: Map[Position, Role]): Board =
-    new Board(HashMap.from(roles.map { (pos, role) => (pos, role.createInstance()) }))
+    Board(roles.map { (pos, role) => (pos, role.createInstance()) })
 
 }
