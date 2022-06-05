@@ -11,8 +11,6 @@ import Scalaz.*
 
 import scala.util.matching.Regex
 
-///// Test me
-
 // Parses a long code block (with triple backticks) full of names
 // coming from a list of NamedEntity objects.
 class ListParser[A <: NamedEntity](
@@ -44,7 +42,7 @@ class ListParser[A <: NamedEntity](
 object ListParser {
 
   private val blockRegex: Regex =
-    raw"${Regex.quote(TextDecorator.longCode.prefix)}(.*?)${Regex.quote(TextDecorator.longCode.suffix)}".r
+    raw"(?s)${Regex.quote(TextDecorator.longCode.prefix)}(.*?)${Regex.quote(TextDecorator.longCode.suffix)}".r
 
   def findLongCodeBlocks(text: String): Option[List[String]] = {
     val matches = blockRegex.findAllMatchIn(text)
