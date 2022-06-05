@@ -5,6 +5,6 @@ package role
 
 import name.NamedEntity
 
-final class StatelessRoleInstance[R <: Role](
-  override val role: R,
-) extends RoleInstance[R]
+final class StatelessRoleInstance(
+  override val role: Role,
+) extends RoleInstance

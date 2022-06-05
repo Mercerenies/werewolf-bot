@@ -17,8 +17,14 @@ import name.NamedEntity
 // the doppelganger has copied.
 //
 // For roles which have no state, StatelessRoleInstance can be used.
-trait RoleInstance[R <: Role] {
+//
+// Definition: An instance x of RoleInstance is said to be coherent if
+// x is of type x.role.Instance. It is not illegal to have incoherent
+// role instances, but it does make event handling more difficult. In
+// a game of Werewolf (and, in particular, in a Board instance), role
+// instances shall always be coherent.
+trait RoleInstance {
 
-  def role: R
+  val role: Role
 
 }

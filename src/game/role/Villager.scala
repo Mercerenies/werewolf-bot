@@ -5,7 +5,7 @@ package role
 
 object Villager extends Role {
 
-  override type Instance = RoleInstance[this.type]
+  override type Instance = RoleInstance
 
   override val name: String = "Villager"
 
