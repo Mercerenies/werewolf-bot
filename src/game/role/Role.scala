@@ -7,7 +7,11 @@ import name.NamedEntity
 
 trait Role extends NamedEntity {
 
+  type Instance <: RoleInstance[this.type]
+
   def baseAlignment: Alignment
+
+  def createInstance(): this.Instance
 
 }
 
