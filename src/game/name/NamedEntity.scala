@@ -14,3 +14,10 @@ trait NamedEntity {
     allNames.map(_.toLowerCase).contains(name.toLowerCase)
 
 }
+
+object NamedEntity {
+
+  def findMatch[A <: NamedEntity](text: String, entities: Iterable[A]): Option[A] =
+    entities.find(_.matches(text))
+
+}
