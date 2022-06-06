@@ -3,20 +3,61 @@ package com.mercerenies.werewolf
 package game
 package night
 
-import name.NamedEntity
-import response.MessageResponse
+import name.{NamedEntity, NamedEntityMatcher}
+import response.{MessageResponse, ReplyResponse}
 
-trait MultipleChoiceMessageHandler[A <: NamedEntity] {
+import scalaz.*
+import Scalaz.*
 
-  def choices: List[A]
+trait MultipleChoiceMessageHandler[A <: NamedEntity](val choices: List[A]) {
 
-  // The number of choices we expect the user to input.
+  private val matcher: NamedEntityMatcher[A] =
+    NamedEntity.matcher(choices)
+
+  // The number of choices we expect the user to input. Must be
+  // greater than 0.
   def expectedNumber: Int
 
   // Whether the user is allowed to choose the same thing multiple
   // times.
   def repeatsAllowed: Boolean
 
-  def onDirectMessage(messageContents: String): MessageResponse = ??? /////
+  def noArgsMessage: String
+
+  def wrongNumberArgsMessage(expected: Int, actual: Int): String
+
+  def repeatsDisallowedMessage(repeatedElement: A): String
+
+  final def validateSelection(selection: List[A]): String \/ Unit =
+    if (selection.length == 0) {
+      noArgsMessage.left
+    } else if (selection.length != expectedNumber) {
+      wrongNumberArgsMessage(expectedNumber, selection.length).left
+    } else {
+      util.findDuplicate(selection) match {
+        case Some(dup) if !repeatsAllowed => {
+          repeatsDisallowedMessage(dup).left
+        }
+        case _ => {
+          ().right
+        }
+      }
+    }
+
+  // Precondition: This method shall only be called if both of the
+  // following are true.
+  //
+  // (1) options.length == expectedNumber
+  //
+  // (2) options contains no duplicates OR repeatsAllowed is true
+  def onOptionsSelected(originalMessage: String, options: List[A]): MessageResponse
+
+  def onDirectMessage(messageContents: String): MessageResponse = {
+    val matches = matcher.findAll(messageContents).toList
+    validateSelection(matches) match {
+      case -\/(err) => ReplyResponse(err)
+      case \/-(()) => onOptionsSelected(messageContents, matches)
+    }
+  }
 
 }
