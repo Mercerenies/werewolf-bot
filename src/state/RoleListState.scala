@@ -61,8 +61,15 @@ final class RoleListState(
 
   private def requiredRoleCount = Rules.rolesNeeded(players.length)
 
+  private def gameStartMessage(server: Server, roleList: List[Role]): String =
+    bold("Welcome to One Night Ultimate Werewolf") + "\n\n" +
+      "The following players are participating: " + players.map(_.getDisplayName(server)).mkString(", ") + "\n" +
+      "The following roles are in play: " + roleList.map(_.name).mkString(", ") + "\n" +
+      bold("I am sending each player's role via DM now.") + "\n" +
+      bold("It is nighttime. Day will begin in 48 hours.") // TODO Configurable day start
+
   // TODO Default message if you ping the bot in a channel that
-  // doesn't have a game?
+  // doesn't have a game? (for all states, not just this one)
   override def onMessageCreate(mgr: GamesManager, message: Message): Unit = {
     mgr.api.getServerFromMessage[[A] =>> Scalaz.Id[A]](message).run match {
       case -\/(err) => {
@@ -80,9 +87,14 @@ final class RoleListState(
             }
             case \/-(roles) => {
               val board = Board.assignRoles(playerIds, roles)
-              println(board)
-              message.reply("Thank you!")
-              /////
+              val channel = message.getChannel
+              for {
+                _ <- message.reply("Role list accepted.").asScala
+                _ <- channel.sendMessage(gameStartMessage(server, roles)).asScala
+                /////
+              } {
+                ()
+              }
             }
           }
         }
