@@ -3,6 +3,8 @@ package com.mercerenies.werewolf
 package game
 package role
 
+import util.TextDecorator.*
+
 case object Villager extends Role {
 
   override type Instance = RoleInstance
@@ -15,5 +17,8 @@ case object Villager extends Role {
 
   override def createInstance(): this.Instance =
     StatelessRoleInstance(this)
+
+  override val introMessage: String =
+    "You are a " + bold("Villager") + ". You have no special abilities to activate."
 
 }

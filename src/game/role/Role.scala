@@ -4,6 +4,7 @@ package game
 package role
 
 import name.NamedEntity
+import util.TextDecorator.*
 
 trait Role extends NamedEntity {
 
@@ -13,6 +14,8 @@ trait Role extends NamedEntity {
 
   def createInstance(): this.Instance
 
+  def introMessage: String
+
 }
 
 object Role {
@@ -21,5 +24,10 @@ object Role {
     Villager,
     Werewolf,
   )
+
+  def formattedList(roleList: Iterable[Role]): String =
+    longCode(
+      roleList.map(_.name).mkString("\n"),
+    )
 
 }
