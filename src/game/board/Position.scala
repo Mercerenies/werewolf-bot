@@ -14,3 +14,13 @@ enum Position {
   // A card in front of a player.
   case Player(val playerId: Id[User])
 }
+
+object Position {
+
+  def forGame(playerList: List[Id[User]]): List[Position] = {
+    val tablePositions = board.Table.values.toList.map { Position.Table(_) }
+    val userPositions = playerList.map { Position.Player(_) }
+    tablePositions ++ userPositions
+  }
+
+}
