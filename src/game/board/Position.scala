@@ -13,6 +13,13 @@ enum Position {
   case Table(val side: board.Table)
   // A card in front of a player.
   case Player(val playerId: Id[User])
+
+  def getUserId: Option[Id[User]] =
+    this match {
+      case Table(_) => None
+      case Player(playerId) => Some(playerId)
+    }
+
 }
 
 object Position {
