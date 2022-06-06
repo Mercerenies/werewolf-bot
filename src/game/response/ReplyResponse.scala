@@ -12,9 +12,9 @@ import scala.jdk.FutureConverters.*
 import scalaz.*
 import Scalaz.*
 
-open class ReplyResponse(val replyText: String) {
+open class ReplyResponse(val replyText: String) extends MessageResponse {
 
-  def respondTo(api: DiscordApi, message: Message)(using ExecutionContext): Future[Unit] =
+  override def respondTo(api: DiscordApi, message: Message)(using ExecutionContext): Future[Unit] =
     message.reply(replyText).asScala.void
 
 }
