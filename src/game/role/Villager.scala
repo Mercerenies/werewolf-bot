@@ -3,7 +3,7 @@ package com.mercerenies.werewolf
 package game
 package role
 
-object Villager extends Role {
+case object Villager extends Role {
 
   override type Instance = RoleInstance
 
