@@ -2,6 +2,8 @@
 package com.mercerenies.werewolf
 package name
 
+import util.RegexUtil
+
 import scala.util.matching.Regex
 
 trait NamedEntity {
@@ -18,15 +20,13 @@ trait NamedEntity {
 
 object NamedEntity {
 
-  def compileRegex(entities: Iterable[NamedEntity]): Regex = {
-    val body = entities.flatMap(_.allNames).map(Regex.quote).mkString("|")
-    s"(?is)${body}".r
-  }
+  def compileRegex(entities: Iterable[NamedEntity]): Regex =
+    RegexUtil.build(entities.flatMap(_.allNames), caseSensitive = false)
+
+  def matcher[A <: NamedEntity](entities: Iterable[A]): NamedEntityMatcher[A] =
+    NamedEntityMatcher(entities.toList)
 
   def findMatch[A <: NamedEntity](text: String, entities: Iterable[A]): Option[A] =
     entities.find(_.matches(text))
-
-  def findAll[A <: NamedEntity](text: String, entities: Iterable[A]): Iterator[A] =
-    compileRegex(entities).findAllMatchIn(text).flatMap { m => findMatch(m.matched, entities) }
 
 }
