@@ -1,6 +1,5 @@
 
 package com.mercerenies.werewolf
-package game
 package name
 
 trait NamedEntity {
