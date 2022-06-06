@@ -16,6 +16,12 @@ final class Board private(
   private val mapping: HashMap[Position, RoleInstance],
 ) {
 
+  export mapping.{get, apply, update}
+
+  def toMap: Map[Position, RoleInstance] =
+    // Returns a shallow copy of the actual map
+    collection.immutable.HashMap.from(mapping)
+
 }
 
 object Board {
