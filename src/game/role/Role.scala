@@ -5,6 +5,7 @@ package role
 
 import name.NamedEntity
 import util.TextDecorator.*
+import wincon.WinCondition
 
 trait Role extends NamedEntity {
 
@@ -14,7 +15,14 @@ trait Role extends NamedEntity {
 
   def createInstance(): this.Instance
 
-  def introMessage: String
+  def introBlurb: String
+
+  def winCondition: WinCondition
+
+  final def fullIntroMessage(username: String): String =
+    username + ",\n\n" +
+      introBlurb + " " + winCondition.blurb + "\n" +
+      "Copying or screenshotting any part of this message is against the rules. Good luck!"
 
 }
 

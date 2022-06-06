@@ -4,6 +4,7 @@ package game
 package role
 
 import util.TextDecorator.*
+import wincon.{WinCondition, WerewolfWinCondition}
 
 case object Werewolf extends Role {
 
@@ -19,7 +20,10 @@ case object Werewolf extends Role {
     StatelessRoleInstance(this)
 
   // TODO Choosing a center card if you're the only one.
-  override val introMessage: String =
+  override val introBlurb: String =
     "You are a " + bold("Werewolf") + ". You will be informed of who the other werewolves are. If there are no other werewolves, you may look at a card in the center of the table."
+
+  override val winCondition: WinCondition =
+    WerewolfWinCondition
 
 }

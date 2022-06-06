@@ -4,6 +4,7 @@ package game
 package role
 
 import util.TextDecorator.*
+import wincon.{WinCondition, TownWinCondition}
 
 case object Villager extends Role {
 
@@ -18,7 +19,10 @@ case object Villager extends Role {
   override def createInstance(): this.Instance =
     StatelessRoleInstance(this)
 
-  override val introMessage: String =
+  override val introBlurb: String =
     "You are a " + bold("Villager") + ". You have no special abilities to activate."
+
+  override val winCondition: WinCondition =
+    TownWinCondition
 
 }
