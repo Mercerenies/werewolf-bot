@@ -3,6 +3,7 @@ package com.mercerenies.werewolf
 package state
 
 import id.Id
+import id.Ids.*
 import util.TextDecorator.*
 import util.Emoji
 import logging.Logging
@@ -11,6 +12,7 @@ import name.{NameProvider, BaseNameProvider, DisplayNameProvider}
 import command.CommandResponse
 import manager.GamesManager
 import game.Rules
+import game.board.Board
 import game.role.Role
 import game.parser.ListParser
 
@@ -44,13 +46,16 @@ final class RoleListState(
 
   import scalaz.EitherT.eitherTHoist
 
+  private val playerIds: List[Id[User]] =
+    players.map { Id(_) }
+
   override def onReactionsUpdated(mgr: GamesManager, message: Message): Unit = {
     // No action
   }
 
-  private def isMessageRelevant(mgr: GamesManager, message: Message): Boolean =
-    // We only care about messages sent by the game host and which
-    // ping the bot.
+  private def isMessageRelevant(mgr: GamesManager, server: Server, message: Message): Boolean =
+    // We only care about messages sent by the game host / server
+    // admin and which ping the bot.
     (message.getAuthor.getId == hostId.toLong) &&
       (util.mentions(message, Id(mgr.api.getYourself)))
 
@@ -59,19 +64,27 @@ final class RoleListState(
   // TODO Default message if you ping the bot in a channel that
   // doesn't have a game?
   override def onMessageCreate(mgr: GamesManager, message: Message): Unit = {
-    if (isMessageRelevant(mgr, message)) {
-      val parser = RoleListState.listParser
-      parser.parse(message.getContent) match {
-        case -\/(err) => {
-          message.reply(err)
-        }
-        case \/-(roles) if roles.length != requiredRoleCount => {
-          message.reply(s"Sorry, but I'm expecting ${requiredRoleCount} role(s). You gave me a list of ${roles.length} role(s).")
-        }
-        case \/-(roles) => {
-          /////
-          println(s"I got ${roles}!")
-          message.reply("Thank you!")
+    mgr.api.getServerFromMessage[[A] =>> Scalaz.Id[A]](message).run match {
+      case -\/(err) => {
+        logger.warn(err)
+      }
+      case \/-(server) => {
+        if (isMessageRelevant(mgr, server, message)) {
+          val parser = RoleListState.listParser
+          parser.parse(message.getContent) match {
+            case -\/(err) => {
+              message.reply(err)
+            }
+            case \/-(roles) if roles.length != requiredRoleCount => {
+              message.reply(s"Sorry, but I'm expecting ${requiredRoleCount} role(s). You gave me a list of ${roles.length} role(s).")
+            }
+            case \/-(roles) => {
+              val board = Board.assignRoles(playerIds, roles)
+              println(board)
+              message.reply("Thank you!")
+              /////
+            }
+          }
         }
       }
     }
