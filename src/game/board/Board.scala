@@ -22,6 +22,9 @@ final class Board private(
     // Returns a shallow copy of the actual map
     collection.immutable.HashMap.from(mapping)
 
+  def playerRoleAssignments: Iterable[(Id[User], Role)] =
+    mapping.flatMap { (k, v) => k.getUserId.map { (_, v.role) } }
+
 }
 
 object Board {
