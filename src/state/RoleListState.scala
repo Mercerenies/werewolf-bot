@@ -91,6 +91,7 @@ final class RoleListState(
               for {
                 _ <- message.reply("Role list accepted.").asScala
                 _ <- channel.sendMessage(gameStartMessage(server, roles)).asScala
+                _ <- RoleListState.sendAllInitialDirectMessages(mgr.api, server, board)
                 /////
               } {
                 ()
@@ -113,5 +114,20 @@ object RoleListState {
 
   private val listParser: ListParser[Role] =
     ListParser(validRoles, "role")
+
+  private def sendAllInitialDirectMessages(api: DiscordApi, server: Server, board: Board)(using ExecutionContext): Future[Unit] =
+    board.playerRoleAssignments.toList.traverse { (userId, role) =>
+      for {
+        user <- api.getUser(userId)
+        _ <- sendInitialDirectMessage(server, user, role)
+      } yield {
+        ()
+      }
+    }.void
+
+  private def sendInitialDirectMessage(server: Server, user: User, role: Role)(using ExecutionContext): Future[Unit] = {
+    val username = user.getDisplayName(server)
+    user.sendMessage(role.fullIntroMessage(username)).asScala.void
+  }
 
 }
