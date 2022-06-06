@@ -9,6 +9,7 @@ import org.javacord.api.entity.{DiscordEntity, Nameable}
 import org.javacord.api.entity.channel.{Channel, TextChannel}
 import org.javacord.api.entity.message.Message
 import org.javacord.api.entity.server.Server
+import org.javacord.api.entity.user.User
 
 import scala.jdk.OptionConverters.*
 import scala.jdk.FutureConverters.*
@@ -40,6 +41,9 @@ object Ids {
         case ch: (TextChannel & Nameable) => ch.point
         case ch => EitherT.left(s"Channel ${channelId} is not a named text channel")
       }
+
+    def getUser(userId: Id[User]): Future[User] =
+      api.getUserById(userId.toLong).asScala
 
     def getMessage(channel: TextChannel, messageId: Id[Message]): Future[Message] =
       api.getMessageById(messageId.toLong, channel).asScala
