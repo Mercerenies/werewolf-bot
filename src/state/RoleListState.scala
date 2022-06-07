@@ -51,6 +51,9 @@ final class RoleListState(
   private val playerIds: List[Id[User]] =
     players.map { Id(_) }
 
+  // Don't need any DMs so don't bother.
+  override val listeningPlayerList: List[Id[User]] = Nil
+
   override def onReactionsUpdated(mgr: GamesManager, message: Message): Unit = {
     // No action
   }

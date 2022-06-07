@@ -30,9 +30,38 @@ final class GamesManager(
   // Mapping from channel ID to game data
   private val games: HashMap[Id[TextChannel & Nameable], GameState] = HashMap()
 
+  // Mapping from user ID to game state(s) of interest
+  //
+  // TODO Currently, we resolve ties (where a player is in more than
+  // one game) randomly. Handle this correctly with some
+  // disambiguating technique.
+  private val users: HashMap[Id[User], List[GameState]] = HashMap()
+
+  private def removeUsersFor(state: GameState): Unit = {
+    state.listeningPlayerList.foreach { userId =>
+      users.updateWith(userId) {
+        case None => None
+        case Some(list) => {
+          val newList = list.filter { _ != state }
+          if (newList.isEmpty) { None } else { Some(newList) }
+        }
+      }
+    }
+  }
+
+  private def addUsersFor(state: GameState): Unit = {
+    state.listeningPlayerList.foreach { userId =>
+      users.updateWith(userId) {
+        case None => Some(List(state))
+        case Some(list) => Some(state :: users(userId))
+      }
+    }
+  }
+
   def createGame(channel: TextChannel & Nameable, host: User): Future[SignupState] = {
     SignupState.createGame(channel, host).map { state =>
       games(Id(channel)) = state
+      addUsersFor(state)
       state
     }
   }
@@ -45,7 +74,9 @@ final class GamesManager(
 
   def updateGame(channelId: Id[TextChannel & Nameable], newState: GameState): Unit = {
     if (hasGame(channelId)) {
+      removeUsersFor(games(channelId))
       games(channelId) = newState
+      addUsersFor(newState)
     } else {
       // Warn and do nothing.
       logger.warn(s"Attempt to update state for nonexistent game in channel ${channelId} to ${newState}")

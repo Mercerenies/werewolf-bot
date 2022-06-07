@@ -48,6 +48,9 @@ final class NightPhaseState(
   private val playerIds: List[Id[User]] =
     players.map { Id(_) }
 
+  override val listeningPlayerList: List[Id[User]] =
+    playerIds
+
   override def onReactionsUpdated(mgr: GamesManager, message: Message): Unit = {
     // No action
   }

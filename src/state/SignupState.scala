@@ -93,6 +93,8 @@ final class SignupState(
     // In case of error, log and return ()
     r.warningToLogger(logger).map { _.getOrElse(()) }
 
+  override val listeningPlayerList: List[Id[User]] = Nil
+
   override def onReactionsUpdated(mgr: GamesManager, message: Message): Unit = {
     if (message.getId == gameStartMessageId.toLong) {
       updateSignupList(mgr.api)

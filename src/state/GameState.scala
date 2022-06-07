@@ -20,6 +20,17 @@ trait GameState {
 
   def hostId: Id[User]
 
+  // Determines which players this GameState is interested in
+  // listening to DMs from.
+  //
+  // Important note: This is a `val`. This value shall remain constant
+  // for the duration of the GameState's existence. This may or may
+  // not correspond with the actual participant list of the Werewolf
+  // game (in particular, in SignUpState, this value is always empty,
+  // even when there are players on the list). This is merely the list
+  // of users the bot should be listening for DMs from.
+  val listeningPlayerList: List[Id[User]]
+
   def onReactionsUpdated(mgr: GamesManager, message: Message): Unit
 
   def onMessageCreate(mgr: GamesManager, message: Message): Unit
