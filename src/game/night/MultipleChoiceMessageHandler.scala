@@ -9,7 +9,7 @@ import response.{MessageResponse, ReplyResponse}
 import scalaz.*
 import Scalaz.*
 
-trait MultipleChoiceMessageHandler[A <: NamedEntity](val choices: List[A]) {
+trait MultipleChoiceMessageHandler[A <: NamedEntity](val choices: List[A]) extends NightMessageHandler {
 
   private val matcher: NamedEntityMatcher[A] =
     NamedEntity.matcher(choices)
@@ -52,7 +52,7 @@ trait MultipleChoiceMessageHandler[A <: NamedEntity](val choices: List[A]) {
   // (2) options contains no duplicates OR repeatsAllowed is true
   def onOptionsSelected(originalMessage: String, options: List[A]): MessageResponse
 
-  def onDirectMessage(messageContents: String): MessageResponse = {
+  override def onDirectMessage(messageContents: String): MessageResponse = {
     val matches = matcher.findAll(messageContents).toList
     validateSelection(matches) match {
       case -\/(err) => ReplyResponse(err)
