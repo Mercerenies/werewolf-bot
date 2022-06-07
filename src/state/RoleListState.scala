@@ -101,7 +101,7 @@ final class RoleListState(
     }
   }
 
-  override def onDirectMessageCreate(mgr: GamesManager, message: Message): Unit = {
+  override def onDirectMessageCreate(mgr: GamesManager, user: User, message: Message): Unit = {
     // No action
   }
 

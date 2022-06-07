@@ -31,7 +31,7 @@ class GamesDirectMessageListener(
   // TODO We break ties arbitrarily here. Do it smarter if the player
   // is in multiple games (look for context clues / the name of the
   // game channel / something)
-  private def getRelevantGame(event: TextChannelEvent): Option[GameState] =
+  private def getRelevantGame(event: TextChannelEvent): Option[(GameState, User)] =
     event.getPrivateChannel.toScala match {
       case None => None // This message is not a DM
       case Some(channel) => {
@@ -42,16 +42,16 @@ class GamesDirectMessageListener(
             None
           }
           case Some(user) => {
-            games.getGamesForUser(Id(user)).headOption
+            games.getGamesForUser(Id(user)).headOption.map((_, user))
           }
         }
       }
     }
 
   private def delegateToGame(event: MessageCreateEvent): Unit =
-    getRelevantGame(event).foreach { gameState =>
+    getRelevantGame(event).foreach { (gameState, user) =>
       val message = event.getMessage
-      gameState.onDirectMessageCreate(games, message)
+      gameState.onDirectMessageCreate(games, user, message)
     }
 
   override def onMessageCreate(event: MessageCreateEvent): Unit =

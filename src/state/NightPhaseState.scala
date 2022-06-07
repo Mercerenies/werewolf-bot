@@ -15,6 +15,7 @@ import game.Rules
 import game.board.Board
 import game.role.Role
 import game.parser.ListParser
+import game.night.NightMessageHandler
 
 import org.javacord.api.DiscordApi
 import org.javacord.api.entity.channel.{TextChannel, Channel}
@@ -51,6 +52,9 @@ final class NightPhaseState(
   override val listeningPlayerList: List[Id[User]] =
     playerIds
 
+  private val playerNightHandlers: Map[Id[User], NightMessageHandler] =
+    Map.from(board.playerRoleInstances.map { (k, v) => (k, v.nightHandler) })
+
   override def onReactionsUpdated(mgr: GamesManager, message: Message): Unit = {
     // No action
   }
@@ -59,9 +63,19 @@ final class NightPhaseState(
     message.reply("It is currently nighttime. " + bold("Please do not post in this channel until day."))
   }
 
-  override def onDirectMessageCreate(mgr: GamesManager, message: Message): Unit = {
-    println("Got a dm :)")
-    /////
+  override def onDirectMessageCreate(mgr: GamesManager, user: User, message: Message): Unit = {
+    playerNightHandlers.get(Id(user)) match {
+      case None => {
+        // If this message occurs, NightPhaseState has misreported
+        // listeningPlayerList and this is a bug.
+        logger.warn(s"Trying to process DM from ${user} but I don't know what to do.")
+      }
+      case Some(nightHandler) => {
+        val response = nightHandler.onDirectMessage(message.getContent)
+        response.respondTo(mgr.api, message)
+        ///// Test me
+      }
+    }
   }
 
   override def onStartGame(mgr: GamesManager, interaction: SlashCommandInteraction): Future[CommandResponse[Unit]] =

@@ -38,7 +38,7 @@ trait GameState {
 
   // Called when a DM is posted to the bot by a user in
   // listeningPlayerList.
-  def onDirectMessageCreate(mgr: GamesManager, message: Message): Unit
+  def onDirectMessageCreate(mgr: GamesManager, user: User, message: Message): Unit
 
   def onStartGame(mgr: GamesManager, interaction: SlashCommandInteraction): Future[CommandResponse[Unit]]
 
