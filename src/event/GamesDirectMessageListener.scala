@@ -54,7 +54,14 @@ class GamesDirectMessageListener(
       gameState.onDirectMessageCreate(games, user, message)
     }
 
-  override def onMessageCreate(event: MessageCreateEvent): Unit =
-    delegateToGame(event)
+  // TODO This in GamesMessageListener as well /////
+  private def wasSentByThisBot(event: MessageCreateEvent): Boolean =
+    event.getMessage.getAuthor.getId == event.getApi.getYourself.getId
+
+  override def onMessageCreate(event: MessageCreateEvent): Unit = {
+    if (!wasSentByThisBot(event)) {
+      delegateToGame(event)
+    }
+  }
 
 }
