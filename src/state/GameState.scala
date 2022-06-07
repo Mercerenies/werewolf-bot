@@ -16,9 +16,9 @@ import scala.concurrent.Future
 // Parent trait for the states a game can be in.
 trait GameState {
 
-  def channelId: Id[TextChannel]
+  val channelId: Id[TextChannel]
 
-  def hostId: Id[User]
+  val hostId: Id[User]
 
   // Determines which players this GameState is interested in
   // listening to DMs from.
@@ -33,7 +33,12 @@ trait GameState {
 
   def onReactionsUpdated(mgr: GamesManager, message: Message): Unit
 
+  // Called when a message is posted in the game's channel.
   def onMessageCreate(mgr: GamesManager, message: Message): Unit
+
+  // Called when a DM is posted to the bot by a user in
+  // listeningPlayerList.
+  def onDirectMessageCreate(mgr: GamesManager, message: Message): Unit
 
   def onStartGame(mgr: GamesManager, interaction: SlashCommandInteraction): Future[CommandResponse[Unit]]
 

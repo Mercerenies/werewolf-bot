@@ -101,6 +101,10 @@ final class RoleListState(
     }
   }
 
+  override def onDirectMessageCreate(mgr: GamesManager, message: Message): Unit = {
+    // No action
+  }
+
   private def setupGame(mgr: GamesManager, server: Server, channel: TextChannel, roles: List[Role]): Future[Unit] = {
     val board = Board.assignRoles(playerIds, roles)
     for {

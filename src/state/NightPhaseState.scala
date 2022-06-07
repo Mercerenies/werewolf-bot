@@ -59,6 +59,11 @@ final class NightPhaseState(
     message.reply("It is currently nighttime. " + bold("Please do not post in this channel until day."))
   }
 
+  override def onDirectMessageCreate(mgr: GamesManager, message: Message): Unit = {
+    println("Got a dm :)")
+    /////
+  }
+
   override def onStartGame(mgr: GamesManager, interaction: SlashCommandInteraction): Future[CommandResponse[Unit]] =
     Future.successful(CommandResponse.ephemeral("It is currently night in this game.").void)
 
