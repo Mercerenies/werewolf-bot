@@ -31,10 +31,6 @@ final class GamesManager(
   private val games: HashMap[Id[TextChannel & Nameable], GameState] = HashMap()
 
   // Mapping from user ID to game state(s) of interest
-  //
-  // TODO Currently, we resolve ties (where a player is in more than
-  // one game) randomly. Handle this correctly with some
-  // disambiguating technique.
   private val users: HashMap[Id[User], List[GameState]] = HashMap()
 
   private def removeUsersFor(state: GameState): Unit = {
@@ -71,6 +67,9 @@ final class GamesManager(
 
   def getGame(channelId: Id[TextChannel & Nameable]): Option[GameState] =
     games.get(channelId)
+
+  def getGamesForUser(userId: Id[User]): List[GameState] =
+    users.getOrElse(userId, Nil)
 
   def updateGame(channelId: Id[TextChannel & Nameable], newState: GameState): Unit = {
     if (hasGame(channelId)) {
