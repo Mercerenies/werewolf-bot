@@ -18,7 +18,7 @@ import org.javacord.api.interaction.SlashCommandInteraction
 import scalaz.{Id => _, *}
 import Scalaz.{Id => _, *}
 
-import scala.collection.mutable.HashMap
+import scala.collection.concurrent.TrieMap
 import scala.jdk.OptionConverters.*
 import scala.jdk.FutureConverters.*
 import scala.concurrent.{ExecutionContext, Future}
@@ -28,10 +28,10 @@ final class GamesManager(
 )(using ExecutionContext) extends Logging[GamesManager] {
 
   // Mapping from channel ID to game data
-  private val games: HashMap[Id[TextChannel & Nameable], GameState] = HashMap()
+  private val games: TrieMap[Id[TextChannel & Nameable], GameState] = TrieMap()
 
   // Mapping from user ID to game state(s) of interest
-  private val users: HashMap[Id[User], List[GameState]] = HashMap()
+  private val users: TrieMap[Id[User], List[GameState]] = TrieMap()
 
   private def removeUsersFor(state: GameState): Unit = {
     state.listeningPlayerList.foreach { userId =>
