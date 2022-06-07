@@ -5,10 +5,26 @@ package role
 
 import util.TextDecorator.*
 import wincon.{WinCondition, WerewolfWinCondition}
+import night.{NightMessageHandler, TablePositionMessageHandler}
 
 case object Werewolf extends Role {
 
-  override type Instance = RoleInstance
+  override class Instance extends RoleInstance {
+
+    override val role: Werewolf.type = Werewolf.this
+
+    override val coherenceProof =
+      summon[this.type <:< role.Instance]
+
+    private val tablePositionMessageHandler =
+      TablePositionMessageHandler(
+        initialNightMessage = bold("Please reply 'left', 'middle', or 'right'") + " to indicate the card you will look at if you're the lone werewolf.",
+      )
+
+    override val nightHandler: NightMessageHandler =
+      tablePositionMessageHandler
+
+  }
 
   override val name: String = "Werewolf"
 
@@ -17,7 +33,7 @@ case object Werewolf extends Role {
   override val baseAlignment: Alignment = Alignment.Werewolf
 
   override def createInstance(): this.Instance =
-    StatelessRoleInstance(this)
+    Werewolf.Instance()
 
   // TODO Choosing a center card if you're the only one.
   override val introBlurb: String =

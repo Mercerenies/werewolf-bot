@@ -13,7 +13,7 @@ import command.CommandResponse
 import manager.GamesManager
 import game.Rules
 import game.board.Board
-import game.role.Role
+import game.role.{Role, RoleInstance}
 import game.parser.ListParser
 
 import org.javacord.api.DiscordApi
@@ -130,18 +130,23 @@ object RoleListState {
     ListParser(validRoles, "role")
 
   private def sendAllInitialDirectMessages(api: DiscordApi, server: Server, board: Board)(using ExecutionContext): Future[Unit] =
-    board.playerRoleAssignments.toList.traverse { (userId, role) =>
+    board.playerRoleInstances.toList.traverse { (userId, roleInstance) =>
       for {
         user <- api.getUser(userId)
-        _ <- sendInitialDirectMessage(server, user, role)
+        _ <- sendInitialDirectMessage(server, user, roleInstance)
       } yield {
         ()
       }
     }.void
 
-  private def sendInitialDirectMessage(server: Server, user: User, role: Role)(using ExecutionContext): Future[Unit] = {
+  private def sendInitialDirectMessage(server: Server, user: User, roleInstance: RoleInstance)(using ExecutionContext): Future[Unit] = {
     val username = user.getDisplayName(server)
-    user.sendMessage(role.fullIntroMessage(username)).asScala.void
+    for {
+      _ <- user.sendMessage(roleInstance.role.fullIntroMessage(username)).asScala
+      _ <- user.sendMessage(roleInstance.nightHandler.initialNightMessage).asScala
+    } yield {
+      ()
+    }
   }
 
 }
