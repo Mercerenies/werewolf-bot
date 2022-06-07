@@ -35,7 +35,9 @@ import scalaz.{Id => _, *}
 import Scalaz.{Id => _, *}
 
 // A game in this state has closed signups and is now waiting for the
-// host to choose a list of roles.
+// host to choose a list of roles. When the host does so (by pinging
+// the bot with an appropriately-formatted message), the game moves to
+// NightPhaseState.
 final class RoleListState(
   override val channelId: Id[TextChannel & Nameable],
   override val hostId: Id[User],
@@ -86,20 +88,25 @@ final class RoleListState(
               message.reply(s"Sorry, but I'm expecting ${requiredRoleCount} role(s). You gave me a list of ${roles.length} role(s).")
             }
             case \/-(roles) => {
-              val board = Board.assignRoles(playerIds, roles)
-              val channel = message.getChannel
-              for {
-                _ <- message.reply("Role list accepted.").asScala
-                _ <- channel.sendMessage(gameStartMessage(server, roles)).asScala
-                _ <- RoleListState.sendAllInitialDirectMessages(mgr.api, server, board)
-                /////
-              } {
-                ()
+              message.reply("Role list accepted.").asScala.flatMap { _ =>
+                setupGame(mgr, server, message.getChannel, roles)
               }
             }
           }
         }
       }
+    }
+  }
+
+  private def setupGame(mgr: GamesManager, server: Server, channel: TextChannel, roles: List[Role]): Future[Unit] = {
+    val board = Board.assignRoles(playerIds, roles)
+    for {
+      _ <- channel.sendMessage(gameStartMessage(server, roles)).asScala
+      _ <- RoleListState.sendAllInitialDirectMessages(mgr.api, server, board)
+    } yield {
+      val newState = NightPhaseState(channelId, hostId, players, board)
+      mgr.updateGame(channelId, newState)
+      ()
     }
   }
 
