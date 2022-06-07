@@ -3,6 +3,7 @@ package com.mercerenies.werewolf
 package game
 package night
 
+import util.Cell
 import util.TextDecorator.*
 import name.{NamedEntity, NamedEntityMatcher}
 import response.{MessageResponse, ReplyResponse}
@@ -17,7 +18,7 @@ class TablePositionMessageHandler(
   choices = Table.all,
 ) {
 
-  private var _playerChoice: Option[Table] = None
+  private val _playerChoice: Cell[Option[Table]] = Cell(None)
 
   override val expectedNumber: Int = 1
 
@@ -33,7 +34,7 @@ class TablePositionMessageHandler(
     "Repeats not allowed" // expectedNumber = 1 so this should not occur
 
   override def onOptionsSelected(originalMessage: String, options: List[Table]): MessageResponse = {
-    _playerChoice = Some(options.head)
+    _playerChoice.value = Some(options.head)
     ReplyResponse("Selected " + bold(options.head.toString))
   }
 
