@@ -6,6 +6,7 @@ import id.Id
 import command.CommandResponse
 import manager.GamesManager
 
+import org.javacord.api.entity.Nameable
 import org.javacord.api.entity.user.User
 import org.javacord.api.entity.channel.TextChannel
 import org.javacord.api.entity.message.Message
@@ -14,11 +15,9 @@ import org.javacord.api.interaction.SlashCommandInteraction
 import scala.concurrent.Future
 
 // Parent trait for the states a game can be in.
-trait GameState {
+trait GameState(val gameProperties: GameProperties) {
 
-  val channelId: Id[TextChannel]
-
-  val hostId: Id[User]
+  export gameProperties.{channel, host}
 
   // Determines which players this GameState is interested in
   // listening to DMs from.

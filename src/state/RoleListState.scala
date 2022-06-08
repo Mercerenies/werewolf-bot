@@ -39,12 +39,11 @@ import Scalaz.{Id => _, *}
 // the bot with an appropriately-formatted message), the game moves to
 // NightPhaseState.
 final class RoleListState(
-  override val channelId: Id[TextChannel & Nameable],
-  override val hostId: Id[User],
+  _gameProperties: GameProperties,
   private val players: List[User],
 )(
   using ExecutionContext,
-) extends GameState with Logging[RoleListState] {
+) extends GameState(_gameProperties) with Logging[RoleListState] {
 
   import scalaz.EitherT.eitherTHoist
 
@@ -61,7 +60,7 @@ final class RoleListState(
   private def isMessageRelevant(mgr: GamesManager, server: Server, message: Message): Boolean =
     // We only care about messages sent by the game host / server
     // admin and which ping the bot.
-    (message.getAuthor.getId == hostId.toLong) &&
+    (message.getAuthor.getId == host.getId) &&
       (util.mentions(message, Id(mgr.api.getYourself)))
 
   private def requiredRoleCount = Rules.rolesNeeded(players.length)
@@ -92,7 +91,7 @@ final class RoleListState(
             }
             case \/-(roles) => {
               message.reply("Role list accepted.").asScala.flatMap { _ =>
-                setupGame(mgr, server, message.getChannel, roles)
+                setupGame(mgr, server, roles)
               }
             }
           }
@@ -105,14 +104,14 @@ final class RoleListState(
     // No action
   }
 
-  private def setupGame(mgr: GamesManager, server: Server, channel: TextChannel, roles: List[Role]): Future[Unit] = {
+  private def setupGame(mgr: GamesManager, server: Server, roles: List[Role]): Future[Unit] = {
     val board = Board.assignRoles(playerIds, roles)
     for {
       _ <- channel.sendMessage(gameStartMessage(server, roles)).asScala
       _ <- RoleListState.sendAllInitialDirectMessages(mgr.api, server, board)
     } yield {
-      val newState = NightPhaseState(channelId, hostId, players, board)
-      mgr.updateGame(channelId, newState)
+      val newState = NightPhaseState(gameProperties, players, board)
+      mgr.updateGame(Id(channel), newState)
       ()
     }
   }

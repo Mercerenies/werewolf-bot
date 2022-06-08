@@ -36,13 +36,12 @@ import scalaz.{Id => _, *}
 import Scalaz.{Id => _, *}
 
 final class NightPhaseState(
-  override val channelId: Id[TextChannel & Nameable],
-  override val hostId: Id[User],
+  _gameProperties: GameProperties,
   private val players: List[User],
   private val board: Board,
 )(
   using ExecutionContext,
-) extends GameState with Logging[RoleListState] {
+) extends GameState(_gameProperties) with Logging[RoleListState] {
 
   import scalaz.EitherT.eitherTHoist
 
