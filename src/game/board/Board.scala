@@ -8,32 +8,27 @@ import role.{Role, RoleInstance}
 
 import org.javacord.api.entity.user.User
 
-import scala.collection.concurrent.TrieMap
-
-// The (private) constructor takes a HashMap and uses it mutably. Use
-// Board.create or Board.apply to construct a Board directly.
-final class Board private(
-  private val mapping: TrieMap[Position, RoleInstance],
+final class Board(
+  private val toMap: Map[Position, RoleInstance],
 ) {
 
-  export mapping.{get, apply, update}
-
-  def toMap: Map[Position, RoleInstance] =
-    // Returns a shallow copy of the actual map
-    Map.from(mapping)
+  export toMap.{get, apply}
 
   def playerRoleInstances: List[(Id[User], RoleInstance)] =
-    mapping.flatMap { (k, v) => k.getUserId.map { (_, v) } }.toList
+    toMap.flatMap { (k, v) => k.getUserId.map { (_, v) } }.toList
 
   def playerRoleAssignments: List[(Id[User], Role)] =
-    mapping.flatMap { (k, v) => k.getUserId.map { (_, v.role) } }.toList
+    toMap.flatMap { (k, v) => k.getUserId.map { (_, v.role) } }.toList
 
 }
 
 object Board {
 
   def apply(mapping: Iterable[(Position, RoleInstance)]) =
-    new Board(TrieMap.from(mapping))
+    new Board(Map.from(mapping))
+
+  def apply(mapping: Map[Position, RoleInstance]) =
+    new Board(mapping)
 
   def create(roles: Iterable[(Position, Role)]): Board =
     Board(roles.map { (pos, role) => (pos, role.createInstance()) })
