@@ -3,6 +3,8 @@ package com.mercerenies.werewolf
 package state
 package properties
 
+import util.pluralize
+
 import org.javacord.api.entity.Nameable
 import org.javacord.api.entity.user.User
 import org.javacord.api.entity.channel.TextChannel
@@ -36,7 +38,16 @@ final class TimePeriod private(private val _seconds: Long) {
   def toDuration: Duration =
     Duration(_seconds, TimeUnit.SECONDS)
 
-  ///// toString
+  // User-friendly string representation of the time period, may be
+  // rounded slightly to produce a friendlier prompt.
+  override def toString: String =
+    if (hours > 0) {
+      pluralize(hours, "hour")
+    } else if (minutes > 0) {
+      pluralize(minutes, "minute")
+    } else {
+      pluralize(seconds, "second")
+    }
 
 }
 
