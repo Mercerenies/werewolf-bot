@@ -7,6 +7,7 @@ import util.TextDecorator.*
 import logging.Logging
 import command.{Command, CommandResponse}
 import state.{GameState, SignupState}
+import timer.Timer
 
 import org.javacord.api.DiscordApi
 import org.javacord.api.entity.channel.TextChannel
@@ -32,6 +33,8 @@ final class GamesManager(
 
   // Mapping from user ID to game state(s) of interest
   private val users: TrieMap[Id[User], List[GameState]] = TrieMap()
+
+  val timer: Timer = Timer()
 
   private def removeUsersFor(state: GameState): Unit = {
     state.listeningPlayerList.foreach { userId =>
