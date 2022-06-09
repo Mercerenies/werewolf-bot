@@ -7,7 +7,7 @@ import id.Ids.*
 import util.TextDecorator.*
 import util.Emoji
 import logging.Logging
-import logging.LogEither.warningToLogger
+import logging.Logs.warningToLogger
 import name.{NameProvider, BaseNameProvider, DisplayNameProvider}
 import command.{CommandResponse, Permissions}
 import manager.GamesManager
