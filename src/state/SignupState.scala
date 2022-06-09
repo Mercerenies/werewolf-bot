@@ -12,6 +12,7 @@ import name.{NameProvider, BaseNameProvider, DisplayNameProvider}
 import command.{CommandResponse, Permissions}
 import manager.GamesManager
 import game.Rules
+import properties.{GameProperties, DefaultGameProperties}
 
 import org.javacord.api.DiscordApi
 import org.javacord.api.entity.channel.{TextChannel, Channel}
@@ -152,7 +153,7 @@ object SignupState {
   def createGame(channel: TextChannel & Nameable, host: User)(using ExecutionContext): Future[SignupState] = {
     val api = channel.getApi
     val text = gameStartMessage(host)
-    val properties = GameProperties(
+    val properties = DefaultGameProperties(
       channel=channel,
       host=host,
     )

@@ -5,6 +5,7 @@ package state
 import id.Id
 import command.CommandResponse
 import manager.GamesManager
+import properties.GameProperties
 
 import org.javacord.api.entity.Nameable
 import org.javacord.api.entity.user.User

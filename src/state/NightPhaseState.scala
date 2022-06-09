@@ -16,6 +16,7 @@ import game.board.Board
 import game.role.Role
 import game.parser.ListParser
 import game.night.NightMessageHandler
+import properties.GameProperties
 
 import org.javacord.api.DiscordApi
 import org.javacord.api.entity.channel.{TextChannel, Channel}

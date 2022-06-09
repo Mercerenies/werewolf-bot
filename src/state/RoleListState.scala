@@ -15,6 +15,7 @@ import game.Rules
 import game.board.Board
 import game.role.{Role, RoleInstance}
 import game.parser.ListParser
+import properties.GameProperties
 
 import org.javacord.api.DiscordApi
 import org.javacord.api.entity.channel.{TextChannel, Channel}
