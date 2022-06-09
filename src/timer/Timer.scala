@@ -27,7 +27,7 @@ final class Timer extends Logging[Timer] {
   // uncaught exceptions during the task will be logged and
   // suppressed.
   def scheduleTaskCast(delay: Duration, task: Runnable): Unit = {
-    val runnable = Timer.LogErrorsRunnable(task, logger)
+    val runnable = ErrorLoggingRunnable(task, logger)
     scheduleTaskImpl(delay, runnable)
   }
 
@@ -54,17 +54,6 @@ object Timer {
 
     override def run(): Unit = {
       promise.complete(Try { task() })
-    }
-
-  }
-
-  private final class LogErrorsRunnable[A](
-    private val task: Runnable,
-    private val logger: Logger,
-  ) extends Runnable {
-
-    override def run(): Unit = {
-      Try { task.run() }.logErrors(logger)
     }
 
   }
