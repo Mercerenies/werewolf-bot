@@ -60,6 +60,7 @@ final class GamesManager(
   }
 
   def createGame(channel: TextChannel & Nameable, host: User): Future[SignupState] = {
+    logger.info(s"Creating new game in channel ${channel.getId} with host ${host.getName}")
     SignupState.createGame(channel, host).map { state =>
       games(Id(channel)) = state
       addUsersFor(state)
@@ -78,6 +79,7 @@ final class GamesManager(
 
   def updateGame(channelId: Id[TextChannel & Nameable], newState: GameState): Unit = {
     if (hasGame(channelId)) {
+      logger.info(s"Updating game in channel ${channelId}, game is now in state ${newState}")
       removeUsersFor(games(channelId))
       games(channelId) = newState
       addUsersFor(newState)
