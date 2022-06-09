@@ -14,7 +14,10 @@ import scala.concurrent.{Promise, Future}
 import scala.util.Try
 
 // Timer implementation that uses Scala futures and promises.
+// Currently, this timer only supports one-shot tasks.
 final class Timer extends Logging[Timer] {
+
+  ///// Make it cancellable :)
 
   private val service: ScheduledExecutorService =
     Executors.newScheduledThreadPool(2)
