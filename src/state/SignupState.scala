@@ -42,8 +42,9 @@ final class SignupState(
   private val signupsMessageId: Id[Message],
 )(
   using ExecutionContext,
-) extends GameState(_gameProperties) with Logging[SignupState] {
+) extends GameState(_gameProperties) {
 
+  import SignupState.logger
   import scalaz.EitherT.eitherTHoist
 
   private val noChannelError: String =
@@ -129,7 +130,7 @@ final class SignupState(
 
 }
 
-object SignupState {
+object SignupState extends Logging[SignupState] {
 
   private val joinEmoji: String = Emoji.Clipboard
 

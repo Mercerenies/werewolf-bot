@@ -26,7 +26,9 @@ class GamesDirectMessageListener(
   private val games: GamesManager,
 )(
   using ExecutionContext,
-) extends MessageCreateListener with Logging[GamesDirectMessageListener] {
+) extends MessageCreateListener {
+
+  import GamesDirectMessageListener.logger
 
   // TODO We break ties arbitrarily here. Do it smarter if the player
   // is in multiple games (look for context clues / the name of the
@@ -61,3 +63,5 @@ class GamesDirectMessageListener(
   }
 
 }
+
+object GamesDirectMessageListener extends Logging[GamesDirectMessageListener]

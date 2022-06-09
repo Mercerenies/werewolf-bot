@@ -42,8 +42,9 @@ final class NightPhaseState(
   private val board: Board,
 )(
   using ExecutionContext,
-) extends GameState(_gameProperties) with Logging[RoleListState] {
+) extends GameState(_gameProperties) {
 
+  import NightPhaseState.logger
   import scalaz.EitherT.eitherTHoist
 
   private val playerIds: List[Id[User]] =
@@ -83,6 +84,4 @@ final class NightPhaseState(
 
 }
 
-object NightPhaseState {
-
-}
+object NightPhaseState extends Logging[RoleListState]

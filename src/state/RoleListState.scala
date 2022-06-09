@@ -44,8 +44,9 @@ final class RoleListState(
   private val players: List[User],
 )(
   using ExecutionContext,
-) extends GameState(_gameProperties) with Logging[RoleListState] {
+) extends GameState(_gameProperties) {
 
+  import RoleListState.logger
   import scalaz.EitherT.eitherTHoist
 
   private val playerIds: List[Id[User]] =
@@ -122,7 +123,7 @@ final class RoleListState(
 
 }
 
-object RoleListState {
+object RoleListState extends Logging[RoleListState] {
 
   val validRoles: List[Role] = Role.all
 

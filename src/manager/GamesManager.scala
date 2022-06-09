@@ -26,7 +26,9 @@ import scala.concurrent.{ExecutionContext, Future}
 
 final class GamesManager(
   val api: DiscordApi,
-)(using ExecutionContext) extends Logging[GamesManager] {
+)(using ExecutionContext) {
+
+  import GamesManager.logger
 
   // Mapping from channel ID to game data
   private val games: TrieMap[Id[TextChannel & Nameable], GameState] = TrieMap()
@@ -144,7 +146,7 @@ final class GamesManager(
 
 }
 
-object GamesManager {
+object GamesManager extends Logging[GamesManager] {
 
   def toNamed(channel: TextChannel): Option[TextChannel & Nameable] =
     channel match {

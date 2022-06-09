@@ -15,7 +15,9 @@ import scala.util.Try
 
 // Timer implementation that uses Scala futures and promises.
 // Currently, this timer only supports one-shot tasks.
-final class Timer extends Logging[Timer] {
+final class Timer {
+
+  import Timer.logger
 
   ///// Make it cancellable :)
 
@@ -55,7 +57,7 @@ final class Timer extends Logging[Timer] {
 
 }
 
-object Timer {
+object Timer extends Logging[Timer] {
 
   private final class WithPromiseRunnable[A](
     private val task: () => A,
