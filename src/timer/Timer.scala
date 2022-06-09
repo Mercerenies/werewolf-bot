@@ -19,8 +19,6 @@ final class Timer {
 
   import Timer.logger
 
-  ///// Make it cancellable :)
-
   private val service: ScheduledExecutorService =
     Executors.newScheduledThreadPool(2)
 
