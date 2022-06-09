@@ -71,7 +71,7 @@ final class RoleListState(
       "The following players are participating: " + players.map(_.getDisplayName(server)).mkString(", ") + "\n" +
       "The following roles are in play: " + roleList.map(_.name).mkString(", ") + "\n" +
       bold("I am sending each player's role via DM now.") + "\n" +
-      bold("It is nighttime. Day will begin in 48 hours.") // TODO Configurable day start
+      bold(s"It is nighttime. Day will begin in ${gameProperties.nightPhaseLength}.")
 
   // TODO Default message if you ping the bot in a channel that
   // doesn't have a game? (for all states, not just this one)
