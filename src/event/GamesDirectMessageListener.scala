@@ -2,7 +2,7 @@
 package com.mercerenies.werewolf
 package event
 
-import id.Id
+import id.{Id, Messages}
 import command.Command
 import state.{GameState, SignupState}
 import manager.GamesManager
@@ -54,12 +54,8 @@ class GamesDirectMessageListener(
       gameState.onDirectMessageCreate(games, user, message)
     }
 
-  // TODO This in GamesMessageListener as well /////
-  private def wasSentByThisBot(event: MessageCreateEvent): Boolean =
-    event.getMessage.getAuthor.getId == event.getApi.getYourself.getId
-
   override def onMessageCreate(event: MessageCreateEvent): Unit = {
-    if (!wasSentByThisBot(event)) {
+    if (!Messages.wasSentByThisBot(event)) {
       delegateToGame(event)
     }
   }
