@@ -8,7 +8,11 @@ lazy val root = (project in file("."))
     name := "werewolf"
   )
 
+Compile / run / fork := true
+// Compile / javaOptions += "-Dlog4j.debug"
+
 Compile / unmanagedSourceDirectories += baseDirectory.value / "src"
+Compile / unmanagedResourceDirectories += baseDirectory.value / "res"
 libraryDependencies += "org.scalaz" %% "scalaz-core" % "7.4.0-M7"
 libraryDependencies += "org.javacord" % "javacord" % "3.4.0"
 libraryDependencies +=  "org.apache.logging.log4j" % "log4j-core" % "2.17.2" % Runtime
