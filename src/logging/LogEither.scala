@@ -7,6 +7,7 @@ import org.apache.logging.log4j.Logger
 import scalaz.*
 import Scalaz.*
 
+// TODO Merge this in with Logs singleton.
 object LogEither {
 
   extension[E, M[_]: Monad, A] (self: EitherT[E, M, A])
