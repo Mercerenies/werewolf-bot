@@ -9,7 +9,9 @@ import response.{MessageResponse, ReplyResponse}
 import scalaz.*
 import Scalaz.*
 
-trait MultipleChoiceMessageHandler[A <: NamedEntity](val choices: List[A]) extends NightMessageHandler {
+trait MultipleChoiceMessageHandler[A <: NamedEntity](
+  val choices: List[A],
+) extends NightMessageHandler {
 
   private val matcher: NamedEntityMatcher[A] =
     NamedEntity.matcher(choices)

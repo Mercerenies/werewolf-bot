@@ -9,6 +9,16 @@ import night.{NightMessageHandler, TablePositionMessageHandler}
 
 case object Werewolf extends Role {
 
+  class MessageHandler extends TablePositionMessageHandler {
+
+    override val initialNightMessage: String =
+      bold("Please reply 'left', 'middle', or 'right'") + " to indicate the card you will look at if you're the lone werewolf."
+
+    override val midnightReminder: Option[String] =
+      None
+
+  }
+
   override class Instance extends RoleInstance {
 
     override val role: Werewolf.type = Werewolf.this
@@ -17,9 +27,7 @@ case object Werewolf extends Role {
       summon[this.type <:< role.Instance]
 
     private val tablePositionMessageHandler =
-      TablePositionMessageHandler(
-        initialNightMessage = bold("Please reply 'left', 'middle', or 'right'") + " to indicate the card you will look at if you're the lone werewolf.",
-      )
+      MessageHandler()
 
     override val nightHandler: NightMessageHandler =
       tablePositionMessageHandler

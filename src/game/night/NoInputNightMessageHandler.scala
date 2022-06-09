@@ -11,6 +11,9 @@ object NoInputNightMessageHandler extends NightMessageHandler {
   def initialNightMessage: String =
     "I require " + bold("no input") + " from you tonight."
 
+  def midnightReminder: Option[String] =
+    None
+
   def onDirectMessage(messageContents: String): MessageResponse =
     NoResponse
 
