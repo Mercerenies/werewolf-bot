@@ -12,13 +12,22 @@ final class Board(
   private val toMap: Map[Position, RoleInstance],
 ) {
 
-  export toMap.{get, apply}
+  export toMap.get
 
   def playerRoleInstances: List[(Id[User], RoleInstance)] =
     toMap.flatMap { (k, v) => k.getUserId.map { (_, v) } }.toList
 
   def playerRoleAssignments: List[(Id[User], Role)] =
     toMap.flatMap { (k, v) => k.getUserId.map { (_, v.role) } }.toList
+
+  def apply(x: Position): RoleInstance =
+    toMap.apply(x)
+
+  def apply(x: TablePosition): RoleInstance =
+    toMap.apply(Position.Table(x))
+
+  def apply(x: Id[User]): RoleInstance =
+    toMap.apply(Position.Player(x))
 
 }
 
