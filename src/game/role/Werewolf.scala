@@ -15,7 +15,7 @@ import org.javacord.api.entity.user.User
 import scalaz.{Id => _, *}
 import Scalaz.{Id => _, *}
 
-case object Werewolf extends Role {
+object Werewolf extends Role {
 
   class MessageHandler extends TablePositionMessageHandler {
 

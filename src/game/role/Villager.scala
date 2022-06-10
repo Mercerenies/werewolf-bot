@@ -15,7 +15,7 @@ import org.javacord.api.entity.user.User
 import scalaz.{Id => _, *}
 import Scalaz.{Id => _, *}
 
-case object Villager extends Role {
+object Villager extends Role {
 
   override class Instance extends RoleInstance {
 
