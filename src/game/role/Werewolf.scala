@@ -96,7 +96,6 @@ object Werewolf extends Role {
   override def createInstance(): this.Instance =
     Werewolf.Instance()
 
-  // TODO Choosing a center card if you're the only one.
   override val introBlurb: String =
     "You are a " + bold("Werewolf") + ". You will be informed of who the other werewolves are. If there are no other werewolves, you may look at a card in the center of the table."
 
