@@ -3,8 +3,16 @@ package com.mercerenies.werewolf
 package game
 package role
 
+import id.Id
 import name.NamedEntity
 import night.{NightMessageHandler, NoInputNightMessageHandler}
+import response.FeedbackMessage
+import board.Board
+
+import org.javacord.api.entity.user.User
+
+import scalaz.{Id => _, *}
+import Scalaz.{Id => _, *}
 
 final class StatelessRoleInstance(
   override val role: Role,
@@ -17,5 +25,8 @@ final class StatelessRoleInstance(
 
   val nightHandler: NightMessageHandler =
     NoInputNightMessageHandler
+
+  def nightAction(userId: Id[User]): State[Board, FeedbackMessage] =
+    FeedbackMessage.none.point
 
 }

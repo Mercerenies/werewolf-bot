@@ -3,9 +3,17 @@ package com.mercerenies.werewolf
 package game
 package role
 
+import id.Id
 import util.TextDecorator.*
 import wincon.{WinCondition, WerewolfWinCondition}
 import night.{NightMessageHandler, TablePositionMessageHandler}
+import board.Board
+import response.FeedbackMessage
+
+import org.javacord.api.entity.user.User
+
+import scalaz.{Id => _, *}
+import Scalaz.{Id => _, *}
 
 case object Werewolf extends Role {
 
@@ -39,6 +47,10 @@ case object Werewolf extends Role {
     override val nightHandler: NightMessageHandler =
       tablePositionMessageHandler
 
+    override def nightAction(userId: Id[User]): State[Board, FeedbackMessage] = {
+      FeedbackMessage.none.point /////
+    }
+
   }
 
   override val name: String = "Werewolf"
@@ -46,6 +58,8 @@ case object Werewolf extends Role {
   override val aliases: List[String] = List("WW", "Wolf")
 
   override val baseAlignment: Alignment = Alignment.Werewolf
+
+  override val seenAsWerewolf: Boolean = true
 
   override def createInstance(): this.Instance =
     Werewolf.Instance()

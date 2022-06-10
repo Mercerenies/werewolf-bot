@@ -3,8 +3,16 @@ package com.mercerenies.werewolf
 package game
 package role
 
+import id.Id
 import name.NamedEntity
 import night.NightMessageHandler
+import board.Board
+import response.FeedbackMessage
+
+import org.javacord.api.entity.user.User
+
+import scalaz.{Id => _, *}
+import Scalaz.{Id => _, *}
 
 // A Role is an immutable object describing the properties and rules
 // associated with a One Night Ultimate Werewolf role. A Role object
@@ -25,6 +33,8 @@ trait RoleInstance {
   val nightHandler: NightMessageHandler
 
   val role: Role
+
+  def nightAction(userId: Id[User]): State[Board, FeedbackMessage]
 
   final def downcast: this.role.Instance =
     coherenceProof(this)

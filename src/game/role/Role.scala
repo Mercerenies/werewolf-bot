@@ -13,6 +13,10 @@ trait Role extends NamedEntity {
 
   def baseAlignment: Alignment
 
+  // If this is true, then other werewolves (and the minion) will see
+  // this role when they get to see who the werewolf team is.
+  def seenAsWerewolf: Boolean = false
+
   def createInstance(): this.Instance
 
   def introBlurb: String
