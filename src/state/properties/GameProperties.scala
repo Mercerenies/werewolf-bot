@@ -5,12 +5,11 @@ package properties
 
 import id.Id
 
-import org.javacord.api.entity.Nameable
 import org.javacord.api.entity.user.User
-import org.javacord.api.entity.channel.TextChannel
+import org.javacord.api.entity.channel.ServerTextChannel
 
 trait GameProperties {
-  val channelId: Id[TextChannel & Nameable]
+  val channelId: Id[ServerTextChannel]
   val hostId: Id[User]
 
   val nightPhaseLength: TimePeriod

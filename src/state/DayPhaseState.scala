@@ -56,7 +56,7 @@ final class DayPhaseState(
 
   override def onEnterState(mgr: GamesManager): Unit = {
     val timer = mgr.timer
-    val channel = mgr.api.getServerTextChannel(Id.fromLong(channelId.toLong)) // TOOD HACK
+    val channel = mgr.api.getServerTextChannel(channelId)
     val server = channel.getServer
     dayStartMessage(mgr.api, server).flatMap { channel.sendMessage(_).asScala }
     ////

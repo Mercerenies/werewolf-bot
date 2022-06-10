@@ -5,12 +5,11 @@ package properties
 
 import id.Id
 
-import org.javacord.api.entity.Nameable
 import org.javacord.api.entity.user.User
-import org.javacord.api.entity.channel.TextChannel
+import org.javacord.api.entity.channel.ServerTextChannel
 
 case class DefaultGameProperties(
-  override val channelId: Id[TextChannel & Nameable],
+  override val channelId: Id[ServerTextChannel],
   override val hostId: Id[User],
 ) extends GameProperties {
 

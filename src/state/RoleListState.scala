@@ -102,7 +102,7 @@ final class RoleListState(
       _ <- RoleListState.sendAllInitialDirectMessages(mgr.api, server, board).liftM
     } yield {
       val newState = NightPhaseState(gameProperties, playerIds, board)
-      mgr.updateGame(Id(channel), newState)
+      mgr.updateGame(channelId, newState)
       ()
     }
     // In case of error, log and return ()

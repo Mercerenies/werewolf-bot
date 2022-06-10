@@ -100,7 +100,7 @@ final class NightPhaseState(
   }
 
   private def endOfNight(mgr: GamesManager): Unit = {
-    val channel = mgr.api.getServerTextChannel(Id.fromLong(channelId.toLong)) // TODO (HACK) channelId should be a ServerTextChannel id anyway
+    val channel = mgr.api.getServerTextChannel(channelId)
     for {
       userMapping <- UserMapping.fromServer(mgr.api, channel.getServer, playerIds)
     } yield {

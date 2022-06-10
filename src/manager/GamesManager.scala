@@ -11,7 +11,7 @@ import state.{GameState, SignupState}
 import timer.Timer
 
 import org.javacord.api.DiscordApi
-import org.javacord.api.entity.channel.TextChannel
+import org.javacord.api.entity.channel.{ServerTextChannel, TextChannel}
 import org.javacord.api.entity.user.User
 import org.javacord.api.entity.Nameable
 import org.javacord.api.interaction.callback.InteractionCallbackDataFlag
@@ -33,7 +33,7 @@ final class GamesManager(
   import GamesManager.logger
 
   // Mapping from channel ID to game data
-  private val games: TrieMap[Id[TextChannel & Nameable], GameState] = TrieMap()
+  private val games: TrieMap[Id[ServerTextChannel], GameState] = TrieMap()
 
   // Mapping from user ID to game state(s) of interest
   private val users: TrieMap[Id[User], List[GameState]] = TrieMap()
@@ -61,7 +61,7 @@ final class GamesManager(
     }
   }
 
-  def createGame(channel: TextChannel & Nameable, host: User): Future[SignupState] = {
+  def createGame(channel: ServerTextChannel, host: User): Future[SignupState] = {
     logger.info(s"Creating new game in channel ${channel.getId} with host ${host.getName}")
     SignupState.createGame(channel, host).map { state =>
       games(Id(channel)) = state
@@ -71,16 +71,16 @@ final class GamesManager(
     }
   }
 
-  def hasGame(channelId: Id[TextChannel & Nameable]): Boolean =
+  def hasGame(channelId: Id[ServerTextChannel]): Boolean =
     !getGame(channelId).isEmpty
 
-  def getGame(channelId: Id[TextChannel & Nameable]): Option[GameState] =
+  def getGame(channelId: Id[ServerTextChannel]): Option[GameState] =
     games.get(channelId)
 
   def getGamesForUser(userId: Id[User]): List[GameState] =
     users.getOrElse(userId, Nil)
 
-  def updateGame(channelId: Id[TextChannel & Nameable], newState: GameState): Unit = {
+  def updateGame(channelId: Id[ServerTextChannel], newState: GameState): Unit = {
     if (hasGame(channelId)) {
       logger.info(s"Updating game in channel ${channelId}, game is now in state ${newState}")
       games(channelId).onExitState(this)
@@ -94,7 +94,7 @@ final class GamesManager(
     }
   }
 
-  private def withChannel[F[_]: Applicative](interaction: SlashCommandInteraction)(f: (TextChannel & Nameable) => F[CommandResponse[Unit]]): F[CommandResponse[Unit]] =
+  private def withChannel[F[_]: Applicative](interaction: SlashCommandInteraction)(f: (ServerTextChannel) => F[CommandResponse[Unit]]): F[CommandResponse[Unit]] =
     interaction.getChannel.toScala match {
       case None => CommandResponse.ephemeral("Please use this command in a server channel.").void.point
       case Some(channel) => {
@@ -157,9 +157,9 @@ final class GamesManager(
 
 object GamesManager extends Logging[GamesManager] {
 
-  def toNamed(channel: TextChannel): Option[TextChannel & Nameable] =
+  def toNamed(channel: TextChannel): Option[ServerTextChannel] =
     channel match {
-      case channel: Nameable => Some(channel)
+      case channel: ServerTextChannel => Some(channel)
       case _ => None
     }
 

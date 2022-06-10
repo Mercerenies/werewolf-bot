@@ -15,7 +15,7 @@ import game.Rules
 import properties.{GameProperties, DefaultGameProperties, DebugGameProperties}
 
 import org.javacord.api.DiscordApi
-import org.javacord.api.entity.channel.{TextChannel, Channel}
+import org.javacord.api.entity.channel.ServerTextChannel
 import org.javacord.api.entity.user.User
 import org.javacord.api.entity.message.Message
 import org.javacord.api.entity.server.Server
@@ -126,7 +126,7 @@ object SignupState extends Logging[SignupState] {
     s"${host.getMentionTag} has started a game of One Night Ultimate Werewolf in this channel. " +
     bold("Signups are open.") + s" React to this post with ${joinEmoji} to join the game."
 
-  def createGame(channel: TextChannel & Nameable, host: User)(using ExecutionContext): Future[SignupState] = {
+  def createGame(channel: ServerTextChannel, host: User)(using ExecutionContext): Future[SignupState] = {
     val api = channel.getApi
     val text = gameStartMessage(host)
     val properties = DebugGameProperties( // DEBUG CODE
