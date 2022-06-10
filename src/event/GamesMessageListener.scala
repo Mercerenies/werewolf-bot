@@ -6,6 +6,8 @@ import id.{Id, Messages}
 import command.Command
 import state.{GameState, SignupState}
 import manager.GamesManager
+import logging.Logging
+import logging.Logs.*
 
 import org.javacord.api.entity.channel.TextChannel
 import org.javacord.api.entity.user.User
@@ -16,6 +18,7 @@ import org.javacord.api.listener.message.MessageCreateListener
 import org.javacord.api.event.channel.TextChannelEvent
 import org.javacord.api.event.message.MessageCreateEvent
 
+import scala.util.Try
 import scala.collection.mutable.HashMap
 import scala.jdk.OptionConverters.*
 import scala.jdk.FutureConverters.*
@@ -26,6 +29,8 @@ class GamesMessageListener(
 )(
   using ExecutionContext,
 ) extends MessageCreateListener {
+
+  import GamesMessageListener.logger
 
   private def getGame(event: TextChannelEvent): Option[GameState] =
     GamesManager.toNamed(event.getChannel).flatMap { channel => games.getGame(Id(channel)) }
@@ -38,8 +43,12 @@ class GamesMessageListener(
 
   override def onMessageCreate(event: MessageCreateEvent): Unit = {
     if (!Messages.wasSentByThisBot(event)) {
-      delegateToGame(event)
+      Try {
+        delegateToGame(event)
+      }.logErrors(logger)
     }
   }
 
 }
+
+object GamesMessageListener extends Logging[GamesMessageListener]

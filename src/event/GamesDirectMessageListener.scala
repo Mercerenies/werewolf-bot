@@ -7,6 +7,7 @@ import command.Command
 import state.{GameState, SignupState}
 import manager.GamesManager
 import logging.Logging
+import logging.Logs.*
 
 import org.javacord.api.entity.channel.TextChannel
 import org.javacord.api.entity.user.User
@@ -17,6 +18,7 @@ import org.javacord.api.listener.message.MessageCreateListener
 import org.javacord.api.event.channel.TextChannelEvent
 import org.javacord.api.event.message.MessageCreateEvent
 
+import scala.util.Try
 import scala.collection.mutable.HashMap
 import scala.jdk.OptionConverters.*
 import scala.jdk.FutureConverters.*
@@ -53,7 +55,9 @@ class GamesDirectMessageListener(
   private def delegateToGame(event: MessageCreateEvent): Unit =
     getRelevantGame(event).foreach { (gameState, user) =>
       val message = event.getMessage
-      gameState.onDirectMessageCreate(games, user, message)
+      Try {
+        gameState.onDirectMessageCreate(games, user, message)
+      }.logErrors(logger)
     }
 
   override def onMessageCreate(event: MessageCreateEvent): Unit = {

@@ -5,6 +5,7 @@ package manager
 import id.Id
 import util.TextDecorator.*
 import logging.Logging
+import logging.Logs.*
 import command.{Command, CommandResponse}
 import state.{GameState, SignupState}
 import timer.Timer
@@ -19,6 +20,7 @@ import org.javacord.api.interaction.SlashCommandInteraction
 import scalaz.{Id => _, *}
 import Scalaz.{Id => _, *}
 
+import scala.util.Try
 import scala.collection.concurrent.TrieMap
 import scala.jdk.OptionConverters.*
 import scala.jdk.FutureConverters.*
@@ -144,7 +146,9 @@ final class GamesManager(
   }
 
   private val startGameCommand: Command = Command.Term("start", "Start a game of Werewolf with the current player list") { interaction =>
-    onStartGame(interaction).map { _.execute(interaction) }
+    Try {
+      onStartGame(interaction).map { _.execute(interaction) }
+    }.logErrors(logger)
   }
 
   val commands: List[Command] = List(newGameCommand, startGameCommand)

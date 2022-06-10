@@ -6,6 +6,8 @@ import id.Id
 import command.Command
 import state.{GameState, SignupState}
 import manager.GamesManager
+import logging.Logging
+import logging.Logs.*
 
 import org.javacord.api.entity.channel.TextChannel
 import org.javacord.api.entity.user.User
@@ -16,6 +18,7 @@ import org.javacord.api.listener.message.reaction.{ReactionAddListener, Reaction
 import org.javacord.api.event.channel.TextChannelEvent
 import org.javacord.api.event.message.reaction.{ReactionEvent, ReactionAddEvent, ReactionRemoveAllEvent, ReactionRemoveEvent}
 
+import scala.util.Try
 import scala.collection.mutable.HashMap
 import scala.jdk.OptionConverters.*
 import scala.jdk.FutureConverters.*
@@ -27,6 +30,8 @@ class GamesReactionListener(
   using ExecutionContext,
 ) extends ReactionAddListener with ReactionRemoveAllListener with ReactionRemoveListener {
 
+  import GamesReactionListener.logger
+
   private def getGame(event: TextChannelEvent): Option[GameState] =
     GamesManager.toNamed(event.getChannel).flatMap { channel => games.getGame(Id(channel)) }
 
@@ -35,7 +40,9 @@ class GamesReactionListener(
       gameState <- getGame(event)
       message <- event.requestMessage.asScala
     } {
-      gameState.onReactionsUpdated(games, message)
+      Try {
+        gameState.onReactionsUpdated(games, message)
+      }.logErrors(logger)
     }
 
   override def onReactionAdd(event: ReactionAddEvent): Unit =
@@ -48,3 +55,5 @@ class GamesReactionListener(
     delegateToGame(event)
 
 }
+
+object GamesReactionListener extends Logging[GamesReactionListener]
