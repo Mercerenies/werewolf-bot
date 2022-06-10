@@ -84,14 +84,14 @@ final class NightPhaseState(
     // Schedule midnight reminder
     gameProperties.nightPhaseReminderTime.foreach { time =>
       val midnightEvent = timer.scheduleTaskCast(time.toDuration) { () =>
-        sendNightReminder(mgr.api)
+        sendNightReminder(mgr)
       }
       nightPhaseReminderCancellable.value = Some(midnightEvent)
     }
 
     // Schedule end of night phase
     val endEvent = timer.scheduleTaskCast(gameProperties.nightPhaseLength.toDuration) { () =>
-      endOfNight(mgr.api)
+      endOfNight(mgr)
     }
     nightPhaseEndCancellable.value = Some(endEvent)
 
@@ -102,29 +102,32 @@ final class NightPhaseState(
     nightPhaseEndCancellable.value.foreach { _.cancel() }
   }
 
-  private def sendNightReminder(api: DiscordApi): Unit = {
+  private def sendNightReminder(mgr: GamesManager): Unit = {
     for {
       _ <- Future.traverse(playerNightHandlers) { (playerId, handler) =>
-        api.getUser(playerId).flatMap { NightPhaseState.sendNightReminderTo(api, _, handler) }
+        mgr.api.getUser(playerId).flatMap { NightPhaseState.sendNightReminderTo(mgr.api, _, handler) }
       }
     } yield {
       ()
     }
   }
 
-  private def endOfNight(api: DiscordApi): Unit = {
-    val channel = api.getServerTextChannel(Id.fromLong(channelId.toLong)) // TODO (HACK) channelId should be a ServerTextChannel id anyway
+  private def endOfNight(mgr: GamesManager): Unit = {
+    val channel = mgr.api.getServerTextChannel(Id.fromLong(channelId.toLong)) // TODO (HACK) channelId should be a ServerTextChannel id anyway
     for {
-      userMapping <- UserMapping.fromServer(api, channel.getServer, playerIds)
+      userMapping <- UserMapping.fromServer(mgr.api, channel.getServer, playerIds)
     } yield {
       val (finalBoard, nightMessagesFuture) = NightPhaseState.evaluateNightPhase(userMapping, board)
-      /////
+      nightMessagesFuture.foreach { _ =>
+        val newState = DayPhaseState(gameProperties, playerIds, board)
+        mgr.updateGame(channelId, newState)
+      }
     }
   }
 
 }
 
-object NightPhaseState extends Logging[RoleListState] {
+object NightPhaseState extends Logging[NightPhaseState] {
 
   private def sendNightReminderTo(api: DiscordApi, player: User, handler: NightMessageHandler)(using ExecutionContext): Future[Unit] = {
     handler.midnightReminder match {
