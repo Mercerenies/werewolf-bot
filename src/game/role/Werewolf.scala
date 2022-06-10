@@ -3,7 +3,7 @@ package com.mercerenies.werewolf
 package game
 package role
 
-import id.Id
+import id.{Id, UserMapping}
 import util.TextDecorator.*
 import wincon.{WinCondition, WerewolfWinCondition}
 import night.{NightMessageHandler, TablePositionMessageHandler}
@@ -50,12 +50,13 @@ case object Werewolf extends Role {
     private val forgottenInputMessage: String =
       "(Defaulting to the " + bold("Left") + " card)"
 
-    override def nightAction(userId: Id[User]): State[Board, FeedbackMessage] =
+    override def nightAction(mapping: UserMapping, userId: Id[User]): State[Board, FeedbackMessage] =
       RoleInstance.withForgottenInput(tablePositionMessageHandler.currentChoice, TablePosition.Left, forgottenInputMessage) { tablePos =>
         for {
           board <- State.get
         } yield {
-          ??? /////
+          val werewolfIds = findWerewolfIds(board)
+          FeedbackMessage.none /////
         }
       }
 
@@ -78,5 +79,8 @@ case object Werewolf extends Role {
 
   override val winCondition: WinCondition =
     WerewolfWinCondition
+
+  private def findWerewolfIds(board: Board): List[Id[User]] =
+    board.playerRoleAssignments.filter { (_, role) => role.seenAsWerewolf }.map { (userId, _) => userId }
 
 }

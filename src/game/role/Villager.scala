@@ -3,7 +3,7 @@ package com.mercerenies.werewolf
 package game
 package role
 
-import id.Id
+import id.{Id, UserMapping}
 import util.TextDecorator.*
 import wincon.{WinCondition, TownWinCondition}
 import night.{NightMessageHandler, NoInputNightMessageHandler}
@@ -27,7 +27,7 @@ case object Villager extends Role {
     override val nightHandler: NightMessageHandler =
       NoInputNightMessageHandler
 
-    override def nightAction(userId: Id[User]): State[Board, FeedbackMessage] =
+    override def nightAction(mapping: UserMapping, userId: Id[User]): State[Board, FeedbackMessage] =
       FeedbackMessage.none.point
 
 

@@ -3,7 +3,7 @@ package com.mercerenies.werewolf
 package game
 package role
 
-import id.Id
+import id.{Id, UserMapping}
 import name.NamedEntity
 import night.NightMessageHandler
 import board.Board
@@ -34,7 +34,7 @@ trait RoleInstance {
 
   val role: Role
 
-  def nightAction(userId: Id[User]): State[Board, FeedbackMessage]
+  def nightAction(mapping: UserMapping, userId: Id[User]): State[Board, FeedbackMessage]
 
   final def downcast: this.role.Instance =
     coherenceProof(this)
