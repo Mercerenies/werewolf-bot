@@ -14,6 +14,9 @@ final class Board(
 
   export toMap.get
 
+  def roles: List[Role] =
+    toMap.values.map { _.role }.toList.sortBy { _.name }
+
   def playerRoleInstances: List[(Id[User], RoleInstance)] =
     toMap.flatMap { (k, v) => k.getUserId.map { (_, v) } }.toList
 
