@@ -47,20 +47,11 @@ final class SignupState(
   import SignupState.logger
   import scalaz.EitherT.eitherTHoist
 
-  private val noChannelError: String =
-    s"Channel ${channel.getId} should be hosting a sign-up but does not exist"
-
-  private val channelIdChangedPanic: String =
-    s"Named TextChannel ${channel.getId} has changed identity and is no longer valid"
-
-  private val noServerError: String =
-    s"Could not identify server for ${channel.getId}"
-
   private def getGameStartMessage(api: DiscordApi): EitherT[String, Future, Message] =
-    api.getMessage(Id(channel), gameStartMessageId)
+    api.getMessage(channelId, gameStartMessageId)
 
   private def getSignupsMessage(api: DiscordApi): EitherT[String, Future, Message] =
-    api.getMessage(Id(channel), signupsMessageId)
+    api.getMessage(channelId, signupsMessageId)
 
   def getSignups(api: DiscordApi): Future[collection.Seq[User]] =
     val r = for {
@@ -102,14 +93,6 @@ final class SignupState(
     }
   }
 
-  override def onMessageCreate(mgr: GamesManager, message: Message): Unit = {
-    // No action
-  }
-
-  override def onDirectMessageCreate(mgr: GamesManager, user: User, message: Message): Unit = {
-    // No action
-  }
-
   override def onStartGame(mgr: GamesManager, interaction: SlashCommandInteraction): Future[CommandResponse[Unit]] =
     val r = for {
       message <- getGameStartMessage(mgr.api)
@@ -117,11 +100,11 @@ final class SignupState(
       signups <- getSignups(mgr.api).liftM
     } yield {
       val user = interaction.getUser
-      Permissions.mustBeAdminOrHost(server, Id(host), user) {
+      Permissions.mustBeAdminOrHost(server, hostId, user) {
         val playerCount = signups.length
         val rolesNeeded = Rules.rolesNeeded(playerCount)
         CommandResponse.simple(bold("Signups are now closed.") + s" There are ${playerCount} player(s). ${user.getMentionTag}, please ping me and indicate a list of ${rolesNeeded} roles to include in the game.").andThen { _ =>
-          mgr.updateGame(Id(channel), RoleListState(gameProperties, signups.map(Id(_)).toList))
+          mgr.updateGame(channelId, RoleListState(gameProperties, signups.map(Id(_)).toList))
         }
       }
     }
@@ -155,8 +138,8 @@ object SignupState extends Logging[SignupState] {
     val api = channel.getApi
     val text = gameStartMessage(host)
     val properties = DebugGameProperties( // DEBUG CODE
-      channel=channel,
-      host=host,
+      channelId=Id(channel),
+      hostId=Id(host),
     )
     for {
       startMessage <- channel.sendMessage(text).asScala

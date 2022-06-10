@@ -3,13 +3,15 @@ package com.mercerenies.werewolf
 package state
 package properties
 
+import id.Id
+
 import org.javacord.api.entity.Nameable
 import org.javacord.api.entity.user.User
 import org.javacord.api.entity.channel.TextChannel
 
 case class DefaultGameProperties(
-  override val channel: TextChannel & Nameable,
-  override val host: User,
+  override val channelId: Id[TextChannel & Nameable],
+  override val hostId: Id[User],
 ) extends GameProperties {
 
   override val nightPhaseLength: TimePeriod = TimePeriod.hours(48)

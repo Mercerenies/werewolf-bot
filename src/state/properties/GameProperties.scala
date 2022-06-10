@@ -3,13 +3,15 @@ package com.mercerenies.werewolf
 package state
 package properties
 
+import id.Id
+
 import org.javacord.api.entity.Nameable
 import org.javacord.api.entity.user.User
 import org.javacord.api.entity.channel.TextChannel
 
 trait GameProperties {
-  val channel: TextChannel & Nameable
-  val host: User
+  val channelId: Id[TextChannel & Nameable]
+  val hostId: Id[User]
 
   val nightPhaseLength: TimePeriod
 

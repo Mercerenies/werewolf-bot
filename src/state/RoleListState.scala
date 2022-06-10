@@ -2,7 +2,7 @@
 package com.mercerenies.werewolf
 package state
 
-import id.Id
+import id.{Id, Ids}
 import id.Ids.*
 import util.TextDecorator.*
 import util.Emoji
@@ -52,14 +52,10 @@ final class RoleListState(
   // Don't need any DMs so don't bother.
   override val listeningPlayerList: List[Id[User]] = Nil
 
-  override def onReactionsUpdated(mgr: GamesManager, message: Message): Unit = {
-    // No action
-  }
-
   private def isMessageRelevant(mgr: GamesManager, server: Server, message: Message): Boolean =
     // We only care about messages sent by the game host / server
     // admin and which ping the bot.
-    (message.getAuthor.getId == host.getId) &&
+    (message.getAuthor.getId == hostId.toLong) &&
       (util.mentions(message, Id(mgr.api.getYourself)))
 
   private def requiredRoleCount = Rules.rolesNeeded(playerIds.length)
@@ -103,21 +99,20 @@ final class RoleListState(
     }
   }
 
-  override def onDirectMessageCreate(mgr: GamesManager, user: User, message: Message): Unit = {
-    // No action
-  }
-
   private def setupGame(mgr: GamesManager, server: Server, roles: List[Role]): Future[Unit] = {
     val board = Board.assignRoles(playerIds, roles)
-    for {
-      startMessage <- gameStartMessage(mgr.api, server, roles)
-      _ <- channel.sendMessage(startMessage).asScala
-      _ <- RoleListState.sendAllInitialDirectMessages(mgr.api, server, board)
+    val r = for {
+      startMessage <- gameStartMessage(mgr.api, server, roles).liftM
+      channel <- mgr.api.getNamedTextChannel[Future](channelId)
+      _ <- channel.sendMessage(startMessage).asScala.liftM
+      _ <- RoleListState.sendAllInitialDirectMessages(mgr.api, server, board).liftM
     } yield {
       val newState = NightPhaseState(gameProperties, playerIds, board)
       mgr.updateGame(Id(channel), newState)
       ()
     }
+    // In case of error, log and return ()
+    r.warningToLogger(logger).map { _ => () }
   }
 
   override def onStartGame(mgr: GamesManager, interaction: SlashCommandInteraction): Future[CommandResponse[Unit]] =
