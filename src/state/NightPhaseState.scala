@@ -61,10 +61,6 @@ final class NightPhaseState(
   private val playerNightHandlers: Map[Id[User], NightMessageHandler] =
     Map.from(board.playerRoleInstances.map { (k, v) => (k, v.nightHandler) })
 
-  override def onMessageCreate(mgr: GamesManager, message: Message): Unit = {
-    message.reply("It is currently nighttime. " + bold("Please do not post in this channel until day."))
-  }
-
   override def onDirectMessageCreate(mgr: GamesManager, user: User, message: Message): Unit = {
     playerNightHandlers.get(Id(user)) match {
       case None => {
