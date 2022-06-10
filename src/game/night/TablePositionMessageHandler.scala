@@ -36,4 +36,8 @@ abstract class TablePositionMessageHandler extends MultipleChoiceMessageHandler[
     ReplyResponse("Selected " + bold(options.head.toString))
   }
 
+  def currentChoice: Option[TablePosition] = _playerChoice.value
+
+  def hasChoice: Boolean = currentChoice.isDefined
+
 }
