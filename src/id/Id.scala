@@ -12,7 +12,7 @@ opaque type Id[+A <: DiscordEntity] = Long
 
 object Id {
 
-  def fromLong[A <: DiscordEntity](x: Long): Id[DiscordEntity] = x
+  def fromLong[A <: DiscordEntity](x: Long): Id[A] = x
 
   def apply[A <: DiscordEntity](x: A): Id[A] = x.getId()
 
