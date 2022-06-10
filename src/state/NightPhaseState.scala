@@ -66,7 +66,7 @@ final class NightPhaseState(
       case None => {
         // If this message occurs, NightPhaseState has misreported
         // listeningPlayerList and this is a bug.
-        logger.warn(s"Trying to process DM from ${user} but I don't know what to do.")
+        logger.error(s"Trying to process DM from ${user} but I don't know what to do.")
       }
       case Some(nightHandler) => {
         val response = nightHandler.onDirectMessage(message.getContent)
