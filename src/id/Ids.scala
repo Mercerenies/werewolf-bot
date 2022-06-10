@@ -6,7 +6,7 @@ import command.CommandResponse
 
 import org.javacord.api.DiscordApi
 import org.javacord.api.entity.{DiscordEntity, Nameable}
-import org.javacord.api.entity.channel.{Channel, TextChannel}
+import org.javacord.api.entity.channel.{Channel, TextChannel, ServerTextChannel}
 import org.javacord.api.entity.message.Message
 import org.javacord.api.entity.server.Server
 import org.javacord.api.entity.user.User
@@ -40,6 +40,12 @@ object Ids {
       getChannel(channelId).flatMap {
         case ch: (TextChannel & Nameable) => ch.point
         case ch => EitherT.left(s"Channel ${channelId} is not a named text channel")
+      }
+
+    def getServerTextChannel[M[_]: Monad](channelId: Id[ServerTextChannel]): EitherT[String, M, ServerTextChannel] =
+      getChannel(channelId).flatMap {
+        case ch: ServerTextChannel => ch.point
+        case ch => EitherT.left(s"Channel ${channelId} is not a server text channel")
       }
 
     def getUser(userId: Id[User]): Future[User] =
