@@ -40,3 +40,35 @@ trait RoleInstance {
     coherenceProof(this)
 
 }
+
+object RoleInstance {
+
+  // A helper method for a common pattern. In nightAction, it's common
+  // to check some input that the user provided over the past night
+  // phase. Ideally, all users have supplied the requisite input, but
+  // sometimes people forget.
+  //
+  // withForgottenInput takes the Option containing user input (if
+  // supplied), a default value, and a message. It also takes a
+  // function to apply to the input value. If the user supplied a
+  // value (i.e. the Option is not None), then that value is passed
+  // harmlessly to the given callback function. If the user did not
+  // supply an input value, then defaultValue is used instead, and
+  // defaultMessage is prepended to the user's feedback.
+  // defaultMessage should be a message indicating to the user which
+  // option was chosen for them, to be completely unambiguous.
+  //
+  // Example usage:
+  //
+  //   withForgottenInput(userInput, TablePosition.Left, "(Defaulting to LEFT table position)") { input =>
+  //     ...
+  //   }
+  def withForgottenInput[A, F[_]: Functor](input: Option[A], defaultValue: A, defaultMessage: String)(fn: (A) => F[FeedbackMessage]): F[FeedbackMessage] = {
+    val defaultFeedback = FeedbackMessage(defaultMessage)
+    input match {
+      case None => fn(defaultValue).map { defaultFeedback ++ _ }
+      case Some(x) => fn(x)
+    }
+  }
+
+}
