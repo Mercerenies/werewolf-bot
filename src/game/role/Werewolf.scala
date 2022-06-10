@@ -14,8 +14,15 @@ case object Werewolf extends Role {
     override val initialNightMessage: String =
       bold("Please reply 'left', 'middle', or 'right'") + " to indicate the card you will look at if you're the lone werewolf."
 
-    override val midnightReminder: Option[String] =
-      None
+    override def midnightReminder: Option[String] =
+      if (hasChoice) {
+        None
+      } else {
+        Some(
+          "Reminder: Please indicate the card you will look at if you're the lone werewolf, by " +
+            bold("replying 'left', 'middle', or 'right'."),
+        )
+      }
 
   }
 
