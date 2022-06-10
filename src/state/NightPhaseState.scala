@@ -38,7 +38,7 @@ import Scalaz.{Id => _, *}
 
 final class NightPhaseState(
   _gameProperties: GameProperties,
-  private val players: List[User],
+  private val playerIds: List[Id[User]],
   private val board: Board,
 )(
   using ExecutionContext,
@@ -46,9 +46,6 @@ final class NightPhaseState(
 
   import NightPhaseState.logger
   import scalaz.EitherT.eitherTHoist
-
-  private val playerIds: List[Id[User]] =
-    players.map { Id(_) }
 
   override val listeningPlayerList: List[Id[User]] =
     playerIds

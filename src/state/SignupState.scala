@@ -121,7 +121,7 @@ final class SignupState(
         val playerCount = signups.length
         val rolesNeeded = Rules.rolesNeeded(playerCount)
         CommandResponse.simple(bold("Signups are now closed.") + s" There are ${playerCount} player(s). ${user.getMentionTag}, please ping me and indicate a list of ${rolesNeeded} roles to include in the game.").andThen { _ =>
-          mgr.updateGame(Id(channel), RoleListState(gameProperties, signups.toList))
+          mgr.updateGame(Id(channel), RoleListState(gameProperties, signups.map(Id(_)).toList))
         }
       }
     }
