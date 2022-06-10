@@ -65,8 +65,8 @@ final class RoleListState(
       players <- playerIds.traverse { api.getUser(_) }
     } yield {
       bold("Welcome to One Night Ultimate Werewolf") + "\n\n" +
-        "The following players are participating: " + players.map(_.getDisplayName(server)).mkString(", ") + "\n" +
-        "The following roles are in play: " + roleList.map(_.name).mkString(", ") + "\n" +
+        "The following players are participating: " + players.map(_.getDisplayName(server)).mkString(", ") + "\n" + // TODO Correct order
+        "The following roles are in play: " + roleList.map(_.name).mkString(", ") + "\n" + // TODO Alphabetize
         bold("I am sending each player's role via DM now.") + "\n" +
         bold(s"It is nighttime. Day will begin in ${gameProperties.nightPhaseLength}.")
     }
