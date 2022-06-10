@@ -35,10 +35,3 @@ def findDuplicate[A](data: IterableOnce[A]): Option[A] = {
   }
   None
 }
-
-def pluralize(number: Long, text: String): String =
-  if (number == 1) {
-    s"${number} ${text}"
-  } else {
-    s"${number} ${text}s"
-  }

@@ -3,7 +3,7 @@ package com.mercerenies.werewolf
 package state
 package properties
 
-import util.pluralize
+import util.Grammar.pluralize
 
 import org.javacord.api.entity.Nameable
 import org.javacord.api.entity.user.User
