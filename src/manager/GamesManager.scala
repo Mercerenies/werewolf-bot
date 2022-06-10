@@ -64,6 +64,7 @@ final class GamesManager(
     SignupState.createGame(channel, host).map { state =>
       games(Id(channel)) = state
       addUsersFor(state)
+      state.onEnterState(this)
       state
     }
   }
@@ -80,9 +81,11 @@ final class GamesManager(
   def updateGame(channelId: Id[TextChannel & Nameable], newState: GameState): Unit = {
     if (hasGame(channelId)) {
       logger.info(s"Updating game in channel ${channelId}, game is now in state ${newState}")
+      games(channelId).onExitState(this)
       removeUsersFor(games(channelId))
       games(channelId) = newState
       addUsersFor(newState)
+      newState.onEnterState(this)
     } else {
       // Warn and do nothing.
       logger.warn(s"Attempt to update state for nonexistent game in channel ${channelId} to ${newState}")
