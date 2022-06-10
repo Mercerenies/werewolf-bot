@@ -2,7 +2,7 @@
 package com.mercerenies.werewolf
 package state
 
-import id.Id
+import id.{Id, UserMapping}
 import id.Ids.*
 import timer.Cancellable
 import util.TextDecorator.*
@@ -17,6 +17,7 @@ import game.board.Board
 import game.role.Role
 import game.parser.ListParser
 import game.night.NightMessageHandler
+import game.response.FeedbackMessage
 import properties.GameProperties
 
 import org.javacord.api.DiscordApi
@@ -117,7 +118,16 @@ final class NightPhaseState(
 
   private def endOfNight(api: DiscordApi): Unit = {
     println("night phase over")
-    /////
+    val r = for {
+      channel <- api.getServerTextChannel[Future](Id.fromLong(channelId.toLong)) // TODO (HACK) channelId should be a ServerTextChannel id anyway
+      userMapping <- UserMapping.fromServer(api, channel.getServer, playerIds).liftM
+    } yield {
+      NightPhaseState.evaluateNightPhase(userMapping, board)
+    }
+    // In case of error, log and do nothing
+    r.warningToLogger(logger).foreach { _.foreach { (finalBoard, nightMessagesFuture) =>
+      /////
+    } }
   }
 
 }
@@ -131,6 +141,23 @@ object NightPhaseState extends Logging[RoleListState] {
       case Some(message) =>
         player.sendMessage(message).asScala.map { _ => () }
     }
+  }
+
+  // The returned future is successful when all night DMs have been
+  // sent. The final board state does not depend on this, but it may
+  // be worth waiting until this completes to start the actual day
+  // phase.
+  def evaluateNightPhase(mapping: UserMapping, board: Board)(using ExecutionContext): (Board, Future[Unit]) = {
+    val instances = board.playerRoleInstances.sortBy { (_, roleInstance) => - roleInstance.role.precedence }
+    val stateMonad: State[Board, List[(Id[User], FeedbackMessage)]] = instances.traverse { (userId, roleInstance) =>
+      roleInstance.nightAction(mapping, userId).map { (userId, _) }
+    }
+    // So Scala dies a violent and bloody death if I don't include the
+    // 'using' argument here. No idea why, but probably related to
+    // https://github.com/lampepfl/dotty/issues/12479.
+    val (finalBoard, messages) = stateMonad(board)(using scalaz.Id.id)
+    val messagesFuture = messages.traverse { (userId, feedback) => feedback.sendTo(mapping(userId)) }.void
+    (finalBoard, messagesFuture)
   }
 
 }
