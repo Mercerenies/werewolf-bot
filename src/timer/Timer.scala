@@ -30,7 +30,7 @@ final class Timer {
   // As scheduleTask, but used when you don't need a Future. Any
   // uncaught exceptions during the task will be logged and
   // suppressed.
-  def scheduleTaskCast(delay: Duration, task: Runnable): Cancellable = {
+  def scheduleTaskCast(delay: Duration)(task: Runnable): Cancellable = {
     val runnable = ErrorLoggingRunnable(task, logger)
     scheduleTaskImpl(delay, runnable)
   }
@@ -41,7 +41,7 @@ final class Timer {
   //
   // If the task is cancelled, the Future will fail with
   // CancelledTaskException.
-  def scheduleTask[A](delay: Duration, task: () => A): (Future[A], Cancellable) = {
+  def scheduleTask[A](delay: Duration)(task: () => A): (Future[A], Cancellable) = {
     val runnable = Timer.WithPromiseRunnable(task)
     val cancelAction = scheduleTaskImpl(delay, runnable)
     val wrappedCancelAction = new Cancellable() {
