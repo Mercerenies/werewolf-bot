@@ -45,11 +45,11 @@ object Board {
   def create(roles: Iterable[(Position, Role)]): Board =
     Board(roles.map { (pos, role) => (pos, role.createInstance()) })
 
-  // Precondition: players.length + Rules.centerCards == roles.length
-  def assignRoles(players: List[Id[User]], roles: List[Role]): Board = { // TODO Use rolesNeeded here, not centerCards
+  // Precondition: Rules.rolesNeeded(players.length) == roles.length
+  def assignRoles(players: List[Id[User]], roles: List[Role]): Board = {
     // Validate precondition
-    if (players.length + Rules.centerCards != roles.length) {
-      throw new RuntimeException(s"In a ${players.length}-player game, expected ${players.length + Rules.centerCards} roles, but got ${roles.length} instead.")
+    if (Rules.rolesNeeded(players.length) != roles.length) {
+      throw new RuntimeException(s"In a ${players.length}-player game, expected ${Rules.rolesNeeded(players.length)} roles, but got ${roles.length} instead.")
     }
 
     val positions = Position.forGame(players)
