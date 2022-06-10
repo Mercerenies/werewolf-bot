@@ -44,16 +44,10 @@ final class NightPhaseState(
   private val board: Board,
 )(
   using ExecutionContext,
-) extends GameState(_gameProperties) {
+) extends GameState(_gameProperties) with SchedulingState {
 
   import NightPhaseState.logger
   import scalaz.EitherT.eitherTHoist
-
-  private val nightPhaseReminderCancellable: Cell[Option[Cancellable]] =
-    Cell(None)
-
-  private val nightPhaseEndCancellable: Cell[Option[Cancellable]] =
-    Cell(None)
 
   override val listeningPlayerList: List[Id[User]] =
     playerIds
@@ -83,23 +77,16 @@ final class NightPhaseState(
 
     // Schedule midnight reminder
     gameProperties.nightPhaseReminderTime.foreach { time =>
-      val midnightEvent = timer.scheduleTaskCast(time.toDuration) { () =>
+      schedule(mgr, time.toDuration) { () =>
         sendNightReminder(mgr)
       }
-      nightPhaseReminderCancellable.value = Some(midnightEvent)
     }
 
     // Schedule end of night phase
-    val endEvent = timer.scheduleTaskCast(gameProperties.nightPhaseLength.toDuration) { () =>
+    schedule(mgr, gameProperties.nightPhaseLength.toDuration) { () =>
       endOfNight(mgr)
     }
-    nightPhaseEndCancellable.value = Some(endEvent)
 
-  }
-
-  override def onExitState(mgr: GamesManager): Unit = {
-    nightPhaseReminderCancellable.value.foreach { _.cancel() }
-    nightPhaseEndCancellable.value.foreach { _.cancel() }
   }
 
   private def sendNightReminder(mgr: GamesManager): Unit = {

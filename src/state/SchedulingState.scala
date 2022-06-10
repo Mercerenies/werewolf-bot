@@ -25,7 +25,7 @@ import scala.jdk.CollectionConverters.*
 // GamesManager's timer instance. When cancelAll() is called, all
 // scheduled events are cancelled. This also occurs automatically when
 // the onExitState event is triggered.
-trait SchedulingState extends GameState {
+transparent trait SchedulingState extends GameState {
 
   private val eventQueue: LinkedBlockingQueue[Cancellable] = LinkedBlockingQueue()
 
