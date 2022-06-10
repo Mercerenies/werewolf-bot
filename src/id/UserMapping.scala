@@ -2,11 +2,18 @@
 package com.mercerenies.werewolf
 package id
 
+import Ids.*
+
 import org.javacord.api.DiscordApi
 import org.javacord.api.entity.server.Server
 import org.javacord.api.entity.user.User
 
+import scalaz.{Id => _, *}
+import Scalaz.{Id => _, *}
+
 import java.util.NoSuchElementException
+
+import scala.concurrent.{Future, ExecutionContext}
 
 trait UserMapping {
 
@@ -52,6 +59,15 @@ object UserMapping {
   def fromNameMap(map: Map[Id[User], User], nameMap: Map[Id[User], String]): UserMapping =
     FromNameMap(map, nameMap)
 
-  //def fromServer(api: DiscordApi, server: Server): User
+  def fromServer(api: DiscordApi, server: Server, idsOfInterest: List[Id[User]])(using ExecutionContext): Future[UserMapping] =
+    for {
+      users <- idsOfInterest.traverse { id =>
+        api.getUser(id).map { (id, _) }
+      }
+    } yield {
+      val usersMap = users.toMap
+      val namesMap = usersMap.view.mapValues { _.getDisplayName(server) }.toMap
+      fromNameMap(usersMap, namesMap)
+    }
 
 }
