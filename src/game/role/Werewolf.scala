@@ -7,7 +7,7 @@ import id.Id
 import util.TextDecorator.*
 import wincon.{WinCondition, WerewolfWinCondition}
 import night.{NightMessageHandler, TablePositionMessageHandler}
-import board.Board
+import board.{Board, TablePosition}
 import response.FeedbackMessage
 
 import org.javacord.api.entity.user.User
@@ -47,9 +47,17 @@ case object Werewolf extends Role {
     override val nightHandler: NightMessageHandler =
       tablePositionMessageHandler
 
-    override def nightAction(userId: Id[User]): State[Board, FeedbackMessage] = {
-      FeedbackMessage.none.point /////
-    }
+    private val forgottenInputMessage: String =
+      "(Defaulting to the " + bold("Left") + " card)"
+
+    override def nightAction(userId: Id[User]): State[Board, FeedbackMessage] =
+      RoleInstance.withForgottenInput(tablePositionMessageHandler.currentChoice, TablePosition.Left, forgottenInputMessage) { tablePos =>
+        for {
+          board <- State.get
+        } yield {
+          ??? /////
+        }
+      }
 
   }
 
