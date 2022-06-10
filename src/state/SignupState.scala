@@ -47,43 +47,37 @@ final class SignupState(
   import SignupState.logger
   import scalaz.EitherT.eitherTHoist
 
-  private def getGameStartMessage(api: DiscordApi): EitherT[String, Future, Message] =
+  private def getGameStartMessage(api: DiscordApi): Future[Message] =
     api.getMessage(channelId, gameStartMessageId)
 
-  private def getSignupsMessage(api: DiscordApi): EitherT[String, Future, Message] =
+  private def getSignupsMessage(api: DiscordApi): Future[Message] =
     api.getMessage(channelId, signupsMessageId)
 
   def getSignups(api: DiscordApi): Future[collection.Seq[User]] =
-    val r = for {
+    for {
       message <- getGameStartMessage(api)
-      joinReactions <- SignupState.getJoinReactions(message).liftM
+      joinReactions <- SignupState.getJoinReactions(message)
     } yield {
       joinReactions.filter { user => !user.isBot }
     }
-    // In case of error, log and return Nil
-    r.warningToLogger(logger).map { _.getOrElse(Nil) }
 
   private def getSignupNames(api: DiscordApi): Future[collection.Seq[String]] =
-    val r = for {
+    for {
       message <- getGameStartMessage(api)
-      server <- api.getServerFromMessage(message)
-      users <- getSignups(api).liftM
+      server = api.getServerFromMessage(message)
+      users <- getSignups(api)
     } yield {
       users.map { _.getDisplayName(server) }
     }
-    // In case of error, log and return Nil
-    r.warningToLogger(logger).map { _.getOrElse(Nil) }
 
   def updateSignupList(api: DiscordApi): Future[Unit] =
-    val r = for {
+    for {
       signupsMessage <- getSignupsMessage(api)
-      users <- getSignupNames(api).map { _.sorted }.liftM
-      _ <- signupsMessage.edit(SignupState.getSignupMessage(users)).asScala.liftM
+      users <- getSignupNames(api).map { _.sorted }
+      _ <- signupsMessage.edit(SignupState.getSignupMessage(users)).asScala
     } yield {
       ()
     }
-    // In case of error, log and return ()
-    r.warningToLogger(logger).map { _.getOrElse(()) }
 
   override val listeningPlayerList: List[Id[User]] = Nil
 
@@ -94,10 +88,10 @@ final class SignupState(
   }
 
   override def onStartGame(mgr: GamesManager, interaction: SlashCommandInteraction): Future[CommandResponse[Unit]] =
-    val r = for {
+    for {
       message <- getGameStartMessage(mgr.api)
-      server <- mgr.api.getServerFromMessage(message)
-      signups <- getSignups(mgr.api).liftM
+      server = mgr.api.getServerFromMessage(message)
+      signups <- getSignups(mgr.api)
     } yield {
       val user = interaction.getUser
       Permissions.mustBeAdminOrHost(server, hostId, user) {
@@ -108,8 +102,6 @@ final class SignupState(
         }
       }
     }
-    // In case of error, log and return ()
-    r.warningToLogger(logger).map { _.getOrElse(Ids.errorResponse) }
 
 }
 

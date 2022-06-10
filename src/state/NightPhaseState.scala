@@ -117,17 +117,13 @@ final class NightPhaseState(
   }
 
   private def endOfNight(api: DiscordApi): Unit = {
-    println("night phase over")
-    val r = for {
-      channel <- api.getServerTextChannel[Future](Id.fromLong(channelId.toLong)) // TODO (HACK) channelId should be a ServerTextChannel id anyway
-      userMapping <- UserMapping.fromServer(api, channel.getServer, playerIds).liftM
+    val channel = api.getServerTextChannel(Id.fromLong(channelId.toLong)) // TODO (HACK) channelId should be a ServerTextChannel id anyway
+    for {
+      userMapping <- UserMapping.fromServer(api, channel.getServer, playerIds)
     } yield {
-      NightPhaseState.evaluateNightPhase(userMapping, board)
-    }
-    // In case of error, log and do nothing
-    r.warningToLogger(logger).foreach { _.foreach { (finalBoard, nightMessagesFuture) =>
+      val (finalBoard, nightMessagesFuture) = NightPhaseState.evaluateNightPhase(userMapping, board)
       /////
-    } }
+    }
   }
 
 }

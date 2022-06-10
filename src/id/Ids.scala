@@ -18,34 +18,39 @@ import scala.concurrent.{Future, ExecutionContext}
 import scalaz.{Id => _, *}
 import Scalaz.{Id => _, *}
 
-// Extension methods on DiscordApi which get data based on Id[?] and
-// return values in the EitherT[String, M, ?] monad. For some of these
-// functions, by necessity, M is specialized to Future.
+// Extension methods on DiscordApi which get data based on Id[?].
+// Errors that occur during this process are raised as appropriate
+// DiscordIdLookupExceptions. By necessity, some of these functions
+// are asynchronous. All asynchronous returns are converted to Scala
+// Futures.
 object Ids {
 
+  // TODO Use me, if we catch an exception in GamesManager or any of
+  // its event handlers.
   val errorResponse: CommandResponse[Unit] =
     CommandResponse.ephemeral("Sorry, I've encountered an error. Please report this to Mercerenies :)").void
 
   extension(api: DiscordApi)
 
-    def getChannel[M[_]: Monad](channelId: Id[Channel]): EitherT[String, M, Channel] =
-      EitherT.fromOption(s"No such channel ${channelId}") {
-        api.getChannelById(channelId.toLong).toScala.point
+    def getChannel(channelId: Id[Channel]): Channel =
+      api.getChannelById(channelId.toLong).toScala match {
+        case None => throw new DiscordIdLookupException(s"No such channel ${channelId}")
+        case Some(x) => x
       }
 
     // Kind of an oddly specific helper, but all of our game code
     // happens inside of a named text channel, so we use this one to
     // identify channels of interest.
-    def getNamedTextChannel[M[_]: Monad](channelId: Id[TextChannel & Nameable]): EitherT[String, M, TextChannel & Nameable] =
-      getChannel(channelId).flatMap {
-        case ch: (TextChannel & Nameable) => ch.point
-        case ch => EitherT.left(s"Channel ${channelId} is not a named text channel")
+    def getNamedTextChannel(channelId: Id[TextChannel & Nameable]): TextChannel & Nameable =
+      getChannel(channelId) match {
+        case ch: (TextChannel & Nameable) => ch
+        case _ => throw new DiscordIdLookupException(s"Channel ${channelId} is not a named text channel")
       }
 
-    def getServerTextChannel[M[_]: Monad](channelId: Id[ServerTextChannel]): EitherT[String, M, ServerTextChannel] =
-      getChannel(channelId).flatMap {
-        case ch: ServerTextChannel => ch.point
-        case ch => EitherT.left(s"Channel ${channelId} is not a server text channel")
+    def getServerTextChannel(channelId: Id[ServerTextChannel]): ServerTextChannel =
+      getChannel(channelId) match {
+        case ch: ServerTextChannel => ch
+        case _ => throw new DiscordIdLookupException(s"Channel ${channelId} is not a server text channel")
       }
 
     def getUser(userId: Id[User]): Future[User] =
@@ -54,12 +59,15 @@ object Ids {
     def getMessage(channel: TextChannel, messageId: Id[Message]): Future[Message] =
       api.getMessageById(messageId.toLong, channel).asScala
 
-    def getMessage(channelId: Id[TextChannel & Nameable], messageId: Id[Message])(using ExecutionContext): EitherT[String, Future, Message] =
-      getNamedTextChannel(channelId).flatMap { getMessage(_, messageId).liftM }
+    def getMessage(channelId: Id[TextChannel & Nameable], messageId: Id[Message])(using ExecutionContext): Future[Message] = {
+      val channel =getNamedTextChannel(channelId)
+      getMessage(channel, messageId)
+    }
 
-    def getServerFromMessage[M[_]: Monad](message: Message): EitherT[String, M, Server] =
-      EitherT.fromOption(s"No server for message ${message}") {
-        message.getServer.toScala.point
+    def getServerFromMessage(message: Message): Server =
+      message.getServer.toScala match {
+        case None => throw new DiscordIdLookupException(s"No server for message ${message}")
+        case Some(server) => server
       }
 
 }

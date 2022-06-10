@@ -74,25 +74,19 @@ final class RoleListState(
   // TODO Default message if you ping the bot in a channel that
   // doesn't have a game? (for all states, not just this one)
   override def onMessageCreate(mgr: GamesManager, message: Message): Unit = {
-    mgr.api.getServerFromMessage[[A] =>> Scalaz.Id[A]](message).run match {
-      case -\/(err) => {
-        logger.warn(err)
-      }
-      case \/-(server) => {
-        if (isMessageRelevant(mgr, server, message)) {
-          val parser = RoleListState.listParser
-          parser.parse(message.getContent) match {
-            case -\/(err) => {
-              message.reply(err)
-            }
-            case \/-(roles) if roles.length != requiredRoleCount => {
-              message.reply(s"Sorry, but I'm expecting ${requiredRoleCount} role(s). You gave me a list of ${roles.length} role(s).")
-            }
-            case \/-(roles) => {
-              message.reply("Role list accepted.").asScala.flatMap { _ =>
-                setupGame(mgr, server, roles)
-              }
-            }
+    val server = mgr.api.getServerFromMessage(message)
+    if (isMessageRelevant(mgr, server, message)) {
+      val parser = RoleListState.listParser
+      parser.parse(message.getContent) match {
+        case -\/(err) => {
+          message.reply(err)
+        }
+        case \/-(roles) if roles.length != requiredRoleCount => {
+          message.reply(s"Sorry, but I'm expecting ${requiredRoleCount} role(s). You gave me a list of ${roles.length} role(s).")
+        }
+        case \/-(roles) => {
+          message.reply("Role list accepted.").asScala.flatMap { _ =>
+            setupGame(mgr, server, roles)
           }
         }
       }
@@ -101,9 +95,9 @@ final class RoleListState(
 
   private def setupGame(mgr: GamesManager, server: Server, roles: List[Role]): Future[Unit] = {
     val board = Board.assignRoles(playerIds, roles)
+    val channel = mgr.api.getNamedTextChannel(channelId)
     val r = for {
       startMessage <- gameStartMessage(mgr.api, server, roles).liftM
-      channel <- mgr.api.getNamedTextChannel[Future](channelId)
       _ <- channel.sendMessage(startMessage).asScala.liftM
       _ <- RoleListState.sendAllInitialDirectMessages(mgr.api, server, board).liftM
     } yield {
