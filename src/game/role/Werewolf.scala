@@ -3,7 +3,9 @@ package com.mercerenies.werewolf
 package game
 package role
 
+import logging.Logging
 import id.{Id, UserMapping}
+import util.Grammar
 import util.TextDecorator.*
 import wincon.{WinCondition, WerewolfWinCondition}
 import night.{NightMessageHandler, TablePositionMessageHandler}
@@ -36,6 +38,8 @@ object Werewolf extends Role {
 
   override class Instance extends RoleInstance {
 
+    import Instance.logger
+
     override val role: Werewolf.type = Werewolf.this
 
     override val coherenceProof =
@@ -56,11 +60,28 @@ object Werewolf extends Role {
           board <- State.get
         } yield {
           val werewolfIds = findWerewolfIds(board)
-          FeedbackMessage.none /////
+          if (werewolfIds.length <= 1) {
+
+            // Sanity check; I sincerely hope this never triggers.
+            if (werewolfIds.length < 1) {
+              logger.warn(s"Werewolf ${userId} is trying to view the werewolf list but there are no werewolves")
+            }
+
+            // There's one werewolf, so look at the center card.
+            val centerCard = board(tablePos).role
+
+            FeedbackMessage("You are the " + bold("solo werewolf") + ". The " + bold(tablePos.toString) + " card is " + bold(centerCard.name) + ".")
+          } else {
+            val werewolfNames = werewolfIds.map { mapping.nameOf(_) }.sorted
+            val werewolfNamesList = Grammar.conjunctionList(werewolfNames)
+            FeedbackMessage("The werewolf team consists of " + bold(werewolfNamesList) + ".")
+          }
         }
       }
 
   }
+
+  object Instance extends Logging[Instance]
 
   override val name: String = "Werewolf"
 
