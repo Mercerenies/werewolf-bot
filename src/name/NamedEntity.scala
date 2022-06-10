@@ -16,6 +16,9 @@ trait NamedEntity {
   final def matches(name: String): Boolean =
     allNames.map(_.toLowerCase).contains(name.toLowerCase)
 
+  override def toString: String =
+    name
+
 }
 
 object NamedEntity {
