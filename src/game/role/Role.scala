@@ -11,6 +11,8 @@ trait Role extends NamedEntity {
 
   type Instance <: RoleInstance
 
+  def precedence: Int
+
   def baseAlignment: Alignment
 
   // If this is true, then other werewolves (and the minion) will see

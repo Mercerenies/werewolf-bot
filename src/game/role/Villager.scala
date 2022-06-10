@@ -39,6 +39,8 @@ object Villager extends Role {
 
   override val baseAlignment: Alignment = Alignment.Town
 
+  override val precedence: Int = Precedence.NO_ACTION
+
   override def createInstance(): this.Instance =
     Villager.Instance()
 
