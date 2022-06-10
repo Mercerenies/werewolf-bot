@@ -34,7 +34,7 @@ object Board {
     Board(roles.map { (pos, role) => (pos, role.createInstance()) })
 
   // Precondition: players.length + Rules.centerCards == roles.length
-  def assignRoles(players: List[Id[User]], roles: List[Role]): Board = {
+  def assignRoles(players: List[Id[User]], roles: List[Role]): Board = { // TODO Use rolesNeeded here, not centerCards
     // Validate precondition
     if (players.length + Rules.centerCards != roles.length) {
       throw new RuntimeException(s"In a ${players.length}-player game, expected ${players.length + Rules.centerCards} roles, but got ${roles.length} instead.")

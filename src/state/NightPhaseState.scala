@@ -4,8 +4,9 @@ package state
 
 import id.Id
 import id.Ids.*
+import timer.Cancellable
 import util.TextDecorator.*
-import util.Emoji
+import util.{Emoji, Cell}
 import logging.Logging
 import logging.Logs.warningToLogger
 import name.{NameProvider, BaseNameProvider, DisplayNameProvider}
@@ -47,6 +48,12 @@ final class NightPhaseState(
   import NightPhaseState.logger
   import scalaz.EitherT.eitherTHoist
 
+  private val nightPhaseReminderCancellable: Cell[Option[Cancellable]] =
+    Cell(None)
+
+  private val nightPhaseEndCancellable: Cell[Option[Cancellable]] =
+    Cell(None)
+
   override val listeningPlayerList: List[Id[User]] =
     playerIds
 
@@ -67,7 +74,6 @@ final class NightPhaseState(
       case Some(nightHandler) => {
         val response = nightHandler.onDirectMessage(message.getContent)
         response.respondTo(mgr.api, message)
-        ///// Test me
       }
     }
   }
@@ -75,6 +81,56 @@ final class NightPhaseState(
   override def onStartGame(mgr: GamesManager, interaction: SlashCommandInteraction): Future[CommandResponse[Unit]] =
     Future.successful(CommandResponse.ephemeral("It is currently night in this game.").void)
 
+  override def onEnterState(mgr: GamesManager): Unit = {
+    val timer = mgr.timer
+
+    // Schedule midnight reminder
+    gameProperties.nightPhaseReminderTime.foreach { time =>
+      val midnightEvent = timer.scheduleTaskCast(time.toDuration) { () =>
+        sendNightReminder(mgr.api)
+      }
+      nightPhaseReminderCancellable.value = Some(midnightEvent)
+    }
+
+    // Schedule end of night phase
+    val endEvent = timer.scheduleTaskCast(gameProperties.nightPhaseLength.toDuration) { () =>
+      endOfNight(mgr.api)
+    }
+    nightPhaseEndCancellable.value = Some(endEvent)
+
+  }
+
+  override def onExitState(mgr: GamesManager): Unit = {
+    nightPhaseReminderCancellable.value.foreach { _.cancel() }
+    nightPhaseEndCancellable.value.foreach { _.cancel() }
+  }
+
+  private def sendNightReminder(api: DiscordApi): Unit = {
+    for {
+      _ <- Future.traverse(playerNightHandlers) { (playerId, handler) =>
+        api.getUser(playerId).flatMap { NightPhaseState.sendNightReminderTo(api, _, handler) }
+      }
+    } yield {
+      ()
+    }
+  }
+
+  private def endOfNight(api: DiscordApi): Unit = {
+    println("night phase over")
+    /////
+  }
+
 }
 
-object NightPhaseState extends Logging[RoleListState]
+object NightPhaseState extends Logging[RoleListState] {
+
+  private def sendNightReminderTo(api: DiscordApi, player: User, handler: NightMessageHandler)(using ExecutionContext): Future[Unit] = {
+    handler.midnightReminder match {
+      case None =>
+        Future.successful(())
+      case Some(message) =>
+        player.sendMessage(message).asScala.map { _ => () }
+    }
+  }
+
+}
