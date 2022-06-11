@@ -7,14 +7,19 @@ package peano
 
 sealed trait Num {
   def succ: Num.Succ[this.type] = Num.Succ(this)
+  def toInt: Int
 }
 
 object Num {
 
   sealed trait Zero extends Num
-  object Zero extends Zero
+  object Zero extends Zero {
+    val toInt: Int = 0
+  }
 
-  final class Succ[A <: Num](val pred: A) extends Num
+  final class Succ[A <: Num](val pred: A) extends Num {
+    val toInt: Int = pred.toInt + 1
+  }
 
   given CanonicalZero : Zero = Zero
 
