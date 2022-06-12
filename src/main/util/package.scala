@@ -35,3 +35,10 @@ def findDuplicate[A](data: IterableOnce[A]): Option[A] = {
   }
   None
 }
+
+def deleteFirst[A](list: List[A], element: A): List[A] =
+  list match {
+    case Nil => Nil
+    case x :: xs if x == element => xs
+    case x :: xs => x :: deleteFirst(xs, element)
+  }
