@@ -28,6 +28,37 @@ class MultiSetSpec extends UnitSpec {
     MultiSet.from(List(1, 1, 3, 2)) should be (MultiSet(3, 2, 1, 1))
   }
 
-  /////
+  it should "produce its values in naturally sorted order" in {
+    val s = MultiSet.from(List(1, 3, 2, 1, 2))
+    s.sorted should be (List(1, 1, 2, 2, 3))
+  }
+
+  it should "produce its values in sorted order using a key" in {
+    val s = MultiSet.from(List(1, 3, 2, 1, 2))
+    s.sortBy { - _ } should be (List(3, 2, 2, 1, 1))
+  }
+
+  it should "produce its values in sorted order using a comparator function" in {
+    val s = MultiSet.from(List(1, 3, 2, 1, 2))
+    s.sortWith { _ > _ } should be (List(3, 2, 2, 1, 1))
+  }
+
+  it should "allow adding elements through the + method" in {
+    val s = MultiSet(1, 2, 3)
+    s + 1 should be (MultiSet(1, 2, 3, 1))
+    s + 1 + 10 should be (MultiSet(1, 2, 3, 1, 10))
+  }
+
+  it should "allow removing elements through the - method" in {
+    val s = MultiSet(1, 1, 1, 2, 3)
+    s - 1 should be (MultiSet(1, 2, 3, 1))
+    s - 1 - 1 should be (MultiSet(1, 2, 3))
+    s - 1 - 1 - 1 should be (MultiSet(2, 3))
+  }
+
+  it should "change nothing if an attempt is made to remove a nonexistent element" in {
+    val s = MultiSet("a", "b", "c")
+    s - "someRandomElement" should be (s)
+  }
 
 }

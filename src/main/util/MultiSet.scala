@@ -29,6 +29,23 @@ final class MultiSet[A] private(
   def sortWith(f: (A, A) => Boolean): List[A] =
     toList.sortWith(f)
 
+  def +(elem: A): MultiSet[A] = {
+    val newMap = counts.updatedWith(elem) {
+      case None => Some(1)
+      case Some(x) => Some(x + 1)
+    }
+    new MultiSet(newMap)
+  }
+
+  def -(elem: A): MultiSet[A] = {
+    val newMap = counts.updatedWith(elem) {
+      case None => None // If not present, do nothing
+      case Some(1) => None
+      case Some(x) => Some(x - 1)
+    }
+    new MultiSet(newMap)
+  }
+
 }
 
 object MultiSet {
