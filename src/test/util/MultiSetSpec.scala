@@ -61,4 +61,14 @@ class MultiSetSpec extends UnitSpec {
     s - "someRandomElement" should be (s)
   }
 
+  it should "allow containment querying with the 'contains' method" in {
+    val s = MultiSet(1, 1, 1, 2, 3)
+    s.contains(1) should be (true)
+    s.contains(2) should be (true)
+    s.contains(3) should be (true)
+    s.contains(4) should be (false)
+    (s - 1).contains(1) should be (true)
+    (s - 2).contains(2) should be (false)
+  }
+
 }
