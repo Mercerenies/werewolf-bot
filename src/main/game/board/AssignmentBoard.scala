@@ -22,6 +22,9 @@ case class AssignmentBoard(
 
   export mapping.get
 
+  def getRoleName(position: Position): String =
+    get(position).fold("-") { _.name }
+
   def toMap: Map[Position, Role] = mapping
 
   // Precondition: this.get(position) == None
