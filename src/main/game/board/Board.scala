@@ -14,6 +14,7 @@ final class Board(
 
   export toMap.get
 
+  // Returns the roles in alphabetical order by name.
   def roles: List[Role] =
     toMap.values.map { _.role }.toList.sortBy { _.name }
 
