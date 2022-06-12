@@ -6,8 +6,6 @@ package board
 import id.UserMapping
 import util.TextDecorator.*
 
-///// test me
-
 class StandardAssignmentBoardFormatter(
   private val userMapping: UserMapping,
 ) extends AssignmentBoardFormatter {
