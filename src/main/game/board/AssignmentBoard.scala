@@ -5,10 +5,9 @@ package board
 
 import id.Id
 import role.{Role, RoleInstance}
+import util.MultiSet
 
 import org.javacord.api.entity.user.User
-
-///// test me
 
 // Whereas the Board class stores the actual state of the game,
 // including player actions and stateful role specifics, an
@@ -18,7 +17,7 @@ import org.javacord.api.entity.user.User
 case class AssignmentBoard(
   val mapping: Map[Position, Role],
   val playerList: List[Id[User]],
-  val unassignedRoles: List[Role],
+  val unassignedRoles: MultiSet[Role],
 ) {
 
   export mapping.get
@@ -30,7 +29,7 @@ case class AssignmentBoard(
     // If the role is in the unassigned roles list, then use that one.
     // Otherwise, take it from the mapping.
     if (unassignedRoles.contains(role)) {
-      val newUnassignedRoles = util.deleteFirst(unassignedRoles, role)
+      val newUnassignedRoles = unassignedRoles - role
       AssignmentBoard(
         mapping = mapping.updated(position, role),
         playerList = playerList,
@@ -64,7 +63,7 @@ case class AssignmentBoard(
     val currentValue = get(position)
     val newUnassignedRoles = currentValue match {
       case None => unassignedRoles
-      case Some(value) => value :: unassignedRoles
+      case Some(value) => unassignedRoles + value
     }
     AssignmentBoard(
       mapping = mapping.removed(position),
@@ -85,7 +84,7 @@ object AssignmentBoard {
     AssignmentBoard(
       mapping = Map(),
       playerList = playerList,
-      unassignedRoles = board.roles,
+      unassignedRoles = MultiSet.from(board.roles),
     )
 
 }
