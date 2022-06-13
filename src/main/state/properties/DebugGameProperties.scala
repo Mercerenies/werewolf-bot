@@ -18,6 +18,8 @@ case class DebugGameProperties(
 
   override val dayPhaseLength: TimePeriod = TimePeriod.seconds(60)
 
+  override val votePhaseLength: TimePeriod = TimePeriod.seconds(60)
+
   override val nightPhaseReminderTime: Option[TimePeriod] = Some(TimePeriod.seconds(10))
 
 }

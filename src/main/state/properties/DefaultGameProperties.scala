@@ -17,6 +17,8 @@ case class DefaultGameProperties(
 
   override val dayPhaseLength: TimePeriod = TimePeriod.hours(72)
 
+  override val votePhaseLength: TimePeriod = TimePeriod.hours(24)
+
   override val nightPhaseReminderTime: Option[TimePeriod] = Some(TimePeriod.hours(24))
 
 }
