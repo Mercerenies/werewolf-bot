@@ -11,18 +11,22 @@ final class Cell[A](
   initialValue: A,
 ) {
 
-  private val impl = LinkedBlockingQueue[A](1)
+  private var impl: A = initialValue
 
-  impl.put(initialValue)
+  private val _lock: AnyRef = new AnyRef()
 
   def value: A =
-    impl.peek.nn
+    _lock.synchronized {
+      impl
+    }
 
   // Returns the prior value.
   def replace(x: A): A = {
-    val prior = impl.remove()
-    impl.add(x)
-    prior
+    _lock.synchronized {
+      val prior = impl
+      impl = x
+      prior
+    }
   }
 
   // Convenience for .replace if you don't need the prior value.
@@ -30,9 +34,18 @@ final class Cell[A](
     replace(x)
   }
 
+  // Note: modify acquires one lock, so no actions can happen between
+  // the get and subsequent set of the data.
   def modify(fn: (A) => A): Unit = {
-    val prior = impl.remove()
-    impl.add(fn(prior))
+    _lock.synchronized {
+      val prior = impl
+      impl = fn(prior)
+    }
   }
+
+  // Lock access to this cell for the duration of evaluation of the
+  // by-name argument.
+  def lock[B](fn: => B): B =
+    _lock.synchronized { fn }
 
 }
