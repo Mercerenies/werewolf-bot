@@ -32,11 +32,18 @@ case class NamedUser(
 
 object NamedUser {
 
-  def fromUsers(server: Server, user: User): NamedUser =
+  def fromUser(user: User, server: Server): NamedUser =
     NamedUser(
       id = Id(user),
       name = user.getName,
       nickname = user.getNickname(server).toScala,
+    )
+
+  def fromUser(user: User): NamedUser =
+    NamedUser(
+      id = Id(user),
+      name = user.getName,
+      nickname = None,
     )
 
 }
