@@ -73,7 +73,6 @@ final class NightPhaseState(
     Future.successful(CommandResponse.ephemeral("It is currently night in this game.").void)
 
   override def onEnterState(mgr: GamesManager): Unit = {
-    val timer = mgr.timer
 
     // Schedule midnight reminder
     gameProperties.nightPhaseReminderTime.foreach { time =>

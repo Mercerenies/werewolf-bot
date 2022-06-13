@@ -85,15 +85,15 @@ final class DayPhaseState(
     }
 
   override def onEnterState(mgr: GamesManager): Unit = {
-    val timer = mgr.timer
     val channel = mgr.api.getServerTextChannel(channelId)
     val server = channel.getServer
     dayStartMessage(mgr.api, server).flatMap { channel.sendMessage(_).asScala }
-    ////
-  }
 
-  override def onExitState(mgr: GamesManager): Unit = {
-    ////
+    // Schedule end of day phase
+    schedule(mgr, gameProperties.dayPhaseLength.toDuration) { () =>
+      endOfDay(mgr)
+    }
+
   }
 
   private def dayStartMessage(api: DiscordApi, server: Server): Future[String] =
@@ -112,6 +112,11 @@ final class DayPhaseState(
     } yield {
       StandardAssignmentBoardFormatter(userMapping)
     }
+
+  private def endOfDay(mgr: GamesManager): Unit = {
+    val newState = VotePhaseState(gameProperties, playerIds, board)
+    mgr.updateGame(channelId, newState)
+  }
 
 }
 
