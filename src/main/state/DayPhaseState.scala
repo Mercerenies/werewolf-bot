@@ -13,7 +13,7 @@ import name.{NameProvider, BaseNameProvider, DisplayNameProvider}
 import command.CommandResponse
 import manager.GamesManager
 import game.Rules
-import game.board.Board
+import game.board.{Board, AssignmentBoard}
 import game.role.Role
 import game.parser.ListParser
 import game.night.NightMessageHandler
@@ -40,16 +40,19 @@ import Scalaz.{Id => _, *}
 
 final class DayPhaseState(
   _gameProperties: GameProperties,
-  private val playerIds: List[Id[User]],
+  override val playerIds: List[Id[User]],
   private val board: Board,
 )(
   using ExecutionContext,
-) extends GameState(_gameProperties) {
+) extends GameState(_gameProperties) with SchedulingState with WithUserMapping {
 
   import DayPhaseState.logger
 
   override val listeningPlayerList: List[Id[User]] =
     Nil
+
+  private val assignmentBoard: Cell[AssignmentBoard] =
+    Cell(AssignmentBoard.empty(board, playerIds))
 
   override def onMessageCreate(mgr: GamesManager, message: Message): Unit = {
     /////
