@@ -7,6 +7,9 @@ import id.Id
 import org.javacord.api.entity.message.Message
 import org.javacord.api.entity.user.User
 
+import scalaz.{Id => _, *}
+import Scalaz.{Id => _, *}
+
 import scala.jdk.CollectionConverters.*
 import scala.util.Random
 import scala.collection.mutable.HashSet
@@ -41,4 +44,10 @@ def deleteFirst[A](list: List[A], element: A): List[A] =
     case Nil => Nil
     case x :: xs if x == element => xs
     case x :: xs => x :: deleteFirst(xs, element)
+  }
+
+def foldM[A, B, M[_]: Monad](list: List[B], acc: A)(op: (A, B) => M[A]): M[A] =
+  list match {
+    case Nil => acc.point
+    case (x :: xs) => op(acc, x) >>= { newAcc => foldM(xs, newAcc)(op) }
   }
