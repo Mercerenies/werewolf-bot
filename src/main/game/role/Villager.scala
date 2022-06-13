@@ -30,6 +30,8 @@ object Villager extends Role {
     override def nightAction(mapping: UserMapping, userId: Id[User]): State[Board, FeedbackMessage] =
       FeedbackMessage.none.point
 
+    override val winCondition: WinCondition =
+      TownWinCondition
 
   }
 
@@ -46,8 +48,5 @@ object Villager extends Role {
 
   override val introBlurb: String =
     "You are a " + bold("Villager") + ". You have no special abilities to activate."
-
-  override val winCondition: WinCondition =
-    TownWinCondition
 
 }

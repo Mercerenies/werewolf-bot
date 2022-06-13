@@ -79,6 +79,11 @@ object Werewolf extends Role {
         }
       }
 
+    override val winCondition: WinCondition =
+      WerewolfWinCondition
+
+    override val seenAsWerewolf: Boolean = true
+
   }
 
   object Instance extends Logging[Instance]
@@ -91,18 +96,13 @@ object Werewolf extends Role {
 
   override val precedence: Int = Precedence.WEREWOLF
 
-  override val seenAsWerewolf: Boolean = true
-
   override def createInstance(): this.Instance =
     Werewolf.Instance()
 
   override val introBlurb: String =
     "You are a " + bold("Werewolf") + ". You will be informed of who the other werewolves are. If there are no other werewolves, you may look at a card in the center of the table."
 
-  override val winCondition: WinCondition =
-    WerewolfWinCondition
-
   private def findWerewolfIds(board: Board): List[Id[User]] =
-    board.playerRoleAssignments.filter { (_, role) => role.seenAsWerewolf }.map { (userId, _) => userId }
+    board.playerRoleInstances.filter { (_, instance) => instance.seenAsWerewolf }.map { (userId, _) => userId }
 
 }

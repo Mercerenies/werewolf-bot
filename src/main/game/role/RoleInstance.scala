@@ -8,6 +8,7 @@ import name.NamedEntity
 import night.NightMessageHandler
 import board.Board
 import response.FeedbackMessage
+import wincon.WinCondition
 
 import org.javacord.api.entity.user.User
 
@@ -36,8 +37,19 @@ trait RoleInstance {
 
   def nightAction(mapping: UserMapping, userId: Id[User]): State[Board, FeedbackMessage]
 
+  def winCondition: WinCondition
+
+  // If this is true, then other werewolves (and the minion) will see
+  // this role when they get to see who the werewolf team is.
+  def seenAsWerewolf: Boolean = false
+
   final def downcast: this.role.Instance =
     coherenceProof(this)
+
+  final def fullIntroMessage(username: String): String =
+    username + ",\n\n" +
+      role.introBlurb + " " + winCondition.blurb + "\n" +
+      "Copying or screenshotting any part of this message is against the rules. Good luck!"
 
 }
 

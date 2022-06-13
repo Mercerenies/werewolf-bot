@@ -14,7 +14,7 @@ import name.{NameProvider, BaseNameProvider, DisplayNameProvider}
 import command.CommandResponse
 import manager.GamesManager
 import game.Rules
-import game.board.{Board, AssignmentBoard, AssignmentBoardFormatter, StandardAssignmentBoardFormatter}
+import game.board.{Board, AssignmentBoard, AssignmentBoardFormatter, StandardAssignmentBoardFormatter, Endgame}
 import game.role.Role
 import game.parser.ListParser
 import game.night.NightMessageHandler
@@ -145,7 +145,8 @@ final class VotePhaseState(
       votes <- compileVotes(mgr.api)
       majority = VotePhaseState.getMajority(votes.values)
       _ <- channel.sendMessage(bold("The game is now over.")).asScala
-      _ <- channel.sendMessage(deathMessage(userMapping, majority)).asScala
+      _ <- channel.sendMessage(VotePhaseState.deathMessage(userMapping, majority)).asScala
+      endgame = Endgame(board, majority)
     } {
       mgr.endGame(channelId)
       ///// Logs
@@ -153,16 +154,6 @@ final class VotePhaseState(
       ///// Winner(s)
     }
   }
-
-  private def deathMessage(mapping: UserMapping, deaths: List[Id[User]]): String =
-    deaths.size match {
-      case 0 => bold("No one has died.")
-      case 1 => bold(s"${mapping.nameOf(deaths(0))} has died.")
-      case _ => {
-        val names = Grammar.conjunctionList(deaths.map { mapping.nameOf(_) })
-        bold(s"${names} have died.")
-      }
-    }
 
 }
 
@@ -178,5 +169,15 @@ object VotePhaseState extends Logging[VotePhaseState] {
       grouped.filter { (_, v) => v == mostVotes }.keys.toList
     }
   }
+
+  private def deathMessage(mapping: UserMapping, deaths: List[Id[User]]): String =
+    deaths.size match {
+      case 0 => bold("No one has died.")
+      case 1 => bold(s"${mapping.nameOf(deaths(0))} has died.")
+      case _ => {
+        val names = Grammar.conjunctionList(deaths.map { mapping.nameOf(_) })
+        bold(s"${names} have died.")
+      }
+    }
 
 }
