@@ -13,7 +13,7 @@ import name.{NameProvider, BaseNameProvider, DisplayNameProvider}
 import command.CommandResponse
 import manager.GamesManager
 import game.Rules
-import game.board.{Board, AssignmentBoard}
+import game.board.{Board, AssignmentBoard, AssignmentBoardFormatter, StandardAssignmentBoardFormatter}
 import game.role.Role
 import game.parser.ListParser
 import game.night.NightMessageHandler
@@ -41,10 +41,10 @@ import Scalaz.{Id => _, *}
 final class DayPhaseState(
   _gameProperties: GameProperties,
   override val playerIds: List[Id[User]],
-  private val board: Board,
+  override val board: Board,
 )(
   using ExecutionContext,
-) extends GameState(_gameProperties) with SchedulingState with WithUserMapping {
+) extends GameState(_gameProperties) with SchedulingState with WithUserMapping with WithAssignmentParser {
 
   import DayPhaseState.logger
 
@@ -55,15 +55,33 @@ final class DayPhaseState(
     Cell(AssignmentBoard.empty(board, playerIds))
 
   override def onMessageCreate(mgr: GamesManager, message: Message): Unit = {
-    /////
+    val text = message.getContent
+    for {
+      parser <- getAssignmentParser(mgr.api)
+      formatter <- getBoardFormatter(mgr.api)
+    } {
+      val assignments = parser.parseFullMessage(text)
+      // If we got any results, then run them and print the result. If
+      // not, then assume the message wasn't directed at us and simply
+      // ignore it completely.
+      if (!assignments.isEmpty) {
+        val fn = assignments.foldLeft(identity[AssignmentBoard]) { _ andThen _ }
+        assignmentBoard.lock {
+          assignmentBoard.modify(fn)
+          message.reply(formatter.format(assignmentBoard.value))
+        }
+      }
+    }
   }
 
   override def onStartGame(mgr: GamesManager, interaction: SlashCommandInteraction): Future[CommandResponse[Unit]] =
     Future.successful(CommandResponse.ephemeral("There is already a game in this channel.").void)
 
   override def onStatusCommand(mgr: GamesManager, interaction: SlashCommandInteraction): Future[CommandResponse[Unit]] =
-    Future.successful {
-      CommandResponse.simple("/////").void
+    for {
+      formatter <- getBoardFormatter(mgr.api)
+    } yield {
+      CommandResponse.simple(formatter.format(assignmentBoard.value)).void
     }
 
   override def onEnterState(mgr: GamesManager): Unit = {
@@ -86,6 +104,13 @@ final class DayPhaseState(
         "The following players are participating: " + players.map(_.getDisplayName(server)).mkString(", ") + "\n" + // TODO Correct order
         "The following roles are in play: " + board.roles.mkString(", ") + "\n" +
         bold(s"Day will end in ${gameProperties.dayPhaseLength}")
+    }
+
+  private def getBoardFormatter(api: DiscordApi): Future[AssignmentBoardFormatter] =
+    for {
+      userMapping <- getUserMapping(api)
+    } yield {
+      StandardAssignmentBoardFormatter(userMapping)
     }
 
 }
