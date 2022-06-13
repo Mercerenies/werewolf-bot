@@ -4,7 +4,11 @@ package game
 package role
 package wincon
 
+import id.Id
 import util.TextDecorator.*
+import board.Endgame
+
+import org.javacord.api.entity.user.User
 
 case object WerewolfWinCondition extends WinCondition {
 
@@ -13,5 +17,16 @@ case object WerewolfWinCondition extends WinCondition {
 
   override val blurb: String =
     "You win if a Werewolf is " + italic("not") + " killed."
+
+  override val precedence: Int =
+    WinPrecedence.WEREWOLF
+
+  def determineOutcome(endgame: Endgame, user: Id[User]): Outcome = {
+    // Werewolves win as long as none of the dead are werewolves.
+    // Werewolf win is soft (but that shouldn't matter since
+    // werewolves have the lowest precedence wincon in the game)
+    val satisfied = !endgame.anyWerewolvesDied
+    Outcome.softWin(satisfied)
+  }
 
 }
