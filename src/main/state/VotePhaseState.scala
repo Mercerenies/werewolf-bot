@@ -54,7 +54,7 @@ final class VotePhaseState(
   private val playerVotes: TrieMap[Id[User], Id[User]] = TrieMap()
 
   override val listeningPlayerList: List[Id[User]] =
-    Nil
+    playerIds
 
   override def onStartGame(mgr: GamesManager, interaction: SlashCommandInteraction): Future[CommandResponse[Unit]] =
     Future.successful(CommandResponse.ephemeral("There is already a game in this channel.").void)
@@ -92,7 +92,12 @@ final class VotePhaseState(
     val channel = mgr.api.getServerTextChannel(channelId)
     val server = channel.getServer
     voteStartMessage(mgr.api, server).flatMap { channel.sendMessage(_).asScala }
-    ////
+
+    // Schedule end of voting phase
+    schedule(mgr, gameProperties.votePhaseLength.toDuration) { () =>
+      endOfVotes(mgr)
+    }
+
   }
 
   private def voteStartMessage(api: DiscordApi, server: Server): Future[String] =
@@ -133,7 +138,7 @@ final class VotePhaseState(
     }
   }
 
-  private def endOfDay(mgr: GamesManager): Unit = {
+  private def endOfVotes(mgr: GamesManager): Unit = {
     val channel = mgr.api.getServerTextChannel(channelId)
     for {
       userMapping <- getUserMapping(mgr.api)
