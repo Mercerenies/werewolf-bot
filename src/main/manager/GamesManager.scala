@@ -80,6 +80,10 @@ final class GamesManager(
   def getGamesForUser(userId: Id[User]): List[GameState] =
     users.getOrElse(userId, Nil)
 
+  def endGame(channelId: Id[ServerTextChannel]): Unit = {
+    games.remove(channelId)
+  }
+
   def updateGame(channelId: Id[ServerTextChannel], newState: GameState): Unit = {
     if (hasGame(channelId)) {
       logger.info(s"Updating game in channel ${channelId}, game is now in state ${newState}")
