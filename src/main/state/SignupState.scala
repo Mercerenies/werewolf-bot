@@ -87,6 +87,7 @@ final class SignupState(
     }
   }
 
+  // TODO Do not allow signups to close if there are fewer than two players
   override def onStartGame(mgr: GamesManager, interaction: SlashCommandInteraction): Future[CommandResponse[Unit]] =
     for {
       message <- getGameStartMessage(mgr.api)
