@@ -5,6 +5,7 @@ package state
 import util.Cell
 import id.{Id, UserMapping}
 import id.Ids.*
+import name.NamedEntityMatcher
 import command.CommandResponse
 import manager.GamesManager
 import properties.GameProperties
@@ -46,6 +47,12 @@ transparent trait WithNamedUserList extends GameState {
       }
     }
 
+  private val _matcher: LazyValue[DiscordApi, NamedEntityMatcher[NamedUser]] =
+    LazyValue { api =>
+      _userList.getValue(api) map { NamedEntityMatcher(_) }
+    }
+
   export _userList.{getValue => getUserList}
+  export _matcher.{getValue => getUserListMatcher}
 
 }
