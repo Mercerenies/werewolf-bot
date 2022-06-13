@@ -16,7 +16,7 @@ object RegexUtil {
     def toRegex(caseSensitive: Boolean = true): Regex = {
       var re = toRegexString
       if (!caseSensitive) {
-        re = s"(?i)${re}"
+        re = s"(?i)\\b${re}\\b"
       }
       re.r
     }
