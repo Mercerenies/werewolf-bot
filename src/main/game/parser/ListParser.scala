@@ -19,8 +19,9 @@ class ListParser[A <: NamedEntity](
 ) {
 
   private def findLongCodeBlocks(text: String): String \/ List[String] =
-    \/.fromOption(s"Please ping me with a code block containing each ${noun} on a separate line.") {
-      ListParser.findLongCodeBlocks(text)
+    Parsing.findLongCodeBlocks(text) match {
+      case Nil => s"Please ping me with a code block containing each ${noun} on a separate line.".left
+      case xs => xs.right
     }
 
   private def findMatch(text: String): String \/ A =
@@ -36,22 +37,5 @@ class ListParser[A <: NamedEntity](
     } yield {
       entities
     }
-
-}
-
-object ListParser {
-
-  private val blockRegex: Regex =
-    raw"(?s)${Regex.quote(TextDecorator.longCode.prefix)}(.*?)${Regex.quote(TextDecorator.longCode.suffix)}".r
-
-  def findLongCodeBlocks(text: String): Option[List[String]] = {
-    val matches = blockRegex.findAllMatchIn(text)
-    if (matches.isEmpty) {
-      // No matches, so we failed to find anything.
-      None
-    } else {
-      Some(matches.map(_.group(1)).toList)
-    }
-  }
 
 }
