@@ -112,6 +112,13 @@ final class RoleListState(
   override def onStartGame(mgr: GamesManager, interaction: SlashCommandInteraction): Future[CommandResponse[Unit]] =
     Future.successful(CommandResponse.ephemeral("This game has already started and is waiting on a role list.").void)
 
+  override def onStatusCommand(mgr: GamesManager, interaction: SlashCommandInteraction): Future[CommandResponse[Unit]] =
+    for {
+      host <- mgr.api.getUser(hostId)
+    } yield {
+      CommandResponse.simple("The Werewolf game is currently " + bold("waiting on " + host.getMentionTag + " to submit a role list") + ".").void
+    }
+
 }
 
 object RoleListState extends Logging[RoleListState] {

@@ -112,6 +112,11 @@ final class NightPhaseState(
     }
   }
 
+  override def onStatusCommand(mgr: GamesManager, interaction: SlashCommandInteraction): Future[CommandResponse[Unit]] =
+    Future.successful {
+      CommandResponse.simple("This Werewolf game is currently " + bold("in the night phase") + ".").void
+    }
+
 }
 
 object NightPhaseState extends Logging[NightPhaseState] {

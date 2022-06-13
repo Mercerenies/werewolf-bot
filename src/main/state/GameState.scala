@@ -42,6 +42,8 @@ trait GameState(val gameProperties: GameProperties) {
 
   def onStartGame(mgr: GamesManager, interaction: SlashCommandInteraction): Future[CommandResponse[Unit]]
 
+  def onStatusCommand(mgr: GamesManager, interaction: SlashCommandInteraction): Future[CommandResponse[Unit]]
+
   def onEnterState(mgr: GamesManager): Unit = {}
 
   def onExitState(mgr: GamesManager): Unit = {}

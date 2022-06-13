@@ -141,8 +141,15 @@ final class GamesManager(
       state.onStartGame(this, interaction)
     }
 
+  private def onStatusCommand(interaction: SlashCommandInteraction): Future[CommandResponse[Unit]] =
+    withState(interaction) { state =>
+      state.onStatusCommand(this, interaction)
+    }
+
   private val newGameCommand: Command = Command.Term("new", "Host a new Werewolf game in the current channel") { interaction =>
-    onNewGame(interaction).map { _.execute(interaction) }
+    Try {
+      onNewGame(interaction).map { _.execute(interaction) }
+    }.logErrors(logger)
   }
 
   private val startGameCommand: Command = Command.Term("start", "Start a game of Werewolf with the current player list") { interaction =>
@@ -151,7 +158,13 @@ final class GamesManager(
     }.logErrors(logger)
   }
 
-  val commands: List[Command] = List(newGameCommand, startGameCommand)
+  private val statusCommand: Command = Command.Term("status", "Get the status of the current game in the channel") { interaction =>
+    Try {
+      onStatusCommand(interaction).map { _.execute(interaction) }
+    }.logErrors(logger)
+  }
+
+  val commands: List[Command] = List(newGameCommand, startGameCommand, statusCommand)
 
 }
 

@@ -51,8 +51,17 @@ final class DayPhaseState(
   override val listeningPlayerList: List[Id[User]] =
     Nil
 
+  override def onMessageCreate(mgr: GamesManager, message: Message): Unit = {
+    /////
+  }
+
   override def onStartGame(mgr: GamesManager, interaction: SlashCommandInteraction): Future[CommandResponse[Unit]] =
     Future.successful(CommandResponse.ephemeral("There is already a game in this channel.").void)
+
+  override def onStatusCommand(mgr: GamesManager, interaction: SlashCommandInteraction): Future[CommandResponse[Unit]] =
+    Future.successful {
+      CommandResponse.simple("/////").void
+    }
 
   override def onEnterState(mgr: GamesManager): Unit = {
     val timer = mgr.timer

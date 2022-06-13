@@ -103,6 +103,13 @@ final class SignupState(
       }
     }
 
+  override def onStatusCommand(mgr: GamesManager, interaction: SlashCommandInteraction): Future[CommandResponse[Unit]] =
+    for {
+      message <- getGameStartMessage(mgr.api)
+    } yield {
+      CommandResponse.simple("This Werewolf game is currently " + bold("accepting signups") + ". Sign up by replying to this post: " + message.getLink()).void
+    }
+
 }
 
 object SignupState extends Logging[SignupState] {
