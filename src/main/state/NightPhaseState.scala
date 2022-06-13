@@ -40,11 +40,11 @@ import Scalaz.{Id => _, *}
 
 final class NightPhaseState(
   _gameProperties: GameProperties,
-  private val playerIds: List[Id[User]],
+  override val playerIds: List[Id[User]],
   private val board: Board,
 )(
   using ExecutionContext,
-) extends GameState(_gameProperties) with SchedulingState {
+) extends GameState(_gameProperties) with SchedulingState with WithUserMapping {
 
   import NightPhaseState.logger
   import scalaz.EitherT.eitherTHoist
@@ -100,9 +100,8 @@ final class NightPhaseState(
   }
 
   private def endOfNight(mgr: GamesManager): Unit = {
-    val channel = mgr.api.getServerTextChannel(channelId)
     for {
-      userMapping <- UserMapping.fromServer(mgr.api, channel.getServer, playerIds)
+      userMapping <- getUserMapping(mgr.api)
     } yield {
       val (finalBoard, nightMessagesFuture) = NightPhaseState.evaluateNightPhase(userMapping, board)
       nightMessagesFuture.foreach { _ =>
