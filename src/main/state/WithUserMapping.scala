@@ -30,25 +30,12 @@ transparent trait WithUserMapping extends GameState {
 
   val playerIds: List[Id[User]]
 
-  private val _userMapping: Cell[Option[UserMapping]] = Cell(None)
-
-  // Get the mapping if it's already been computed, or None if not.
-  def userMappingOption: Option[UserMapping] =
-    _userMapping.value
-
-  // Force the mapping.
-  def getUserMapping(api: DiscordApi)(using ExecutionContext): Future[UserMapping] =
-    userMappingOption match {
-      case Some(x) => Future.successful(x)
-      case None => {
-        val channel = api.getServerTextChannel(channelId)
-        for {
-          userMapping <- UserMapping.fromServer(api, channel.getServer, playerIds)
-        } yield {
-          _userMapping.value = Some(userMapping)
-          userMapping
-        }
-      }
+  private val _userMapping: LazyValue[DiscordApi, UserMapping] =
+    LazyValue { api =>
+      val channel = api.getServerTextChannel(channelId)
+      UserMapping.fromServer(api, channel.getServer, playerIds)
     }
+
+  export _userMapping.{getValue => getUserMapping}
 
 }

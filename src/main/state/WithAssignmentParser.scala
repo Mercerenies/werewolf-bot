@@ -34,25 +34,12 @@ transparent trait WithAssignmentParser extends GameState {
 
   val board: Board
 
-  private val _assignmentParser: Cell[Option[AssignmentParser]] = Cell(None)
-
-  // Get the parser if it's already been computed, or None if not.
-  def assignmentParserOption: Option[AssignmentParser] =
-    _assignmentParser.value
-
-  // Force the parser.
-  def getAssignmentParser(api: DiscordApi)(using ExecutionContext): Future[AssignmentParser] =
-    assignmentParserOption match {
-      case Some(x) => Future.successful(x)
-      case None => {
-        val channel = api.getServerTextChannel(channelId)
-        for {
-          assignmentParser <- AssignmentParser.fromBoard(api, channel.getServer, board, playerIds)
-        } yield {
-          _assignmentParser.value = Some(assignmentParser)
-          assignmentParser
-        }
-      }
+  private val _assignmentParser: LazyValue[DiscordApi, AssignmentParser] =
+    LazyValue { api =>
+      val channel = api.getServerTextChannel(channelId)
+      AssignmentParser.fromBoard(api, channel.getServer, board, playerIds)
     }
+
+  export _assignmentParser.{getValue => getAssignmentParser}
 
 }
