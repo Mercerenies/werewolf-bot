@@ -12,7 +12,7 @@ import logging.Logs.warningToLogger
 import name.{NameProvider, BaseNameProvider, DisplayNameProvider}
 import command.CommandResponse
 import manager.GamesManager
-import game.Rules
+import game.{Rules, NightPhaseEvaluator}
 import game.board.Board
 import game.role.Role
 import game.parser.ListParser
@@ -133,20 +133,9 @@ object NightPhaseState extends Logging[NightPhaseState] {
   // be worth waiting until this completes to start the actual day
   // phase.
   def evaluateNightPhaseAndSend(mapping: UserMapping, board: Board)(using ExecutionContext): (Board, Future[Unit]) = {
-    val (finalBoard, messages) = evaluateNightPhase(mapping, board)
+    val (finalBoard, messages) = NightPhaseEvaluator.evaluate(mapping, board)
     val messagesFuture = messages.traverse { (userId, feedback) => feedback.sendTo(mapping(userId)) }.void
     (finalBoard, messagesFuture)
-  }
-
-  def evaluateNightPhase(mapping: UserMapping, board: Board): (Board, List[(Id[User], FeedbackMessage)]) = {
-    val instances = board.playerRoleInstances.sortBy { (_, roleInstance) => - roleInstance.role.precedence }
-    val stateMonad: State[Board, List[(Id[User], FeedbackMessage)]] = instances.traverse { (userId, roleInstance) =>
-      roleInstance.nightAction(mapping, userId).map { (userId, _) }
-    }
-    // So Scala dies a violent and bloody death if I don't include the
-    // 'using' argument here. No idea why, but probably related to
-    // https://github.com/lampepfl/dotty/issues/12479.
-    stateMonad(board)(using scalaz.Id.id)
   }
 
 }
