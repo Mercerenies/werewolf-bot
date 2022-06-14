@@ -102,7 +102,7 @@ final class NightPhaseState(
     for {
       userMapping <- getUserMapping(mgr.api)
     } yield {
-      val (finalBoard, nightMessagesFuture) = NightPhaseState.evaluateNightPhase(userMapping, board)
+      val (finalBoard, nightMessagesFuture) = NightPhaseState.evaluateNightPhaseAndSend(userMapping, board)
       nightMessagesFuture.foreach { _ =>
         val newState = DayPhaseState(gameProperties, playerIds, board)
         mgr.updateGame(channelId, newState)
@@ -132,7 +132,13 @@ object NightPhaseState extends Logging[NightPhaseState] {
   // sent. The final board state does not depend on this, but it may
   // be worth waiting until this completes to start the actual day
   // phase.
-  def evaluateNightPhase(mapping: UserMapping, board: Board)(using ExecutionContext): (Board, Future[Unit]) = {
+  def evaluateNightPhaseAndSend(mapping: UserMapping, board: Board)(using ExecutionContext): (Board, Future[Unit]) = {
+    val (finalBoard, messages) = evaluateNightPhase(mapping, board)
+    val messagesFuture = messages.traverse { (userId, feedback) => feedback.sendTo(mapping(userId)) }.void
+    (finalBoard, messagesFuture)
+  }
+
+  def evaluateNightPhase(mapping: UserMapping, board: Board): (Board, List[(Id[User], FeedbackMessage)]) = {
     val instances = board.playerRoleInstances.sortBy { (_, roleInstance) => - roleInstance.role.precedence }
     val stateMonad: State[Board, List[(Id[User], FeedbackMessage)]] = instances.traverse { (userId, roleInstance) =>
       roleInstance.nightAction(mapping, userId).map { (userId, _) }
@@ -140,9 +146,7 @@ object NightPhaseState extends Logging[NightPhaseState] {
     // So Scala dies a violent and bloody death if I don't include the
     // 'using' argument here. No idea why, but probably related to
     // https://github.com/lampepfl/dotty/issues/12479.
-    val (finalBoard, messages) = stateMonad(board)(using scalaz.Id.id)
-    val messagesFuture = messages.traverse { (userId, feedback) => feedback.sendTo(mapping(userId)) }.void
-    (finalBoard, messagesFuture)
+    stateMonad(board)(using scalaz.Id.id)
   }
 
 }
