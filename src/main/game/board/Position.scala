@@ -30,4 +30,8 @@ object Position {
     tablePositions ++ userPositions
   }
 
+  val left: Position = Position.Table(TablePosition.Left)
+  val middle: Position = Position.Table(TablePosition.Middle)
+  val right: Position = Position.Table(TablePosition.Right)
+
 }
