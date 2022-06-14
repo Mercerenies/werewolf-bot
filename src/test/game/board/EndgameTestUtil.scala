@@ -30,13 +30,7 @@ trait EndgameTestUtil {
     playerCards: List[Role],
     deadPlayers: List[Long],
   ): Endgame = {
-    val tablePositions = List(
-      Position.left -> left,
-      Position.middle -> middle,
-      Position.right -> right,
-    )
-    val playerPositions = playerCards.zipWithIndex.map { (role, idx) => Position.Player(id(idx)) -> role }
-    val board = Board.create(tablePositions ++ playerPositions)
+    val board = BoardTestUtil.createBoard(left, middle, right, playerCards)
     val playerIds = playerCards.indices.toList.map(id)
     val deadPlayerIds = deadPlayers.map(id)
     Endgame(
