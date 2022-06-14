@@ -146,7 +146,7 @@ final class VotePhaseState(
       majority = VotePhaseState.getMajority(votes.values)
       _ <- channel.sendMessage(bold("The game is now over.")).asScala
       _ <- channel.sendMessage(VotePhaseState.deathMessage(userMapping, majority)).asScala
-      endgame = Endgame(board, majority)
+      endgame = Endgame(board, playerIds, majority)
     } {
       mgr.endGame(channelId)
       ///// Logs
