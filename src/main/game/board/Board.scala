@@ -33,6 +33,15 @@ final class Board(
   def apply(x: Id[User]): RoleInstance =
     toMap.apply(Position.Player(x))
 
+  override def equals(that: Any): Boolean =
+    that match {
+      case that: Board => this.toMap == that.toMap
+      case _ => false
+    }
+
+  override def hashCode: Int =
+    ("Board", toMap).hashCode
+
 }
 
 object Board {
