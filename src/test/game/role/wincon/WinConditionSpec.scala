@@ -243,4 +243,71 @@ class WinConditionSpec extends UnitSpec {
 
   }
 
+  it should "count as a tanner win if the tanner dies" in {
+    val endgame = createEndgame(
+      left = inaccessibleRole(),
+      middle = inaccessibleRole(),
+      right = inaccessibleRole(),
+      playerCards = List(Villager, Villager, Werewolf, Werewolf, Tanner),
+      deadPlayers = List(4),
+    )
+
+    WinCondition.determineWinners(endgame) should equal (List(4)) (after being unordered)
+
+  }
+
+  it should "count as a tanner loss if no one dies" in {
+    val endgame = createEndgame(
+      left = inaccessibleRole(),
+      middle = inaccessibleRole(),
+      right = inaccessibleRole(),
+      playerCards = List(Villager, Villager, Werewolf, Werewolf, Tanner),
+      deadPlayers = List(),
+    )
+
+    WinCondition.determineWinners(endgame) should equal (List(2, 3)) (after being unordered)
+
+  }
+
+  it should "count as a tanner loss if only werewolves die" in {
+    val endgame = createEndgame(
+      left = inaccessibleRole(),
+      middle = inaccessibleRole(),
+      right = inaccessibleRole(),
+      playerCards = List(Villager, Villager, Werewolf, Werewolf, Tanner),
+      deadPlayers = List(2),
+    )
+
+    WinCondition.determineWinners(endgame) should equal (List(0, 1)) (after being unordered)
+
+  }
+
+  it should "count as a tanner-only win if the tanner dies, even if a villager dies too" in {
+    val endgame = createEndgame(
+      left = inaccessibleRole(),
+      middle = inaccessibleRole(),
+      right = inaccessibleRole(),
+      playerCards = List(Villager, Villager, Werewolf, Werewolf, Tanner),
+      deadPlayers = List(1, 4),
+    )
+
+    WinCondition.determineWinners(endgame) should equal (List(4)) (after being unordered)
+
+  }
+
+  it should "count as a tanner-only win if the tanner dies, even if a werewolf dies too" in {
+    val endgame = createEndgame(
+      left = inaccessibleRole(),
+      middle = inaccessibleRole(),
+      right = inaccessibleRole(),
+      playerCards = List(Villager, Villager, Werewolf, Werewolf, Tanner),
+      deadPlayers = List(2, 4),
+    )
+
+    WinCondition.determineWinners(endgame) should equal (List(4)) (after being unordered)
+
+  }
+
+  // TODO Some of the tanner stuff may change if my interpretation was wrong
+
 }
