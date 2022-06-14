@@ -27,6 +27,11 @@ object FeedbackMessage {
 
   extension(self: FeedbackMessage)
 
+    // Concatenate with newlines to produce a result string. Mainly
+    // used for testing purposes.
+    def mkString: String =
+      self.mkString("\n")
+
     def toList: List[String] =
       self
 
