@@ -18,7 +18,7 @@ case object TownWinCondition extends WinCondition {
     "You win if a Werewolf is killed. If there are no Werewolves, then you win if no one dies."
 
   override val precedence: Int =
-    WinPrecedence.TOWN
+    WinPrecedence.TOWN_AND_TANNER
 
   def determineOutcome(endgame: Endgame, user: Id[User]): Outcome = {
     // Town wins if either

@@ -18,12 +18,11 @@ case object TannerWinCondition extends WinCondition {
     "Your goal is to die. You win if you are one of the players who is killed."
 
   override val precedence: Int =
-    WinPrecedence.TANNER
+    WinPrecedence.TOWN_AND_TANNER
 
   def determineOutcome(endgame: Endgame, user: Id[User]): Outcome = {
-    // Tanner wins if he dies. A tanner is always a hard win. (TODO
-    // Waiting for feedback on whether that interpretation of the
-    // rules is correct)
+    // Tanner wins if he dies. A tanner is always a hard win, which is
+    // of the same precedence as town but precedes werewolves.
     Outcome.hardWin(endgame.deaths.contains(user))
   }
 

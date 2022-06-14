@@ -295,7 +295,7 @@ class WinConditionSpec extends UnitSpec {
 
   }
 
-  it should "count as a tanner-only win if the tanner dies, even if a werewolf dies too" in {
+  it should "count as a tanner / town win if the tanner dies and a werewolf dies too" in {
     val endgame = createEndgame(
       left = inaccessibleRole(),
       middle = inaccessibleRole(),
@@ -304,10 +304,8 @@ class WinConditionSpec extends UnitSpec {
       deadPlayers = List(2, 4),
     )
 
-    WinCondition.determineWinners(endgame) should equal (List(4)) (after being unordered)
+    WinCondition.determineWinners(endgame) should equal (List(0, 1, 4)) (after being unordered)
 
   }
-
-  // TODO Some of the tanner stuff may change if my interpretation was wrong
 
 }
