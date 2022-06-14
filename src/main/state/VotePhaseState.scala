@@ -16,6 +16,7 @@ import manager.GamesManager
 import game.Rules
 import game.board.{Board, AssignmentBoard, AssignmentBoardFormatter, StandardAssignmentBoardFormatter, Endgame}
 import game.role.Role
+import game.role.wincon.WinCondition
 import game.parser.ListParser
 import game.night.NightMessageHandler
 import game.response.FeedbackMessage
@@ -147,11 +148,11 @@ final class VotePhaseState(
       _ <- channel.sendMessage(bold("The game is now over.")).asScala
       _ <- channel.sendMessage(VotePhaseState.deathMessage(userMapping, majority)).asScala
       endgame = Endgame(board, playerIds, majority)
+      winnerIds = WinCondition.determineWinners(endgame).toList
+      _ <- channel.sendMessage(VotePhaseState.winMessage(userMapping, winnerIds)).asScala
     } {
       mgr.endGame(channelId)
       ///// Logs
-      //
-      ///// Winner(s)
     }
   }
 
@@ -175,8 +176,18 @@ object VotePhaseState extends Logging[VotePhaseState] {
       case 0 => bold("No one has died.")
       case 1 => bold(s"${mapping.nameOf(deaths(0))} has died.")
       case _ => {
-        val names = Grammar.conjunctionList(deaths.map { mapping.nameOf(_) })
+        val names = Grammar.conjunctionList(deaths.map { mapping.nameOf(_) }.sorted)
         bold(s"${names} have died.")
+      }
+    }
+
+  private def winMessage(mapping: UserMapping, winnerIds: List[Id[User]]): String =
+    winnerIds.size match {
+      case 0 => bold("Everyone loses.")
+      case 1 => bold(s"${mapping.nameOf(winnerIds(0))} wins.")
+      case _ => {
+        val names = Grammar.conjunctionList(winnerIds.map { mapping.nameOf(_) }.sorted)
+        bold(s"${names} win.")
       }
     }
 
