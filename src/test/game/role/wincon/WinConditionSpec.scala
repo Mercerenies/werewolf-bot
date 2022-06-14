@@ -165,4 +165,82 @@ class WinConditionSpec extends UnitSpec {
 
   }
 
+  it should "count a town victory if a werewolf dies" in {
+    val endgame = createEndgame(
+      left = inaccessibleRole(),
+      middle = inaccessibleRole(),
+      right = inaccessibleRole(),
+      playerCards = List(Villager, Villager, Werewolf, Werewolf),
+      deadPlayers = List(2),
+    )
+
+    WinCondition.determineWinners(endgame) should equal (List(0, 1)) (after being unordered)
+
+  }
+
+  it should "count a town victory if a werewolf dies, even if a villager dies as well" in {
+    val endgame = createEndgame(
+      left = inaccessibleRole(),
+      middle = inaccessibleRole(),
+      right = inaccessibleRole(),
+      playerCards = List(Villager, Villager, Werewolf, Werewolf),
+      deadPlayers = List(1, 2),
+    )
+
+    WinCondition.determineWinners(endgame) should equal (List(0, 1)) (after being unordered)
+
+  }
+
+  it should "count a town victory if a werewolf dies, even if multiple villagers die as well" in {
+    val endgame = createEndgame(
+      left = inaccessibleRole(),
+      middle = inaccessibleRole(),
+      right = inaccessibleRole(),
+      playerCards = List(Villager, Villager, Werewolf, Werewolf),
+      deadPlayers = List(0, 1, 2, 3),
+    )
+
+    WinCondition.determineWinners(endgame) should equal (List(0, 1)) (after being unordered)
+
+  }
+
+  it should "count a werewolf victory if only villagers die" in {
+    val endgame = createEndgame(
+      left = inaccessibleRole(),
+      middle = inaccessibleRole(),
+      right = inaccessibleRole(),
+      playerCards = List(Villager, Villager, Werewolf, Werewolf),
+      deadPlayers = List(0),
+    )
+
+    WinCondition.determineWinners(endgame) should equal (List(2, 3)) (after being unordered)
+
+  }
+
+  it should "count a werewolf victory if no one dies" in {
+    val endgame = createEndgame(
+      left = inaccessibleRole(),
+      middle = inaccessibleRole(),
+      right = inaccessibleRole(),
+      playerCards = List(Villager, Villager, Werewolf, Werewolf),
+      deadPlayers = List(),
+    )
+
+    WinCondition.determineWinners(endgame) should equal (List(2, 3)) (after being unordered)
+
+  }
+
+  it should "count a town victory if no one dies and there are no werewolves" in {
+    val endgame = createEndgame(
+      left = inaccessibleRole(),
+      middle = inaccessibleRole(),
+      right = inaccessibleRole(),
+      playerCards = List(Villager, Villager, Villager, Villager),
+      deadPlayers = List(),
+    )
+
+    WinCondition.determineWinners(endgame) should equal (List(0, 1, 2, 3)) (after being unordered)
+
+  }
+
 }
