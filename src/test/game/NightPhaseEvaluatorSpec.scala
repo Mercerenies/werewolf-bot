@@ -85,7 +85,7 @@ class NightGameEvaluatorSpec extends UnitSpec {
     val (finalBoard, feedback) = playGame(board, List("", "right", ""))
     finalBoard should be (board)
 
-    // The two werewolves should be made aware of each other
+    // The solo werewolf should see that the 'tanner' card is on the 'right'
     feedback(id(0)) should be (FeedbackMessage.none)
     feedback(id(1)).mkString should include regex "(?i)tanner"
     feedback(id(1)).mkString should include regex "(?i)right"
@@ -103,7 +103,7 @@ class NightGameEvaluatorSpec extends UnitSpec {
     val (finalBoard, feedback) = playGame(board, List("", "", ""))
     finalBoard should be (board)
 
-    // The two werewolves should be made aware of each other
+    // The solo werewolf should see that the 'villager' card is on the 'left'
     feedback(id(0)) should be (FeedbackMessage.none)
     feedback(id(1)).mkString should include regex "(?i)villager"
     feedback(id(1)).mkString should include regex "(?i)left"
