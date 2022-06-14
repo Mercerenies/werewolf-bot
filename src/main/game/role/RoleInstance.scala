@@ -25,6 +25,11 @@ import Scalaz.{Id => _, *}
 // how the role is meant to be played and what prompts to show the
 // user. But its corresponding RoleInstance will store *which* role
 // the doppelganger has copied.
+//
+// Note: Generally speaking, RoleInstance objects should always have
+// the default equals and hashCode from AnyRef (i.e. they should
+// compare for pointer equality) since these objects are intended to
+// be mutated in-place.
 trait RoleInstance {
 
   // Definition: An instance x of RoleInstance is said to be coherent
