@@ -27,6 +27,9 @@ object FeedbackMessage {
 
   extension(self: FeedbackMessage)
 
+    def toList: List[String] =
+      self
+
     def ++(other: FeedbackMessage): FeedbackMessage =
       self ++ other
 
