@@ -5,12 +5,10 @@ package board
 
 import name.NamedEntity
 
-enum TablePosition(override val name: String) extends NamedEntity {
+enum TablePosition(override val name: String, override val aliases: List[String] = Nil) extends NamedEntity {
   case Left extends TablePosition("Left")
-  case Middle extends TablePosition("Middle")
+  case Middle extends TablePosition("Middle", List("Center"))
   case Right extends TablePosition("Right")
-
-  override def aliases: List[String] = Nil
 
 }
 
