@@ -18,7 +18,6 @@ import org.javacord.api.entity.user.User
 import scalaz.{Id => _, *}
 import Scalaz.{Id => _, *}
 
-///// test meeeeeeee
 object Seer extends Role {
 
   override class Instance(

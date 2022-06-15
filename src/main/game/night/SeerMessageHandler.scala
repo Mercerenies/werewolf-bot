@@ -20,7 +20,7 @@ class SeerMessageHandler(
   users: List[NamedUser],
   private val ownerId: Option[Id[User]],
 ) extends MultipleChoiceMessageHandler[NamedPosition | NoValue](
-  choices = users.map { NamedPosition.Player(_) } ++ TablePosition.all.map { NamedPosition.Table(_) },
+  choices = NoValue :: users.map { NamedPosition.Player(_) } ++ TablePosition.all.map { NamedPosition.Table(_) },
 ) {
 
   import SeerMessageHandler.Choice

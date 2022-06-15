@@ -125,4 +125,54 @@ class NightGameEvaluatorSpec extends UnitSpec {
 
   }
 
+  it should "provide feedback to a seer who looks in the middle" in {
+    val board = createBoard(
+      left = Villager,
+      middle = Werewolf,
+      right = Tanner,
+      playerCards = List(Villager, Seer, Villager),
+    )
+    val (finalBoard, feedback) = playGame(board, List("", "right middle", ""))
+    finalBoard should be (board)
+
+    feedback(id(0)) should be (FeedbackMessage.none)
+    feedback(id(1)).mkString should include regex "(?i)middle.*werewolf"
+    feedback(id(1)).mkString should include regex "(?i)right.*tanner"
+    feedback(id(2)) should be (FeedbackMessage.none)
+
+  }
+
+  it should "provide no feedback to a seer who does not look" in {
+    val board = createBoard(
+      left = Villager,
+      middle = Werewolf,
+      right = Tanner,
+      playerCards = List(Villager, Seer, Seer),
+    )
+    val (finalBoard, feedback) = playGame(board, List("", "", "none"))
+    finalBoard should be (board)
+
+    feedback(id(0)) should be (FeedbackMessage.none)
+    feedback(id(1)) should be (FeedbackMessage.none)
+    feedback(id(2)) should be (FeedbackMessage.none)
+
+  }
+
+  it should "provide feedback to a seer who does looks at another player's card" in {
+    val board = createBoard(
+      left = Villager,
+      middle = Werewolf,
+      right = Tanner,
+      playerCards = List(Villager, Seer, Tanner),
+    )
+    val (finalBoard, feedback) = playGame(board, List("", mockName(2), ""))
+    finalBoard should be (board)
+
+    feedback(id(0)) should be (FeedbackMessage.none)
+    feedback(id(1)).mkString should include (mockName(2))
+    feedback(id(1)).mkString should include regex "(?i)tanner"
+    feedback(id(2)) should be (FeedbackMessage.none)
+
+  }
+
 }

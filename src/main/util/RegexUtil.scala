@@ -13,10 +13,11 @@ object RegexUtil {
     val mapping: Map[Char, DispatchTree],
   ) {
 
+    // TODO Word boundaries on options that start / end with word chars?
     def toRegex(caseSensitive: Boolean = true): Regex = {
       var re = toRegexString
       if (!caseSensitive) {
-        re = s"(?i)\\b${re}\\b"
+        re = s"(?i)${re}"
       }
       re.r
     }
