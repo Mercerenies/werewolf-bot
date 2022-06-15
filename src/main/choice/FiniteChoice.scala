@@ -21,10 +21,10 @@ class FiniteChoice[+A <: NamedEntity](
       if ((allowRepeats) || (util.findDuplicate(matches).isEmpty)) {
         Right(matches)
       } else {
-        Left(ChoiceError("No duplicates allowed"))
+        Left(ChoiceError.RepeatedElement)
       }
     } else {
-      Left(ChoiceError("Invalid choice"))
+      Left(ChoiceError.NoFurtherOptions)
     }
   }
 

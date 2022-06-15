@@ -5,6 +5,6 @@ package choice
 object NoChoice extends Choice[Nothing] {
 
   override def parse(text: String): Either[ChoiceError, Nothing] =
-    Left(ChoiceError("No options for parse on text"))
+    Left(ChoiceError.NoFurtherOptions)
 
 }
