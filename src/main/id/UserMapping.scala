@@ -53,14 +53,11 @@ object UserMapping {
 
   }
 
-  // TODO (HACK) This should be more directly related to Server. Right
-  // now, it's kind of weird the distiction between nameMap and
-  // user.getName.
-  private class FromNameMap(val map: Map[Id[User], User], val nameMap: Map[Id[User], String]) extends UserMapping {
+  private class FromServer(val map: Map[Id[User], User], val server: Server) extends UserMapping {
     export map.{get, keys}
 
     override def getName(id: Id[User]): Option[String] =
-      nameMap.get(id)
+      get(id).map { _.getDisplayName(server) }
 
     override def toNamedUsers: Iterable[NamedUser] =
       keys.map { id => NamedUser(id, apply(id).getName, Some(nameOf(id))) }
@@ -70,18 +67,13 @@ object UserMapping {
   def fromMap(map: Map[Id[User], User]): UserMapping =
     FromMap(map)
 
-  def fromNameMap(map: Map[Id[User], User], nameMap: Map[Id[User], String]): UserMapping =
-    FromNameMap(map, nameMap)
-
   def fromServer(api: DiscordApi, server: Server, idsOfInterest: List[Id[User]])(using ExecutionContext): Future[UserMapping] =
     for {
       users <- idsOfInterest.traverse { id =>
         api.getUser(id).map { (id, _) }
       }
     } yield {
-      val usersMap = users.toMap
-      val namesMap = usersMap.view.mapValues { _.getDisplayName(server) }.toMap
-      fromNameMap(usersMap, namesMap)
+      FromServer(users.toMap, server)
     }
 
 }
