@@ -16,9 +16,9 @@ trait MultipleChoiceMessageHandler[A <: NamedEntity](
   private val matcher: NamedEntityMatcher[A] =
     NamedEntity.matcher(choices)
 
-  // The number of choices we expect the user to input. Must be
-  // greater than 0.
-  def expectedNumber: Int
+  // The acceptable number of choices the user can input. Must be
+  // values greater than 0.
+  def expectedNumbers: List[Int]
 
   // Whether the user is allowed to choose the same thing multiple
   // times.
@@ -26,15 +26,15 @@ trait MultipleChoiceMessageHandler[A <: NamedEntity](
 
   def noArgsMessage: String
 
-  def wrongNumberArgsMessage(expected: Int, actual: Int): String
+  def wrongNumberArgsMessage(actual: Int): String
 
   def repeatsDisallowedMessage(repeatedElement: A): String
 
   final def validateSelection(selection: List[A]): String \/ Unit =
     if (selection.length == 0) {
       noArgsMessage.left
-    } else if (selection.length != expectedNumber) {
-      wrongNumberArgsMessage(expectedNumber, selection.length).left
+    } else if (!expectedNumbers.contains(selection.length)) {
+      wrongNumberArgsMessage(selection.length).left
     } else {
       util.findDuplicate(selection) match {
         case Some(dup) if !repeatsAllowed => {

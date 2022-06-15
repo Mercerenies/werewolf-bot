@@ -18,14 +18,14 @@ abstract class TablePositionMessageHandler extends MultipleChoiceMessageHandler[
 
   private val _playerChoice: Cell[Option[TablePosition]] = Cell(None)
 
-  override val expectedNumber: Int = 1
+  override val expectedNumbers: List[Int] = List(1)
 
   override val repeatsAllowed: Boolean = false
 
   override val noArgsMessage: String =
     "Please indicate 'left', 'middle', or 'right'."
 
-  override def wrongNumberArgsMessage(expected: Int, actual: Int): String =
+  override def wrongNumberArgsMessage(actual: Int): String =
     "Please indicate only one of 'left', 'middle', or 'right'."
 
   override def repeatsDisallowedMessage(repeatedElement: TablePosition): String =
