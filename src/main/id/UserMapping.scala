@@ -3,6 +3,7 @@ package com.mercerenies.werewolf
 package id
 
 import Ids.*
+import game.parser.assignment.NamedUser
 
 import org.javacord.api.DiscordApi
 import org.javacord.api.entity.server.Server
@@ -35,6 +36,11 @@ trait UserMapping {
       case Some(x) => x
     }
 
+  // Note: The default implementation works, but it can be overridden
+  // to allow nicknames to be used as well.
+  def toNamedUsers: Iterable[NamedUser] =
+    keys.map { id => NamedUser(id, nameOf(id), None) }
+
 }
 
 object UserMapping {
@@ -47,11 +53,17 @@ object UserMapping {
 
   }
 
+  // TODO (HACK) This should be more directly related to Server. Right
+  // now, it's kind of weird the distiction between nameMap and
+  // user.getName.
   private class FromNameMap(val map: Map[Id[User], User], val nameMap: Map[Id[User], String]) extends UserMapping {
     export map.{get, keys}
 
     override def getName(id: Id[User]): Option[String] =
       nameMap.get(id)
+
+    override def toNamedUsers: Iterable[NamedUser] =
+      keys.map { id => NamedUser(id, apply(id).getName, Some(nameOf(id))) }
 
   }
 
