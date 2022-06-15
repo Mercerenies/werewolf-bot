@@ -160,9 +160,10 @@ final class VotePhaseState(
 
 object VotePhaseState extends Logging[VotePhaseState] {
 
-  private def getMajority[A](voteList: Iterable[A]): List[A] = {
+  // No guarantees on the order of outputs.
+  def getMajority[A](voteList: Iterable[A]): List[A] = {
     val grouped: Map[A, Int] = voteList.groupBy(identity).map { (k, v) => (k, v.size) }
-    val mostVotes = grouped.values.max
+    val mostVotes = grouped.values.maxOption.getOrElse(0)
     if (mostVotes <= 1) {
       // No one dies if everyone has one vote
       Nil
