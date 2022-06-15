@@ -28,6 +28,9 @@ case class NamedUser(
   override def aliases: List[String] =
     nickname.toList
 
+  def displayName: String =
+    nickname.getOrElse(name)
+
 }
 
 object NamedUser {

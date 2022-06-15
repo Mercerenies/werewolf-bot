@@ -38,8 +38,8 @@ trait UserMapping {
 
   // Note: The default implementation works, but it can be overridden
   // to allow nicknames to be used as well.
-  def toNamedUsers: Iterable[NamedUser] =
-    keys.map { id => NamedUser(id, nameOf(id), None) }
+  def toNamedUsers: List[NamedUser] =
+    keys.toList.map { id => NamedUser(id, nameOf(id), None) }.sortBy { _.name }
 
 }
 
@@ -59,8 +59,8 @@ object UserMapping {
     override def getName(id: Id[User]): Option[String] =
       get(id).map { _.getDisplayName(server) }
 
-    override def toNamedUsers: Iterable[NamedUser] =
-      keys.map { id => NamedUser(id, apply(id).getName, Some(nameOf(id))) }
+    override def toNamedUsers: List[NamedUser] =
+      keys.toList.map { id => NamedUser(id, apply(id).getName, Some(nameOf(id))) }.sortBy { _.name }
 
   }
 

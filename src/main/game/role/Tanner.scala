@@ -47,6 +47,6 @@ object Tanner extends Role {
     Tanner.Instance()
 
   override val introBlurb: String =
-    "You are a " + bold("Tanner") + ". You have no special abilities to activate."
+    "You are the " + bold("Tanner") + ". You have no special abilities to activate."
 
 }

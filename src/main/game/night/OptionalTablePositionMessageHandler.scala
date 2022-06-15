@@ -28,10 +28,10 @@ abstract class OptionalTablePositionMessageHandler extends MultipleChoiceMessage
   override val repeatsAllowed: Boolean = false
 
   override val noArgsMessage: String =
-    "Please indicate 'left', 'middle', 'right', or 'none'."
+    "Please indicate 'Left', 'Middle', 'Right', or 'None'."
 
   override def wrongNumberArgsMessage(actual: Int): String =
-    "Please indicate only one of 'left', 'middle', 'right', or 'none'."
+    "Please indicate only one of 'Left', 'Middle', 'Right', or 'None'."
 
   override def repeatsDisallowedMessage(repeatedElement: TablePosition | NoValue): String =
     "Repeats not allowed" // expectedNumber = 1 so this should not occur

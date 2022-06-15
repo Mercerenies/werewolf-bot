@@ -27,6 +27,8 @@ object Role {
   val all: List[Role] = List(
     Villager,
     Werewolf,
+    Tanner,
+    Seer,
   )
 
   def formattedList(roleList: Iterable[Role]): String =
