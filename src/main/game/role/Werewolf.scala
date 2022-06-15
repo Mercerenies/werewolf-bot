@@ -9,7 +9,7 @@ import id.{Id, UserMapping}
 import util.Grammar
 import util.TextDecorator.*
 import wincon.{WinCondition, WerewolfWinCondition}
-import night.{NightMessageHandler, OptionalTablePositionMessageHandler}
+import night.{NightMessageHandler, OptionalTablePositionMessageHandler, WerewolfMessageHandler}
 import board.{Board, TablePosition}
 import response.FeedbackMessage
 
@@ -20,23 +20,6 @@ import Scalaz.{Id => _, *}
 
 object Werewolf extends Role {
 
-  class MessageHandler extends OptionalTablePositionMessageHandler {
-
-    override val initialNightMessage: String =
-      bold("Please reply 'left', 'middle', 'right', or 'none'") + " to indicate the card you will look at if you're the lone werewolf."
-
-    override def midnightReminder: Option[String] =
-      if (hasChoice) {
-        None
-      } else {
-        Some(
-          "Reminder: Please indicate the card you will look at if you're the lone werewolf, by " +
-            bold("replying 'left', 'middle', 'right', or 'none'."),
-        )
-      }
-
-  }
-
   override class Instance(private val mapping: UserMapping) extends RoleInstance {
 
     import Instance.logger
@@ -46,14 +29,14 @@ object Werewolf extends Role {
     override val coherenceProof =
       summon[this.type <:< role.Instance]
 
-    private val tablePositionMessageHandler =
-      MessageHandler()
+    private val nightHandlerImpl: WerewolfMessageHandler =
+      WerewolfMessageHandler()
 
     override val nightHandler: NightMessageHandler =
-      tablePositionMessageHandler
+      nightHandlerImpl
 
     override def nightAction(userId: Id[User]): State[Board, FeedbackMessage] = {
-      val tablePos = tablePositionMessageHandler.currentChoice
+      val tablePos = nightHandlerImpl.currentChoice
       for {
         board <- State.get
       } yield {
