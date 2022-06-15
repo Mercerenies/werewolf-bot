@@ -2,9 +2,12 @@
 package com.mercerenies.werewolf
 package choice
 
-import name.NamedEntity
+import name.{NamedEntity, NoValue}
 
 object syntax {
+
+  val noValue: Choice[NoValue] =
+    FiniteChoice.OneOf(List(NoValue))
 
   def oneOf[A <: NamedEntity](options: List[A]): Choice[A] =
     FiniteChoice.OneOf(options)
