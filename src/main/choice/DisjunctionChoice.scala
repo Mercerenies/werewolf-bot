@@ -10,8 +10,13 @@ class DisjunctionChoice[+A, +B](
 ) extends Choice[Either[A, B]] {
 
   override def parse(text: String): Either[ChoiceError, Either[A, B]] = {
-    first.parse(text).map { Left(_) } orElse
-      second.parse(text).map { Right(_) }
+    val a = first.parse(text).map { Left(_) }
+    val b = second.parse(text).map { Right(_) }
+    (a, b) match {
+      case (Right(a), _) => Right(a)
+      case (_, Right(b)) => Right(b)
+      case (Left(e1), Left(e2)) => Left(e1 betterError e2)
+    }
   }
 
 }

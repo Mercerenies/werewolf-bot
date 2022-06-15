@@ -23,8 +23,10 @@ class FiniteChoice[+A <: NamedEntity](
       } else {
         Left(ChoiceError.RepeatedElement)
       }
-    } else {
+    } else if (matches == Nil) {
       Left(ChoiceError.NoFurtherOptions)
+    } else {
+      Left(ChoiceError.WrongNumber(expected, matches.length))
     }
   }
 
@@ -52,7 +54,7 @@ object FiniteChoice {
   class TwoOf[+A <: NamedEntity](
     entities: List[A],
   ) extends Choice[(A, A)] {
-    private val impl = FiniteChoice(entities, 1, false)
+    private val impl = FiniteChoice(entities, 2, false)
 
     override def parse(text: String): Either[ChoiceError, (A, A)] =
       impl.parse(text) map {
