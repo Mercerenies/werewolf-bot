@@ -3,6 +3,7 @@ package com.mercerenies.werewolf
 package choice
 
 import name.{NamedEntity, NamedEntityMatcher}
+import util.{Numeral, Grammar}
 
 class FiniteChoice[+A <: NamedEntity](
   private val entities: List[A],
@@ -30,6 +31,14 @@ class FiniteChoice[+A <: NamedEntity](
     }
   }
 
+  override def blurb: String =
+    // Special case if we're expecting only a single unique value
+    if ((entities.length == 1) && (expected == 1)) {
+      s"the value ${entities(0).name}"
+    } else {
+      Numeral.fromInt(expected) + " of " + Grammar.conjunctionList(entities.map(_.name), "or")
+    }
+
 }
 
 object FiniteChoice {
@@ -43,6 +52,8 @@ object FiniteChoice {
   ) extends Choice[A] {
     private val impl = FiniteChoice(entities, 1, false)
 
+    export impl.blurb
+
     override def parse(text: String): Either[ChoiceError, A] =
       impl.parse(text) map {
         case List(x) => x
@@ -55,6 +66,8 @@ object FiniteChoice {
     entities: List[A],
   ) extends Choice[(A, A)] {
     private val impl = FiniteChoice(entities, 2, false)
+
+    export impl.blurb
 
     override def parse(text: String): Either[ChoiceError, (A, A)] =
       impl.parse(text) map {

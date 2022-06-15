@@ -20,4 +20,7 @@ object syntax {
     def :+:[B](other: Choice[B]): Choice[Either[A, B]] =
       DisjunctionChoice(self, other)
 
+    def formattedList: Choice[A] =
+      FormattedListChoice(self)
+
 }

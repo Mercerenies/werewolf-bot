@@ -69,4 +69,12 @@ class ChoiceSpec extends UnitSpec {
     parser.parse("aaa bar baz 1 2 bbb") should be (Right( Right((number1, number2)) ))
   }
 
+  it should "provide good blurbs for the given parser" in {
+    noValue.blurb should be ("the value None")
+    NoChoice.blurb should be ("???")
+    syntax.oneOf(options).blurb should be ("one of Foo, Bar, or Baz")
+    syntax.twoOf(options).blurb should be ("two of Foo, Bar, or Baz")
+    (syntax.oneOf(options) :+: syntax.twoOf(numOptions)).blurb should be ("one of Foo, Bar, or Baz or two of 1, 2, or 3")
+  }
+
 }

@@ -8,6 +8,8 @@ class ConstantChoice[A](private val value: A) extends Choice[A] {
   override def parse(text: String): Either[ChoiceError, A] =
     Right(value)
 
+  override val blurb: String = "anything"
+
 }
 
 object ConstantChoice {

@@ -5,8 +5,8 @@ package choice
 import name.{NamedEntity, NamedEntityMatcher}
 
 class DisjunctionChoice[+A, +B](
-  private val first: Choice[A],
-  private val second: Choice[B],
+  val first: Choice[A],
+  val second: Choice[B],
 ) extends Choice[Either[A, B]] {
 
   override def parse(text: String): Either[ChoiceError, Either[A, B]] = {
@@ -18,5 +18,7 @@ class DisjunctionChoice[+A, +B](
       case (Left(e1), Left(e2)) => Left(e1 betterError e2)
     }
   }
+
+  override val blurb: String = s"${first.blurb} or ${second.blurb}"
 
 }

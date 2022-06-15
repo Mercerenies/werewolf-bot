@@ -7,4 +7,6 @@ object NoChoice extends Choice[Nothing] {
   override def parse(text: String): Either[ChoiceError, Nothing] =
     Left(ChoiceError.NoFurtherOptions)
 
+  override val blurb: String = "???"
+
 }

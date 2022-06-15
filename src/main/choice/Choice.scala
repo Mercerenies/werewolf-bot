@@ -6,4 +6,6 @@ trait Choice[+A] {
 
   def parse(text: String): Either[ChoiceError, A]
 
+  def blurb: String
+
 }
