@@ -4,9 +4,11 @@ package game
 package role
 
 import name.NamedEntity
-import id.UserMapping
+import id.{Id, UserMapping}
 import util.TextDecorator.*
 import wincon.WinCondition
+
+import org.javacord.api.entity.user.User
 
 trait Role extends NamedEntity {
 
@@ -16,7 +18,7 @@ trait Role extends NamedEntity {
 
   def baseAlignment: Alignment
 
-  def createInstance(mapping: UserMapping): this.Instance
+  def createInstance(mapping: UserMapping, initialUser: Option[Id[User]]): this.Instance
 
   def introBlurb: String
 

@@ -43,7 +43,7 @@ object Villager extends Role {
 
   override val precedence: Int = Precedence.NO_ACTION
 
-  override def createInstance(mapping: UserMapping): this.Instance =
+  override def createInstance(mapping: UserMapping, initialUserId: Option[Id[User]]): this.Instance =
     Villager.Instance()
 
   override val introBlurb: String =

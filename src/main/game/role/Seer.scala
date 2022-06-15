@@ -20,7 +20,10 @@ import Scalaz.{Id => _, *}
 
 object Seer extends Role {
 
-  override class Instance(private val mapping: UserMapping) extends RoleInstance {
+  override class Instance(
+    private val mapping: UserMapping,
+    private val initialUserId: Option[Id[User]],
+  ) extends RoleInstance {
 
     override val role: Seer.type = Seer.this
 
@@ -28,7 +31,7 @@ object Seer extends Role {
       summon[this.type <:< role.Instance]
 
     private val nightHandlerImpl: SeerMessageHandler =
-      SeerMessageHandler(mapping.toNamedUsers.toList)
+      SeerMessageHandler(mapping.toNamedUsers.toList, initialUserId)
 
     override val nightHandler: NightMessageHandler =
       nightHandlerImpl
@@ -69,8 +72,8 @@ object Seer extends Role {
 
   override val precedence: Int = Precedence.SEER
 
-  override def createInstance(mapping: UserMapping): this.Instance =
-    Seer.Instance(mapping)
+  override def createInstance(mapping: UserMapping, initialUserId: Option[Id[User]]): this.Instance =
+    Seer.Instance(mapping, initialUserId)
 
   override val introBlurb: String =
     "You are the " + bold("Seer") + ". You may look at two cards in the center, or one card in front of another player."

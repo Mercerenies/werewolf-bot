@@ -53,7 +53,7 @@ object Board {
     new Board(mapping)
 
   def create(mapping: UserMapping, roles: Iterable[(Position, Role)]): Board =
-    Board(roles.map { (pos, role) => (pos, role.createInstance(mapping)) })
+    Board(roles.map { (pos, role) => (pos, role.createInstance(mapping, pos.getUserId)) })
 
   // Precondition: Rules.rolesNeeded(players.length) == roles.length
   def assignRoles(mapping: UserMapping, players: List[Id[User]], roles: List[Role]): Board = {

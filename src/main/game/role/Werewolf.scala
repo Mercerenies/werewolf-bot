@@ -84,7 +84,7 @@ object Werewolf extends Role {
 
   override val precedence: Int = Precedence.WEREWOLF
 
-  override def createInstance(mapping: UserMapping): this.Instance =
+  override def createInstance(mapping: UserMapping, initialUserId: Option[Id[User]]): this.Instance =
     Werewolf.Instance(mapping)
 
   override val introBlurb: String =

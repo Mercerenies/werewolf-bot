@@ -3,6 +3,7 @@ package com.mercerenies.werewolf
 package game
 package night
 
+import id.Id
 import util.Cell
 import util.TextDecorator.*
 import name.{NamedEntity, NamedEntityMatcher, NoValue}
@@ -10,16 +11,22 @@ import response.{MessageResponse, ReplyResponse}
 import parser.assignment.{NamedPosition, NamedUser}
 import board.TablePosition
 
-import scalaz.*
-import Scalaz.*
+import org.javacord.api.entity.user.User
+
+import scalaz.{Id => _, *}
+import Scalaz.{Id => _, *}
 
 class SeerMessageHandler(
   users: List[NamedUser],
+  private val ownerId: Option[Id[User]],
 ) extends MultipleChoiceMessageHandler[NamedPosition | NoValue](
   choices = users.map { NamedPosition.Player(_) } ++ TablePosition.all.map { NamedPosition.Table(_) },
 ) {
 
   import SeerMessageHandler.Choice
+
+  private val forbiddenChoice: Option[Choice] =
+    ownerId.map { id => Choice.PlayerCard(users.find { _.id == id }.get) }
 
   private val _playerChoice: Cell[Choice] = Cell(Choice.NoInput)
 
@@ -52,6 +59,9 @@ class SeerMessageHandler(
   override def onOptionsSelected(originalMessage: String, options: List[NamedPosition | NoValue]): MessageResponse =
     Choice.fromInputList(options) match {
       case None => ReplyResponse(genericMessage)
+      case Some(x) if Some(x) == forbiddenChoice => {
+        ReplyResponse("You cannot self-target.")
+      }
       case Some(x) => {
         _playerChoice.value = x
         ReplyResponse("Selected " + bold(x.toUserString))

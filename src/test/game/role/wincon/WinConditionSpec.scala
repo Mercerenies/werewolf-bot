@@ -19,7 +19,7 @@ class WinConditionSpec extends UnitSpec {
     val mockRole: Role = mock
     val mockRoleInstance: RoleInstance = mock
 
-    when(mockRole.createInstance(any(classOf[UserMapping]))).thenReturn(mockRoleInstance)
+    when(mockRole.createInstance(any(classOf[UserMapping]), any(classOf[Option[Id[User]]]))).thenReturn(mockRoleInstance)
     when(mockRoleInstance.winCondition).thenThrow(new RuntimeException("WinConditionSpec.inaccessibleRole"))
 
     mockRole
@@ -30,7 +30,7 @@ class WinConditionSpec extends UnitSpec {
     val mockRoleInstance: RoleInstance = mock
     val mockWinCondition: WinCondition = mock
 
-    when(mockRole.createInstance(any(classOf[UserMapping]))).thenReturn(mockRoleInstance)
+    when(mockRole.createInstance(any(classOf[UserMapping]), any(classOf[Option[Id[User]]]))).thenReturn(mockRoleInstance)
     when(mockRoleInstance.winCondition).thenReturn(mockWinCondition)
     when(mockWinCondition.precedence).thenReturn(precedence)
     when(mockWinCondition.determineOutcome(any(classOf[Endgame]), anyId())).thenReturn(outcome)
