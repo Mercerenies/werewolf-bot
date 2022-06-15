@@ -40,7 +40,7 @@ trait RoleInstance {
 
   val role: Role
 
-  def nightAction(mapping: UserMapping, userId: Id[User]): State[Board, FeedbackMessage]
+  def nightAction(userId: Id[User]): State[Board, FeedbackMessage]
 
   def winCondition: WinCondition
 

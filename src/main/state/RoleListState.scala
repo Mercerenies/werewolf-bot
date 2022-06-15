@@ -41,10 +41,10 @@ import Scalaz.{Id => _, *}
 // NightPhaseState.
 final class RoleListState(
   _gameProperties: GameProperties,
-  private val playerIds: List[Id[User]],
+  override val playerIds: List[Id[User]],
 )(
   using ExecutionContext,
-) extends GameState(_gameProperties) {
+) extends GameState(_gameProperties) with WithUserMapping {
 
   import RoleListState.logger
   import scalaz.EitherT.eitherTHoist
@@ -94,19 +94,18 @@ final class RoleListState(
   }
 
   private def setupGame(mgr: GamesManager, server: Server, roles: List[Role]): Future[Unit] = {
-    val board = Board.assignRoles(playerIds, roles)
     val channel = mgr.api.getNamedTextChannel(channelId)
-    val r = for {
-      startMessage <- gameStartMessage(mgr.api, server, roles).liftM
-      _ <- channel.sendMessage(startMessage).asScala.liftM
-      _ <- RoleListState.sendAllInitialDirectMessages(mgr.api, server, board).liftM
+    for {
+      mapping <- getUserMapping(mgr.api)
+      board = Board.assignRoles(mapping, playerIds, roles)
+      startMessage <- gameStartMessage(mgr.api, server, roles)
+      _ <- channel.sendMessage(startMessage).asScala
+      _ <- RoleListState.sendAllInitialDirectMessages(mgr.api, server, board)
     } yield {
       val newState = NightPhaseState(gameProperties, playerIds, board)
       mgr.updateGame(channelId, newState)
       ()
     }
-    // In case of error, log and return ()
-    r.warningToLogger(logger).map { _ => () }
   }
 
   override def onStartGame(mgr: GamesManager, interaction: SlashCommandInteraction): Future[CommandResponse[Unit]] =

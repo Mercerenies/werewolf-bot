@@ -27,7 +27,7 @@ object Villager extends Role {
     override val nightHandler: NightMessageHandler =
       NoInputNightMessageHandler
 
-    override def nightAction(mapping: UserMapping, userId: Id[User]): State[Board, FeedbackMessage] =
+    override def nightAction(userId: Id[User]): State[Board, FeedbackMessage] =
       FeedbackMessage.none.point
 
     override val winCondition: WinCondition =
@@ -43,7 +43,7 @@ object Villager extends Role {
 
   override val precedence: Int = Precedence.NO_ACTION
 
-  override def createInstance(): this.Instance =
+  override def createInstance(mapping: UserMapping): this.Instance =
     Villager.Instance()
 
   override val introBlurb: String =

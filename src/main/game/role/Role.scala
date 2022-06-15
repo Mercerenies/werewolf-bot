@@ -4,6 +4,7 @@ package game
 package role
 
 import name.NamedEntity
+import id.UserMapping
 import util.TextDecorator.*
 import wincon.WinCondition
 
@@ -15,7 +16,7 @@ trait Role extends NamedEntity {
 
   def baseAlignment: Alignment
 
-  def createInstance(): this.Instance
+  def createInstance(mapping: UserMapping): this.Instance
 
   def introBlurb: String
 

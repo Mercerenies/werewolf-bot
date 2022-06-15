@@ -14,20 +14,7 @@ import board.{Board, BoardTestUtil}
 
 object TestGameRunner {
 
-  // Returns a pre-determined name and a mock User object for any
-  // user.
-  object SampleUserMapping extends UserMapping {
-
-    def get(id: Id[User]): Option[User] =
-      Some(MockitoSugar.mock[User])
-
-    def getName(id: Id[User]): Option[String] =
-      Some(mockName(id.toLong))
-
-  }
-
-  def mockName(n: Long): String =
-    s"<User ${n}>"
+  export BoardTestUtil.{SampleUserMapping, mockName}
 
   // Just to help with type inference since we only use Id[User] here.
 
@@ -54,7 +41,7 @@ object TestGameRunner {
 
     // Once all night actions have been collected, run the night
     // phase and collect feedback objects.
-    val (finalBoard, responses) = NightPhaseEvaluator.evaluate(SampleUserMapping, board)
+    val (finalBoard, responses) = NightPhaseEvaluator.evaluate(board)
     (finalBoard, responses.toMap)
   }
 

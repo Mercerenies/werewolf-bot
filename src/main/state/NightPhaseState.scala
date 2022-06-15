@@ -133,7 +133,7 @@ object NightPhaseState extends Logging[NightPhaseState] {
   // be worth waiting until this completes to start the actual day
   // phase.
   def evaluateNightPhaseAndSend(mapping: UserMapping, board: Board)(using ExecutionContext): (Board, Future[Unit]) = {
-    val (finalBoard, messages) = NightPhaseEvaluator.evaluate(mapping, board)
+    val (finalBoard, messages) = NightPhaseEvaluator.evaluate(board)
     val messagesFuture = messages.traverse { (userId, feedback) => feedback.sendTo(mapping(userId)) }.void
     (finalBoard, messagesFuture)
   }

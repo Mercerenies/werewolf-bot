@@ -37,7 +37,7 @@ object Werewolf extends Role {
 
   }
 
-  override class Instance extends RoleInstance {
+  override class Instance(private val mapping: UserMapping) extends RoleInstance {
 
     import Instance.logger
 
@@ -52,7 +52,7 @@ object Werewolf extends Role {
     override val nightHandler: NightMessageHandler =
       tablePositionMessageHandler
 
-    override def nightAction(mapping: UserMapping, userId: Id[User]): State[Board, FeedbackMessage] = {
+    override def nightAction(userId: Id[User]): State[Board, FeedbackMessage] = {
       val tablePos = tablePositionMessageHandler.currentChoice
       for {
         board <- State.get
@@ -101,8 +101,8 @@ object Werewolf extends Role {
 
   override val precedence: Int = Precedence.WEREWOLF
 
-  override def createInstance(): this.Instance =
-    Werewolf.Instance()
+  override def createInstance(mapping: UserMapping): this.Instance =
+    Werewolf.Instance(mapping)
 
   override val introBlurb: String =
     "You are a " + bold("Werewolf") + ". You will be informed of who the other werewolves are. If there are no other werewolves, you may look at a card in the center of the table."
