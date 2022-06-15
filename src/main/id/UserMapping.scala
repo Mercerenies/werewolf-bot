@@ -17,6 +17,8 @@ import scala.concurrent.{Future, ExecutionContext}
 
 trait UserMapping {
 
+  def keys: Iterable[Id[User]]
+
   def get(id: Id[User]): Option[User]
 
   def getName(id: Id[User]): Option[String]
@@ -38,7 +40,7 @@ trait UserMapping {
 object UserMapping {
 
   private class FromMap(val map: Map[Id[User], User]) extends UserMapping {
-    export map.get
+    export map.{get, keys}
 
     override def getName(id: Id[User]): Option[String] =
       get(id).map { _.getName }
@@ -46,7 +48,7 @@ object UserMapping {
   }
 
   private class FromNameMap(val map: Map[Id[User], User], val nameMap: Map[Id[User], String]) extends UserMapping {
-    export map.get
+    export map.{get, keys}
 
     override def getName(id: Id[User]): Option[String] =
       nameMap.get(id)

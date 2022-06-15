@@ -15,7 +15,10 @@ trait BoardTestUtil {
 
   // Returns a pre-determined name and a mock User object for any
   // user.
-  object SampleUserMapping extends UserMapping {
+  class SampleUserMapping(val playerCount: Int) extends UserMapping {
+
+    def keys: Iterable[Id[User]] =
+      0 until playerCount map { id }
 
     def get(id: Id[User]): Option[User] =
       Some(MockitoSugar.mock[User])
@@ -51,7 +54,7 @@ trait BoardTestUtil {
       Position.right -> right,
     )
     val playerPositions = playerCards.zipWithIndex.map { (role, idx) => Position.Player(id(idx)) -> role }
-    Board.create(SampleUserMapping, tablePositions ++ playerPositions)
+    Board.create(SampleUserMapping(playerCards.size), tablePositions ++ playerPositions)
   }
 
 }

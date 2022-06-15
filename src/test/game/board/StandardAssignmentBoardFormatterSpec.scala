@@ -32,6 +32,9 @@ class StandardAssignmentBoardFormatterSpec extends UnitSpec {
 
   private object MockUserMapping extends UserMapping {
 
+    override def keys: Iterable[Id[User]] =
+      throw new AssertionError("MockUserMapping.keys not implemented")
+
     override def get(id: Id[User]): Option[User] =
       throw new AssertionError("MockUserMapping.get not implemented")
 
