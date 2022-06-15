@@ -63,7 +63,7 @@ class NightGameEvaluatorSpec extends UnitSpec {
       right = Villager,
       playerCards = List(Villager, Werewolf, Werewolf),
     )
-    val (finalBoard, feedback) = playGame(board, List("", "left", "middle"))
+    val (finalBoard, feedback) = playGame(board, List("", "left", "none"))
     finalBoard should be (board)
 
     // The two werewolves should be made aware of each other
@@ -93,7 +93,7 @@ class NightGameEvaluatorSpec extends UnitSpec {
 
   }
 
-  it should "provide defaulting center-card feedback to a solo werewolf who does not respond" in {
+  it should "provide no feedback to a solo werewolf who does not respond" in {
     val board = createBoard(
       left = Villager,
       middle = Villager,
@@ -103,10 +103,24 @@ class NightGameEvaluatorSpec extends UnitSpec {
     val (finalBoard, feedback) = playGame(board, List("", "", ""))
     finalBoard should be (board)
 
-    // The solo werewolf should see that the 'villager' card is on the 'left'
     feedback(id(0)) should be (FeedbackMessage.none)
-    feedback(id(1)).mkString should include regex "(?i)villager"
-    feedback(id(1)).mkString should include regex "(?i)left"
+    feedback(id(1)) should be (FeedbackMessage.none)
+    feedback(id(2)) should be (FeedbackMessage.none)
+
+  }
+
+  it should "provide no feedback to a solo werewolf who responds 'none'" in {
+    val board = createBoard(
+      left = Villager,
+      middle = Villager,
+      right = Tanner,
+      playerCards = List(Villager, Werewolf, Villager),
+    )
+    val (finalBoard, feedback) = playGame(board, List("", "none", ""))
+    finalBoard should be (board)
+
+    feedback(id(0)) should be (FeedbackMessage.none)
+    feedback(id(1)) should be (FeedbackMessage.none)
     feedback(id(2)) should be (FeedbackMessage.none)
 
   }

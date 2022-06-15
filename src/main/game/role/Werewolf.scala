@@ -4,11 +4,12 @@ package game
 package role
 
 import logging.Logging
+import name.NoValue
 import id.{Id, UserMapping}
 import util.Grammar
 import util.TextDecorator.*
 import wincon.{WinCondition, WerewolfWinCondition}
-import night.{NightMessageHandler, TablePositionMessageHandler}
+import night.{NightMessageHandler, OptionalTablePositionMessageHandler}
 import board.{Board, TablePosition}
 import response.FeedbackMessage
 
@@ -19,10 +20,10 @@ import Scalaz.{Id => _, *}
 
 object Werewolf extends Role {
 
-  class MessageHandler extends TablePositionMessageHandler {
+  class MessageHandler extends OptionalTablePositionMessageHandler {
 
     override val initialNightMessage: String =
-      bold("Please reply 'left', 'middle', or 'right'") + " to indicate the card you will look at if you're the lone werewolf."
+      bold("Please reply 'left', 'middle', 'right', or 'none'") + " to indicate the card you will look at if you're the lone werewolf."
 
     override def midnightReminder: Option[String] =
       if (hasChoice) {
@@ -30,7 +31,7 @@ object Werewolf extends Role {
       } else {
         Some(
           "Reminder: Please indicate the card you will look at if you're the lone werewolf, by " +
-            bold("replying 'left', 'middle', or 'right'."),
+            bold("replying 'left', 'middle', 'right', or 'none'."),
         )
       }
 
@@ -51,33 +52,37 @@ object Werewolf extends Role {
     override val nightHandler: NightMessageHandler =
       tablePositionMessageHandler
 
-    private val forgottenInputMessage: String =
-      "(Defaulting to the " + bold("Left") + " card)"
+    override def nightAction(mapping: UserMapping, userId: Id[User]): State[Board, FeedbackMessage] = {
+      val tablePos = tablePositionMessageHandler.currentChoice
+      for {
+        board <- State.get
+      } yield {
+        val werewolfIds = findWerewolfIds(board)
+        if (werewolfIds.length <= 1) {
 
-    override def nightAction(mapping: UserMapping, userId: Id[User]): State[Board, FeedbackMessage] =
-      RoleInstance.withForgottenInput(tablePositionMessageHandler.currentChoice, TablePosition.Left, forgottenInputMessage) { tablePos =>
-        for {
-          board <- State.get
-        } yield {
-          val werewolfIds = findWerewolfIds(board)
-          if (werewolfIds.length <= 1) {
-
-            // Sanity check; I sincerely hope this never triggers.
-            if (werewolfIds.length < 1) {
-              logger.warn(s"Werewolf ${userId} is trying to view the werewolf list but there are no werewolves")
-            }
-
-            // There's one werewolf, so look at the center card.
-            val centerCard = board(tablePos).role
-
-            FeedbackMessage("You are the " + bold("solo werewolf") + ". The " + bold(tablePos.toString) + " card is " + bold(centerCard.name) + ".")
-          } else {
-            val werewolfNames = werewolfIds.map { mapping.nameOf(_) }.sorted
-            val werewolfNamesList = Grammar.conjunctionList(werewolfNames)
-            FeedbackMessage("The werewolf team consists of " + bold(werewolfNamesList) + ".")
+          // Sanity check; I sincerely hope this never triggers.
+          if (werewolfIds.length < 1) {
+            logger.warn(s"Werewolf ${userId} is trying to view the werewolf list but there are no werewolves")
           }
+
+          // There's one werewolf, so look at the center card.
+          tablePos match {
+            case NoValue => {
+              FeedbackMessage.none
+            }
+            case tablePos: TablePosition => {
+              val centerCard = board(tablePos).role
+
+              FeedbackMessage("You are the " + bold("solo werewolf") + ". The " + bold(tablePos.toString) + " card is " + bold(centerCard.name) + ".")
+            }
+          }
+        } else {
+          val werewolfNames = werewolfIds.map { mapping.nameOf(_) }.sorted
+          val werewolfNamesList = Grammar.conjunctionList(werewolfNames)
+          FeedbackMessage("The werewolf team consists of " + bold(werewolfNamesList) + ".")
         }
       }
+    }
 
     override val winCondition: WinCondition =
       WerewolfWinCondition
