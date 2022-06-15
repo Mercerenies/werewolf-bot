@@ -13,4 +13,11 @@ final class NamedEntityMatcher[A <: NamedEntity](
   def findAll(text: String): Iterator[A] =
     regex.findAllMatchIn(text).flatMap { m => NamedEntity.findMatch(m.matched, entities) }
 
+  def findUnique(text: String): Option[A] =
+    // Only return Some if there's a single unique match
+    findAll(text).toList match {
+      case List(x) => Some(x)
+      case _ => None
+    }
+
 }
