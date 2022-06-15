@@ -17,4 +17,7 @@ open class ReplyResponse(val replyText: String) extends MessageResponse {
   override def respondTo(api: DiscordApi, message: Message)(using ExecutionContext): Future[Unit] =
     message.reply(replyText).asScala.void
 
+  override def toString: String =
+    s"ReplyResponse(${replyText})"
+
 }
