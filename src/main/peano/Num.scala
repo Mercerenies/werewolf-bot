@@ -22,4 +22,10 @@ object Num {
 
   given CanonicalSucc[A <: Num](using x: A) : Succ[A] = Succ(x)
 
+  val One = Succ(Zero)
+  val Two = Succ(One)
+  val Three = Succ(Two)
+  val Four = Succ(Three)
+  val Five = Succ(Four)
+
 }
