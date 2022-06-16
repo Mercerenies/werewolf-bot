@@ -42,6 +42,12 @@ final class Board(
   override def hashCode: Int =
     ("Board", toMap).hashCode
 
+  def swap(first: Position, second: Position): Board = {
+    val firstInstance = this(first)
+    val secondInstance = this(second)
+    Board(toMap + ((first, secondInstance)) + ((second, firstInstance)))
+  }
+
 }
 
 object Board {
