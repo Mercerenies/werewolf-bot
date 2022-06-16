@@ -12,7 +12,7 @@ import logging.Logs.warningToLogger
 import name.{NameProvider, BaseNameProvider, DisplayNameProvider}
 import command.CommandResponse
 import manager.GamesManager
-import game.{Rules, NightPhaseEvaluator}
+import game.{Rules, NightPhaseEvaluator, NightPhaseResult}
 import game.board.Board
 import game.role.Role
 import game.parser.ListParser
@@ -133,8 +133,9 @@ object NightPhaseState extends Logging[NightPhaseState] {
   // be worth waiting until this completes to start the actual day
   // phase.
   def evaluateNightPhaseAndSend(mapping: UserMapping, board: Board)(using ExecutionContext): (Board, Future[Unit]) = {
-    val (finalBoard, messages) = NightPhaseEvaluator.evaluate(board)
-    val messagesFuture = messages.traverse { (userId, feedback) => feedback.sendTo(mapping(userId)) }.void
+    ///// history
+    val NightPhaseResult(finalBoard, history, messages) = NightPhaseEvaluator.evaluate(board)
+    val messagesFuture = messages.toList.traverse { (userId, feedback) => feedback.sendTo(mapping(userId)) }.void
     (finalBoard, messagesFuture)
   }
 

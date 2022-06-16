@@ -14,14 +14,13 @@ import Scalaz.{Id => _, *}
 
 object NightPhaseEvaluator {
 
-  def evaluate(board: Board): (Board, List[(Id[User], FeedbackMessage)]) = {
+  def evaluate(board: Board): NightPhaseResult = {
     val instances = board.playerRoleInstances.sortBy { (_, roleInstance) => - roleInstance.role.precedence }
     val computation: GameContext[List[(Id[User], FeedbackMessage)]] = instances.traverse { (userId, roleInstance) =>
       roleInstance.nightAction(userId).map { (userId, _) }
     }
-    ///// records
-    val (finalBoard, _, feedback) = computation.run(board)
-    (finalBoard, feedback)
+    val (finalBoard, records, feedback) = computation.run(board)
+    NightPhaseResult(finalBoard, records, feedback.toMap)
   }
 
 }
