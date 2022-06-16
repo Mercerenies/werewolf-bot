@@ -11,20 +11,10 @@ import role.*
 import state.NightPhaseState
 import response.FeedbackMessage
 import board.{Board, TablePosition, Position}
-import TestGameRunner.{playGame, mockName}
-import board.BoardTestUtil.createBoard
 
 import scala.util.matching.Regex
 
-class NightGameEvaluatorSpec extends UnitSpec {
-
-  // Just to help with type inference since we only use Id[User] here.
-
-  private def id(x: Long): Id[User] =
-    Id.fromLong(x)
-
-  private def id(x: Int): Id[User] =
-    Id.fromLong(x)
+class NightGameEvaluatorSpec extends GameplayUnitSpec {
 
   "NightGameEvaluator" should "provide no feedback and change none of the roles in an all-villager game" in {
     val board = createBoard(
