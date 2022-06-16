@@ -19,7 +19,7 @@ class WerewolfSpec extends GameplayUnitSpec {
       left = Werewolf,
       middle = Werewolf,
       right = Villager,
-      playerCards = List(Werewolf, Seer, Werewolf),
+      playerCards = List(Werewolf, Villager, Werewolf),
     )
     val (finalBoard, _) = playGame(board, List("", "", ""))
     finalBoard should be (board)
@@ -30,7 +30,7 @@ class WerewolfSpec extends GameplayUnitSpec {
       left = Werewolf,
       middle = Werewolf,
       right = Villager,
-      playerCards = List(Werewolf, Seer, Villager),
+      playerCards = List(Werewolf, Tanner, Villager),
     )
     val (finalBoard, _) = playGame(board, List("", "", ""))
     finalBoard should be (board)

@@ -12,7 +12,18 @@ import state.NightPhaseState
 import response.FeedbackMessage
 import board.{Board, TablePosition, Position}
 
-class NightGameEvaluatorSpec extends GameplayUnitSpec {
+class SeerSpec extends GameplayUnitSpec {
+
+  "The Seer role" should "not change the state of the game" in {
+    val board = createBoard(
+      left = Werewolf,
+      middle = Werewolf,
+      right = Villager,
+      playerCards = List(Werewolf, Seer, Werewolf),
+    )
+    val (finalBoard, _) = playGame(board, List("", "", ""))
+    finalBoard should be (board)
+  }
 
   it should "provide feedback to a seer who looks in the middle" in {
     val board = createBoard(
@@ -60,48 +71,6 @@ class NightGameEvaluatorSpec extends GameplayUnitSpec {
     feedback(id(0)) should be (FeedbackMessage.none)
     feedback(id(1)).mkString should include (mockName(2))
     feedback(id(1)).mkString should include regex "(?i)tanner"
-    feedback(id(2)) should be (FeedbackMessage.none)
-
-  }
-
-  it should "perform no action if a troublemaker elects to do nothing" in {
-    val board = createBoard(
-      left = Villager,
-      middle = Werewolf,
-      right = Villager,
-      playerCards = List(Villager, Troublemaker, Tanner),
-    )
-    val (finalBoard, feedback) = playGame(board, List("", "none", ""))
-    finalBoard should be (board)
-
-    feedback(id(0)) should be (FeedbackMessage.none)
-    feedback(id(1)).mkString should not include (mockName(0))
-    feedback(id(1)).mkString should not include (mockName(1))
-    feedback(id(1)).mkString should not include (mockName(2))
-    feedback(id(2)) should be (FeedbackMessage.none)
-
-  }
-
-  it should "swap roles if a troublemaker elects to act" in {
-    val board = createBoard(
-      left = Villager,
-      middle = Werewolf,
-      right = Villager,
-      playerCards = List(Villager, Troublemaker, Tanner),
-    )
-    val (finalBoard, feedback) = playGame(board, List("", s"${mockName(0)} ${mockName(2)}", ""))
-
-    finalBoard(TablePosition.Left).role should be (Villager)
-    finalBoard(TablePosition.Middle).role should be (Werewolf)
-    finalBoard(TablePosition.Right).role should be (Villager)
-    finalBoard(id(0)).role should be (Tanner)
-    finalBoard(id(1)).role should be (Troublemaker)
-    finalBoard(id(2)).role should be (Villager)
-
-    feedback(id(0)) should be (FeedbackMessage.none)
-    feedback(id(1)).mkString should include (mockName(0))
-    feedback(id(1)).mkString should include (mockName(2))
-    feedback(id(1)).mkString should not include regex ("(?i)villager|tanner|werewolf")
     feedback(id(2)) should be (FeedbackMessage.none)
 
   }
