@@ -14,6 +14,7 @@ import board.{Board, Position, TablePosition}
 import response.FeedbackMessage
 import choice.syntax.*
 import parser.assignment.NamedUser
+import context.GameContext
 
 import org.javacord.api.entity.user.User
 
@@ -45,18 +46,18 @@ object Troublemaker extends Role {
     override val nightHandler: NightMessageHandler =
       nightHandlerImpl
 
-    override def nightAction(userId: Id[User]): State[Board, FeedbackMessage] = {
+    override def nightAction(userId: Id[User]): GameContext[FeedbackMessage] = {
       val playerChoice = nightHandlerImpl.currentChoice
       for {
-        board <- State.get
+        board <- GameContext.getBoard
         message <- playerChoice match {
           case None => {
-            FeedbackMessage(s"You elected to swap nobody's cards.").point[[X] =>> State[Board, X]]
+            FeedbackMessage(s"You elected to swap nobody's cards.").point[GameContext]
           }
           case Some((a, b)) => {
             val msg = FeedbackMessage(s"You have chosen to swap the cards of ${bold(a.name)} and ${bold(b.name)}.")
             val newBoard = board.swap(Position.Player(a.id), Position.Player(b.id))
-            State.put(newBoard) >| msg
+            GameContext.setBoard(newBoard) >| msg
           }
         }
       } yield {

@@ -9,6 +9,7 @@ import wincon.{WinCondition, TannerWinCondition}
 import night.{NightMessageHandler, NoInputNightMessageHandler}
 import board.Board
 import response.FeedbackMessage
+import context.GameContext
 
 import org.javacord.api.entity.user.User
 
@@ -27,7 +28,7 @@ object Tanner extends Role {
     override val nightHandler: NightMessageHandler =
       NoInputNightMessageHandler
 
-    override def nightAction(userId: Id[User]): State[Board, FeedbackMessage] =
+    override def nightAction(userId: Id[User]): GameContext[FeedbackMessage] =
       FeedbackMessage.none.point
 
     override val winCondition: WinCondition =

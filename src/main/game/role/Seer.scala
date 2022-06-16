@@ -14,6 +14,7 @@ import board.{Board, TablePosition}
 import response.FeedbackMessage
 import choice.syntax.*
 import parser.assignment.NamedUser
+import context.GameContext
 
 import org.javacord.api.entity.user.User
 
@@ -52,10 +53,10 @@ object Seer extends Role {
     override val nightHandler: NightMessageHandler =
       nightHandlerImpl
 
-    override def nightAction(userId: Id[User]): State[Board, FeedbackMessage] = {
+    override def nightAction(userId: Id[User]): GameContext[FeedbackMessage] = {
       val playerChoice = nightHandlerImpl.currentChoice
       for {
-        board <- State.get
+        board <- GameContext.getBoard
       } yield {
         playerChoice match {
           case UserChoice.None => {

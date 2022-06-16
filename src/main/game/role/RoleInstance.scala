@@ -9,6 +9,7 @@ import night.NightMessageHandler
 import board.Board
 import response.FeedbackMessage
 import wincon.WinCondition
+import context.GameContext
 
 import org.javacord.api.entity.user.User
 
@@ -40,7 +41,7 @@ trait RoleInstance {
 
   val role: Role
 
-  def nightAction(userId: Id[User]): State[Board, FeedbackMessage]
+  def nightAction(userId: Id[User]): GameContext[FeedbackMessage]
 
   def winCondition: WinCondition
 

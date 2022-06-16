@@ -12,6 +12,7 @@ import wincon.{WinCondition, WerewolfWinCondition}
 import night.{NightMessageHandler, ChoiceMessageHandler}
 import board.{Board, TablePosition}
 import response.FeedbackMessage
+import context.GameContext
 import choice.syntax.*
 
 import org.javacord.api.entity.user.User
@@ -42,10 +43,10 @@ object Werewolf extends Role {
     override val nightHandler: NightMessageHandler =
       nightHandlerImpl
 
-    override def nightAction(userId: Id[User]): State[Board, FeedbackMessage] = {
+    override def nightAction(userId: Id[User]): GameContext[FeedbackMessage] = {
       val tablePos = nightHandlerImpl.currentChoice
       for {
-        board <- State.get
+        board <- GameContext.getBoard
       } yield {
         val werewolfIds = findWerewolfIds(board)
         if (werewolfIds.length <= 1) {

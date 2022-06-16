@@ -5,6 +5,7 @@ package game
 import id.{Id, UserMapping}
 import board.Board
 import response.FeedbackMessage
+import context.GameContext
 
 import org.javacord.api.entity.user.User
 
@@ -15,13 +16,10 @@ object NightPhaseEvaluator {
 
   def evaluate(board: Board): (Board, List[(Id[User], FeedbackMessage)]) = {
     val instances = board.playerRoleInstances.sortBy { (_, roleInstance) => - roleInstance.role.precedence }
-    val stateMonad: State[Board, List[(Id[User], FeedbackMessage)]] = instances.traverse { (userId, roleInstance) =>
+    val computation: GameContext[List[(Id[User], FeedbackMessage)]] = instances.traverse { (userId, roleInstance) =>
       roleInstance.nightAction(userId).map { (userId, _) }
     }
-    // So Scala dies a violent and bloody death if I don't include the
-    // 'using' argument here. No idea why, but probably related to
-    // https://github.com/lampepfl/dotty/issues/12479.
-    stateMonad(board)(using scalaz.Id.id)
+    computation.run(board)
   }
 
 }
