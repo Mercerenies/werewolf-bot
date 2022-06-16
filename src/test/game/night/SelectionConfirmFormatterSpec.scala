@@ -49,7 +49,7 @@ class SelectionConfirmFormatterSpec extends UnitSpec {
   }
 
   it should "format lists of objects in a comma-separated way" in {
-    format(List(): List[Int]) should be ("")
+    format(List()) should be ("")
     format(List(1)) should be ("1")
     format(List(1, 2)) should be ("1 and 2")
     format(List(1, 2, 3)) should be ("1, 2, and 3")

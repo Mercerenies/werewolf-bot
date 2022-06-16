@@ -33,9 +33,9 @@ object NamedEntity {
   def findMatch[A <: NamedEntity](text: String, entities: Iterable[A]): Option[A] =
     entities.find(_.matches(text))
 
-  given NamedEntityChoiceFormatter : ChoiceFormatter[NamedEntity] with
+  given NamedEntityChoiceFormatter[A <: NamedEntity] : ChoiceFormatter[A] with
 
-    def format(value: NamedEntity): String =
+    def format(value: A): String =
       value.name
 
 }

@@ -10,7 +10,7 @@ import util.Grammar
 // nesting and print out the values we actually care about.
 // ChoiceFormatter reaches through the nesting and prints out the
 // leaves in a nice, user-friendly way.
-trait ChoiceFormatter[-A] {
+trait ChoiceFormatter[A] {
   def format(value: A): String
 }
 
