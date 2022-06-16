@@ -9,9 +9,10 @@ import id.{Id, UserMapping}
 import util.Grammar
 import util.TextDecorator.*
 import wincon.{WinCondition, WerewolfWinCondition}
-import night.{NightMessageHandler, OptionalTablePositionMessageHandler, WerewolfMessageHandler}
+import night.{NightMessageHandler, ChoiceMessageHandler}
 import board.{Board, TablePosition}
 import response.FeedbackMessage
+import choice.syntax.*
 
 import org.javacord.api.entity.user.User
 
@@ -21,16 +22,22 @@ import Scalaz.{Id => _, *}
 object Werewolf extends Role {
 
   override class Instance(private val mapping: UserMapping) extends RoleInstance {
-
     import Instance.logger
+
+    private val choiceFactory = ChoiceFactory(mapping.toNamedUsers)
 
     override val role: Werewolf.type = Werewolf.this
 
     override val coherenceProof =
       summon[this.type <:< role.Instance]
 
-    private val nightHandlerImpl: WerewolfMessageHandler =
-      WerewolfMessageHandler()
+    private val nightHandlerImpl =
+      ChoiceMessageHandler(
+        noValue :+: choiceFactory.tablePosition
+      ) {
+        case None | Some(Left(NoValue)) => None
+        case Some(Right(x)) => Some(x)
+      }
 
     override val nightHandler: NightMessageHandler =
       nightHandlerImpl
@@ -50,10 +57,10 @@ object Werewolf extends Role {
 
           // There's one werewolf, so look at the center card.
           tablePos match {
-            case NoValue => {
+            case None => {
               FeedbackMessage.none
             }
-            case tablePos: TablePosition => {
+            case Some(tablePos) => {
               val centerCard = board(tablePos).role
 
               FeedbackMessage("You are the " + bold("solo werewolf") + ". The " + bold(tablePos.toString) + " card is " + bold(centerCard.name) + ".")

@@ -25,10 +25,10 @@ trait ChoiceMessageHandler[A, B] extends NightMessageHandler {
   def postprocess(input: Option[A]): B
 
   // The text to send when the player successfully selects an option.
-  // Default implementation runs postprocess and then toString on the
-  // result, but this can be overridden.
+  // Default implementation tries to be smart and can handle Either,
+  // tuples, Lists, and things with toString.
   def selectionConfirmText(input: A): String =
-    "Selected " + bold(postprocess(Some(input)).toString)
+    "Selected " + bold(SelectionConfirmFormatter.format(input))
 
   def message: String = s"Please enter ${options.blurb}"
 
