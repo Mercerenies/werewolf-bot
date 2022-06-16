@@ -75,4 +75,50 @@ class SeerSpec extends GameplayUnitSpec {
 
   }
 
+  it should "observe the player's cards from before a troublemaker acts" in {
+    val board = createBoard(
+      left = Villager,
+      middle = Werewolf,
+      right = Tanner,
+      playerCards = List(Troublemaker, Seer, Tanner, Villager),
+    )
+    val (finalBoard, feedback) = playGame(board, List(s"${mockName(2)} ${mockName(3)}", mockName(2), ""))
+
+    finalBoard(TablePosition.Left).role should be (Villager)
+    finalBoard(TablePosition.Middle).role should be (Werewolf)
+    finalBoard(TablePosition.Right).role should be (Tanner)
+    finalBoard(id(0)).role should be (Troublemaker)
+    finalBoard(id(1)).role should be (Seer)
+    finalBoard(id(2)).role should be (Villager)
+    finalBoard(id(3)).role should be (Tanner)
+
+    feedback(id(1)).mkString should include (mockName(2))
+    feedback(id(1)).mkString should include regex "(?i)tanner"
+    feedback(id(2)) should be (FeedbackMessage.none)
+    feedback(id(3)) should be (FeedbackMessage.none)
+
+  }
+
+  it should "see the original cards correctly even if the seer card ends up swapped by troublemaker" in {
+    val board = createBoard(
+      left = Villager,
+      middle = Werewolf,
+      right = Tanner,
+      playerCards = List(Troublemaker, Seer, Tanner),
+    )
+    val (finalBoard, feedback) = playGame(board, List(s"${mockName(1)} ${mockName(2)}", mockName(2), ""))
+
+    finalBoard(TablePosition.Left).role should be (Villager)
+    finalBoard(TablePosition.Middle).role should be (Werewolf)
+    finalBoard(TablePosition.Right).role should be (Tanner)
+    finalBoard(id(0)).role should be (Troublemaker)
+    finalBoard(id(1)).role should be (Tanner)
+    finalBoard(id(2)).role should be (Seer)
+
+    feedback(id(1)).mkString should include (mockName(2))
+    feedback(id(1)).mkString should include regex "(?i)tanner"
+    feedback(id(2)) should be (FeedbackMessage.none)
+
+  }
+
 }
