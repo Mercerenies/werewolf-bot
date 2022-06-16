@@ -4,7 +4,7 @@ package game
 package parser
 package assignment
 
-import board.AssignmentBoard
+import board.assignment.AssignmentBoard
 
 case class Assignment(
   val position: NamedPosition,

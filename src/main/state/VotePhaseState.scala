@@ -14,7 +14,8 @@ import name.{NameProvider, BaseNameProvider, DisplayNameProvider}
 import command.CommandResponse
 import manager.GamesManager
 import game.Rules
-import game.board.{Board, AssignmentBoard, AssignmentBoardFormatter, StandardAssignmentBoardFormatter, Endgame}
+import game.board.{Board, Endgame}
+import game.board.assignment.{AssignmentBoard, AssignmentBoardFormatter, StandardAssignmentBoardFormatter}
 import game.role.Role
 import game.role.wincon.WinCondition
 import game.parser.ListParser

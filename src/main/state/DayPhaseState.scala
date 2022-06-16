@@ -13,7 +13,8 @@ import name.{NameProvider, BaseNameProvider, DisplayNameProvider}
 import command.CommandResponse
 import manager.GamesManager
 import game.Rules
-import game.board.{Board, AssignmentBoard, AssignmentBoardFormatter, StandardAssignmentBoardFormatter}
+import game.board.Board
+import game.board.assignment.{AssignmentBoard, AssignmentBoardFormatter, StandardAssignmentBoardFormatter}
 import game.role.Role
 import game.parser.ListParser
 import game.night.NightMessageHandler

@@ -2,6 +2,7 @@
 package com.mercerenies.werewolf
 package game
 package board
+package assignment
 
 import IterableNormalizations.unordered
 import id.Id
