@@ -9,6 +9,7 @@ import response.{MessageResponse, ReplyResponse}
 import scalaz.*
 import Scalaz.*
 
+@deprecated /////
 trait MultipleChoiceMessageHandler[A <: NamedEntity](
   val choices: List[A],
 ) extends NightMessageHandler {
