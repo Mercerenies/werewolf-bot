@@ -24,6 +24,7 @@ class StandardAssignmentBoardFormatter(
       s"${userMapping.nameOf(playerId)} (${playerRole})"
     }.mkString("\n")
 
+  // TODO Alpha wolf table position
   private def centerLines(board: AssignmentBoard): String = {
     val centerPositions = TablePosition.all map { Position.Table(_) }
     val centerRoles = centerPositions.map(board.getRoleName).mkString("; ")

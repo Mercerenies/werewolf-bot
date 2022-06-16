@@ -16,8 +16,17 @@ case class BoardSnapshot(
   val playerList: List[Id[User]],
 ) {
 
-  export mapping.{get, apply}
+  export mapping.get
 
   def toMap: Map[Position, RoleSnapshot] = mapping
+
+  def apply(x: Position): RoleSnapshot =
+    toMap.apply(x)
+
+  def apply(x: TablePosition): RoleSnapshot =
+    toMap.apply(Position.Table(x))
+
+  def apply(x: Id[User]): RoleSnapshot =
+    toMap.apply(Position.Player(x))
 
 }
