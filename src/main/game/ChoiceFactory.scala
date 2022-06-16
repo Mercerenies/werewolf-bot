@@ -26,4 +26,10 @@ final class ChoiceFactory(namedUsers: List[NamedUser]) {
   def playerNotSelf(self: Id[User]): Choice[NamedUser] =
     oneOf(namedUsers.filter { _.id != self })
 
+  def playerNotSelfOption(self: Option[Id[User]]): Choice[NamedUser] =
+    self match {
+      case None => player
+      case Some(userId) => playerNotSelf(userId)
+    }
+
 }

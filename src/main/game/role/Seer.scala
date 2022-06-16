@@ -9,9 +9,11 @@ import id.{Id, UserMapping}
 import util.Grammar
 import util.TextDecorator.*
 import wincon.{WinCondition, TownWinCondition}
-import night.{NightMessageHandler, OptionalTablePositionMessageHandler, SeerMessageHandler}
+import night.{NightMessageHandler, ChoiceMessageHandler}
 import board.{Board, TablePosition}
 import response.FeedbackMessage
+import choice.syntax.*
+import parser.assignment.NamedUser
 
 import org.javacord.api.entity.user.User
 
@@ -20,38 +22,51 @@ import Scalaz.{Id => _, *}
 
 object Seer extends Role {
 
+  enum UserChoice {
+    case None
+    case CenterCards(val first: TablePosition, val second: TablePosition)
+    case PlayerCard(val player: NamedUser)
+  }
+
   override class Instance(
     private val mapping: UserMapping,
     private val initialUserId: Option[Id[User]],
   ) extends RoleInstance {
+
+    private val choiceFactory = ChoiceFactory(mapping.toNamedUsers)
 
     override val role: Seer.type = Seer.this
 
     override val coherenceProof =
       summon[this.type <:< role.Instance]
 
-    private val nightHandlerImpl: SeerMessageHandler =
-      SeerMessageHandler(mapping.toNamedUsers.toList, initialUserId)
+    private val nightHandlerImpl =
+      ChoiceMessageHandler(
+        noValue :+: choiceFactory.twoTablePositions :+: choiceFactory.playerNotSelfOption(initialUserId)
+      ) {
+        case None | Some(Left(NoValue)) => UserChoice.None
+        case Some(Right(Left((a, b)))) => UserChoice.CenterCards(a, b)
+        case Some(Right(Right(p))) => UserChoice.PlayerCard(p)
+      }
 
     override val nightHandler: NightMessageHandler =
       nightHandlerImpl
 
     override def nightAction(userId: Id[User]): State[Board, FeedbackMessage] = {
-      import SeerMessageHandler.Choice
       val playerChoice = nightHandlerImpl.currentChoice
       for {
         board <- State.get
       } yield {
         playerChoice match {
-          case Choice.NoInput | Choice.NoValue => {
+          case UserChoice.None => {
             FeedbackMessage.none
           }
-          case Choice.CenterCards(first, second) => {
+          case UserChoice.CenterCards(first, second) => {
             val firstCard = board(first).role
             val secondCard = board(second).role
             FeedbackMessage(s"The ${first.name} card is ${bold(firstCard.name)}, and the ${second.name} card is ${bold(secondCard.name)}.")
           }
-          case Choice.PlayerCard(player) => {
+          case UserChoice.PlayerCard(player) => {
             val card = board(player.id).role
             FeedbackMessage(s"The card in front of ${player.displayName} is " + bold(card.name) + ".")
           }
