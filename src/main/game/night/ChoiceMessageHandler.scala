@@ -47,10 +47,32 @@ trait ChoiceMessageHandler[A, B] extends NightMessageHandler {
   override def initialNightMessage: String =
     message
 
+  override def midnightReminder: Option[String] =
+    if (hasChoice) {
+      None
+    } else {
+      Some("Reminder: " + message)
+    }
+
   final def currentChoice: B =
     postprocess(_selection.value)
 
   final def hasChoice: Boolean =
     !_selection.value.isEmpty
+
+}
+
+object ChoiceMessageHandler {
+
+  private class Simple[A, B](
+    override val options: Choice[A],
+    private val postprocessor: (Option[A]) => B,
+  ) extends ChoiceMessageHandler[A, B] {
+    override def postprocess(input: Option[A]): B =
+      postprocessor(input)
+  }
+
+  def apply[A, B](options: Choice[A])(postprocess: (Option[A]) => B): ChoiceMessageHandler[A, B] =
+    Simple(options, postprocess)
 
 }
