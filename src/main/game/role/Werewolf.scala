@@ -58,7 +58,7 @@ object Werewolf extends Role {
           // There's one werewolf, so look at the center card.
           tablePos match {
             case None => {
-              FeedbackMessage.none
+              FeedbackMessage("You are the " + bold("solo werewolf") + ". You elected not to look at any cards.")
             }
             case Some(tablePos) => {
               val centerCard = board(tablePos).role

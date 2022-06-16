@@ -38,7 +38,7 @@ final class ChoiceFactory(namedUsers: List[NamedUser]) {
   def twoPlayersNotSelf(self: Id[User]): Choice[(NamedUser, NamedUser)] =
     twoOf(namedUsers.filter { _.id != self })
 
-  def twoPlayerNotSelfOption(self: Option[Id[User]]): Choice[(NamedUser, NamedUser)] =
+  def twoPlayersNotSelfOption(self: Option[Id[User]]): Choice[(NamedUser, NamedUser)] =
     self match {
       case None => twoPlayers
       case Some(userId) => twoPlayersNotSelf(userId)

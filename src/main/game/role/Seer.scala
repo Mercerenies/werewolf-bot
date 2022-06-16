@@ -59,7 +59,7 @@ object Seer extends Role {
       } yield {
         playerChoice match {
           case UserChoice.None => {
-            FeedbackMessage.none
+            FeedbackMessage("You elected not to look at any cards.")
           }
           case UserChoice.CenterCards(first, second) => {
             val firstCard = board(first).role

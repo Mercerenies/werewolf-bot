@@ -93,7 +93,7 @@ class NightGameEvaluatorSpec extends UnitSpec {
 
   }
 
-  it should "provide no feedback to a solo werewolf who does not respond" in {
+  it should "provide empty feedback to a solo werewolf who does not respond" in {
     val board = createBoard(
       left = Villager,
       middle = Villager,
@@ -104,12 +104,13 @@ class NightGameEvaluatorSpec extends UnitSpec {
     finalBoard should be (board)
 
     feedback(id(0)) should be (FeedbackMessage.none)
-    feedback(id(1)) should be (FeedbackMessage.none)
+    feedback(id(1)).mkString should include ("solo")
+    feedback(id(1)).mkString should not include regex ("(?i)villager|tanner")
     feedback(id(2)) should be (FeedbackMessage.none)
 
   }
 
-  it should "provide no feedback to a solo werewolf who responds 'none'" in {
+  it should "provide empty feedback to a solo werewolf who responds 'none'" in {
     val board = createBoard(
       left = Villager,
       middle = Villager,
@@ -120,7 +121,8 @@ class NightGameEvaluatorSpec extends UnitSpec {
     finalBoard should be (board)
 
     feedback(id(0)) should be (FeedbackMessage.none)
-    feedback(id(1)) should be (FeedbackMessage.none)
+    feedback(id(1)).mkString should include ("solo")
+    feedback(id(1)).mkString should not include regex ("(?i)villager|tanner")
     feedback(id(2)) should be (FeedbackMessage.none)
 
   }
@@ -142,7 +144,7 @@ class NightGameEvaluatorSpec extends UnitSpec {
 
   }
 
-  it should "provide no feedback to a seer who does not look" in {
+  it should "provide empty feedback to a seer who does not look" in {
     val board = createBoard(
       left = Villager,
       middle = Werewolf,
@@ -153,8 +155,8 @@ class NightGameEvaluatorSpec extends UnitSpec {
     finalBoard should be (board)
 
     feedback(id(0)) should be (FeedbackMessage.none)
-    feedback(id(1)) should be (FeedbackMessage.none)
-    feedback(id(2)) should be (FeedbackMessage.none)
+    feedback(id(1)).mkString should not include regex ("(?i)werewolf|villager|tanner")
+    feedback(id(2)).mkString should not include regex ("(?i)werewolf|villager|tanner")
 
   }
 
