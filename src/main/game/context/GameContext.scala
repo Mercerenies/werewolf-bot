@@ -18,8 +18,8 @@ final class GameContext[A] private(
   private val impl: State[ContextState, A],
 ) {
 
-  def run(board: Board): (Board, RecordedGameHistory, A) = {
-    val (state, a) = impl(ContextState(RecordedGameHistory.empty, board))
+  def run(board: Board, history: RecordedGameHistory): (Board, RecordedGameHistory, A) = {
+    val (state, a) = impl(ContextState(history, board))
     (state.board, state.history, a)
   }
 

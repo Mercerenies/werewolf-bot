@@ -18,6 +18,7 @@ import game.role.Role
 import game.parser.ListParser
 import game.night.NightMessageHandler
 import game.response.FeedbackMessage
+import game.record.RecordedGameHistory
 import properties.GameProperties
 
 import org.javacord.api.DiscordApi
@@ -133,8 +134,9 @@ object NightPhaseState extends Logging[NightPhaseState] {
   // be worth waiting until this completes to start the actual day
   // phase.
   def evaluateNightPhaseAndSend(mapping: UserMapping, board: Board)(using ExecutionContext): (Board, Future[Unit]) = {
-    ///// history
-    val NightPhaseResult(finalBoard, history, messages) = NightPhaseEvaluator.evaluate(board)
+    // TODO When there are multiple night phases, we'll need to keep
+    // the old history here
+    val NightPhaseResult(finalBoard, history, messages) = NightPhaseEvaluator.evaluate(board, RecordedGameHistory.empty)
     val messagesFuture = messages.toList.traverse { (userId, feedback) => feedback.sendTo(mapping(userId)) }.void
     (finalBoard, messagesFuture)
   }

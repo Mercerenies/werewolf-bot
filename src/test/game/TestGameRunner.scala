@@ -11,6 +11,7 @@ import role.Role
 import state.NightPhaseState
 import response.FeedbackMessage
 import board.{Board, BoardTestUtil}
+import record.RecordedGameHistory
 
 object TestGameRunner {
 
@@ -41,7 +42,7 @@ object TestGameRunner {
 
     // Once all night actions have been collected, run the night
     // phase and collect feedback objects.
-    val NightPhaseResult(finalBoard, _, responses) = NightPhaseEvaluator.evaluate(board)
+    val NightPhaseResult(finalBoard, _, responses) = NightPhaseEvaluator.evaluate(board, RecordedGameHistory.empty)
     (finalBoard, responses.toMap)
   }
 
