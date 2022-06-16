@@ -19,7 +19,9 @@ object NightPhaseEvaluator {
     val computation: GameContext[List[(Id[User], FeedbackMessage)]] = instances.traverse { (userId, roleInstance) =>
       roleInstance.nightAction(userId).map { (userId, _) }
     }
-    computation.run(board)
+    ///// records
+    val (finalBoard, _, feedback) = computation.run(board)
+    (finalBoard, feedback)
   }
 
 }
