@@ -5,35 +5,17 @@ package night
 
 import util.Grammar
 import response.MessageResponse
+import choice.formatter.ChoiceFormatter
 
+// Note: This is really a legacy object from when .format() took Any
+// and wasn't typesafe at all. It just delegates to the
+// ChoiceFormatter, which does implicit resolution.
 object SelectionConfirmFormatter {
-
-  // TODO Make this compatible with Scala's future migration
-  // (scala.Matchable)
 
   // Tries to intelligently produce a list of the options chosen. This
   // function intelligently handles Either, List, and tuples of any
   // size, and falls back to toString on all other objects.
-  def format(input: Any): String =
-    input match {
-      case input: Either[?, ?] => {
-        // If it's an Either, then just call format on whatever is
-        // inside it.
-        input.fold(format, format)
-      }
-      case input: List[?] => {
-        // If it's a list, then use Grammar.conjunctionList to
-        // construct the result.
-        Grammar.conjunctionList(input.map(format(_)))
-      }
-      case input: Tuple => {
-        // If it's a tuple, make it a list.
-        format(input.toList)
-      }
-      case input => {
-        // Otherwise, toString
-        input.toString
-      }
-    }
+  def format[A](input: A)(using ChoiceFormatter[A]): String =
+    ChoiceFormatter.format(input)
 
 }

@@ -3,6 +3,7 @@ package com.mercerenies.werewolf
 package name
 
 import util.RegexUtil
+import choice.formatter.ChoiceFormatter
 
 import scala.util.matching.Regex
 
@@ -31,5 +32,10 @@ object NamedEntity {
 
   def findMatch[A <: NamedEntity](text: String, entities: Iterable[A]): Option[A] =
     entities.find(_.matches(text))
+
+  given NamedEntityChoiceFormatter : ChoiceFormatter[NamedEntity] with
+
+    def format(value: NamedEntity): String =
+      value.name
 
 }

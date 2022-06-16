@@ -7,6 +7,7 @@ import util.Cell
 import util.TextDecorator.*
 import choice.Choice
 import choice.syntax.*
+import choice.formatter.ChoiceFormatter
 import name.{NamedEntity, NamedEntityMatcher}
 import response.{MessageResponse, ReplyResponse}
 
@@ -24,11 +25,7 @@ trait ChoiceMessageHandler[A, B] extends NightMessageHandler {
   // all.
   def postprocess(input: Option[A]): B
 
-  // The text to send when the player successfully selects an option.
-  // Default implementation tries to be smart and can handle Either,
-  // tuples, Lists, and things with toString.
-  def selectionConfirmText(input: A): String =
-    "Selected " + bold(SelectionConfirmFormatter.format(input))
+  def selectionConfirmText(input: A): String
 
   def message: String = s"Please enter ${options.blurb}"
 
@@ -67,12 +64,22 @@ object ChoiceMessageHandler {
   private class Simple[A, B](
     override val options: Choice[A],
     private val postprocessor: (Option[A]) => B,
+  )(
+    using ChoiceFormatter[A],
   ) extends ChoiceMessageHandler[A, B] {
+
     override def postprocess(input: Option[A]): B =
       postprocessor(input)
+
+    // The text to send when the player successfully selects an option.
+    // Default implementation tries to be smart and can handle Either,
+    // tuples, Lists, and things with toString.
+    override def selectionConfirmText(input: A): String =
+      "Selected " + bold(SelectionConfirmFormatter.format(input))
+
   }
 
-  def apply[A, B](options: Choice[A])(postprocess: (Option[A]) => B): ChoiceMessageHandler[A, B] =
+  def apply[A, B](options: Choice[A])(postprocess: (Option[A]) => B)(using ChoiceFormatter[A]): ChoiceMessageHandler[A, B] =
     Simple(options, postprocess)
 
 }
