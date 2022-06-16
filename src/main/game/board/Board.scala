@@ -5,6 +5,7 @@ package board
 
 import id.{Id, UserMapping}
 import role.{Role, RoleInstance}
+import snapshot.BoardSnapshot
 
 import org.javacord.api.entity.user.User
 
@@ -46,6 +47,11 @@ final class Board(
     val firstInstance = this(first)
     val secondInstance = this(second)
     Board(toMap + ((first, secondInstance)) + ((second, firstInstance)))
+  }
+
+  def toSnapshot(playerIds: List[Id[User]]): BoardSnapshot = {
+    val roleSnapshots = toMap.map { (id, inst) => (id, inst.toSnapshot) }.toMap
+    BoardSnapshot(roleSnapshots, playerIds)
   }
 
 }

@@ -7,6 +7,7 @@ import id.{Id, UserMapping}
 import name.NamedEntity
 import night.NightMessageHandler
 import board.Board
+import board.snapshot.{RoleSnapshot, SimpleRoleSnapshot}
 import response.FeedbackMessage
 import wincon.WinCondition
 import context.GameContext
@@ -48,6 +49,11 @@ trait RoleInstance {
   // If this is true, then other werewolves (and the minion) will see
   // this role when they get to see who the werewolf team is.
   def seenAsWerewolf: Boolean = false
+
+  // An immutable snapshot of this role's state at a given moment, for
+  // the purposes of creating the game's records at the end. For roles
+  // that do not have state, the default implementation suffices.
+  def toSnapshot: RoleSnapshot = SimpleRoleSnapshot(role)
 
   final def downcast: this.role.Instance =
     coherenceProof(this)
