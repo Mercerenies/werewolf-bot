@@ -45,6 +45,9 @@ class ActionPerformedRecord(
     }
   }
 
+  override def mapActor(fn: (RoleSnapshot) => RoleSnapshot): ActionPerformedRecord =
+    ActionPerformedRecord(fn(subjectRole), subject)(builder)
+
 }
 
 object ActionPerformedRecord {
