@@ -15,6 +15,7 @@ import response.FeedbackMessage
 import choice.syntax.*
 import parser.assignment.NamedUser
 import context.GameContext
+import record.ActionPerformedRecord
 
 import org.javacord.api.entity.user.User
 
@@ -57,21 +58,22 @@ object Seer extends Role {
       val playerChoice = nightHandlerImpl.currentChoice
       for {
         board <- GameContext.getBoard
-      } yield {
-        playerChoice match {
+        message <- playerChoice match {
           case UserChoice.None => {
-            FeedbackMessage("You elected not to look at any cards.")
+            FeedbackMessage("You elected not to look at any cards.").point[GameContext]
           }
           case UserChoice.CenterCards(first, second) => {
             val firstCard = board(first).role
             val secondCard = board(second).role
-            FeedbackMessage(s"The ${first.name} card is ${bold(firstCard.name)}, and the ${second.name} card is ${bold(secondCard.name)}.")
+            FeedbackMessage(s"The ${first.name} card is ${bold(firstCard.name)}, and the ${second.name} card is ${bold(secondCard.name)}.").point[GameContext]
           }
           case UserChoice.PlayerCard(player) => {
             val card = board(player.id).role
-            FeedbackMessage(s"The card in front of ${player.displayName} is " + bold(card.name) + ".")
+            FeedbackMessage(s"The card in front of ${player.displayName} is " + bold(card.name) + ".").point[GameContext]
           }
         }
+      } yield {
+        message
       }
     }
 

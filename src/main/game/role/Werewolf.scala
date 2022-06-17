@@ -47,31 +47,34 @@ object Werewolf extends Role {
       val tablePos = nightHandlerImpl.currentChoice
       for {
         board <- GameContext.getBoard
-      } yield {
-        val werewolfIds = findWerewolfIds(board)
-        if (werewolfIds.length <= 1) {
+        message <- {
+          val werewolfIds = findWerewolfIds(board)
+          if (werewolfIds.length <= 1) {
 
-          // Sanity check; I sincerely hope this never triggers.
-          if (werewolfIds.length < 1) {
-            logger.warn(s"Werewolf ${userId} is trying to view the werewolf list but there are no werewolves")
-          }
-
-          // There's one werewolf, so look at the center card.
-          tablePos match {
-            case None => {
-              FeedbackMessage("You are the " + bold("solo werewolf") + ". You elected not to look at any cards.")
+            // Sanity check; I sincerely hope this never triggers.
+            if (werewolfIds.length < 1) {
+              logger.warn(s"Werewolf ${userId} is trying to view the werewolf list but there are no werewolves")
             }
-            case Some(tablePos) => {
-              val centerCard = board(tablePos).role
 
-              FeedbackMessage("You are the " + bold("solo werewolf") + ". The " + bold(tablePos.toString) + " card is " + bold(centerCard.name) + ".")
+            // There's one werewolf, so look at the center card.
+            tablePos match {
+              case None => {
+                FeedbackMessage("You are the " + bold("solo werewolf") + ". You elected not to look at any cards.").point[GameContext]
+              }
+              case Some(tablePos) => {
+                val centerCard = board(tablePos).role
+
+                FeedbackMessage("You are the " + bold("solo werewolf") + ". The " + bold(tablePos.toString) + " card is " + bold(centerCard.name) + ".").point[GameContext]
+              }
             }
+          } else {
+            val werewolfNames = werewolfIds.map { mapping.nameOf(_) }.sorted
+            val werewolfNamesList = Grammar.conjunctionList(werewolfNames)
+            FeedbackMessage("The werewolf team consists of " + bold(werewolfNamesList) + ".").point[GameContext]
           }
-        } else {
-          val werewolfNames = werewolfIds.map { mapping.nameOf(_) }.sorted
-          val werewolfNamesList = Grammar.conjunctionList(werewolfNames)
-          FeedbackMessage("The werewolf team consists of " + bold(werewolfNamesList) + ".")
         }
+      } yield {
+        message
       }
     }
 
