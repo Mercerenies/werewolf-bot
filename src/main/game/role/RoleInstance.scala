@@ -87,6 +87,7 @@ object RoleInstance {
   //   withForgottenInput(userInput, TablePosition.Left, "(Defaulting to LEFT table position)") { input =>
   //     ...
   //   }
+  @deprecated
   def withForgottenInput[A, F[_]: Functor](input: Option[A], defaultValue: A, defaultMessage: String)(fn: (A) => F[FeedbackMessage]): F[FeedbackMessage] = {
     val defaultFeedback = FeedbackMessage(defaultMessage)
     input match {
