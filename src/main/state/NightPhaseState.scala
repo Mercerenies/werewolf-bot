@@ -103,9 +103,9 @@ final class NightPhaseState(
     for {
       userMapping <- getUserMapping(mgr.api)
     } yield {
-      val (finalBoard, nightMessagesFuture) = NightPhaseState.evaluateNightPhaseAndSend(userMapping, playerIds, board)
+      val (finalBoard, history, nightMessagesFuture) = NightPhaseState.evaluateNightPhaseAndSend(userMapping, playerIds, board)
       nightMessagesFuture.foreach { _ =>
-        val newState = DayPhaseState(gameProperties, playerIds, board)
+        val newState = DayPhaseState(gameProperties, playerIds, board, history)
         mgr.updateGame(channelId, newState)
       }
     }
@@ -133,12 +133,12 @@ object NightPhaseState extends Logging[NightPhaseState] {
   // sent. The final board state does not depend on this, but it may
   // be worth waiting until this completes to start the actual day
   // phase.
-  def evaluateNightPhaseAndSend(mapping: UserMapping, ids: List[Id[User]], board: Board)(using ExecutionContext): (Board, Future[Unit]) = {
+  def evaluateNightPhaseAndSend(mapping: UserMapping, ids: List[Id[User]], board: Board)(using ExecutionContext): (Board, RecordedGameHistory, Future[Unit]) = {
     // TODO When there are multiple night phases, we'll need to keep
     // the old history here
     val NightPhaseResult(finalBoard, history, messages) = NightPhaseEvaluator.evaluate(board, ids, RecordedGameHistory.empty)
     val messagesFuture = messages.toList.traverse { (userId, feedback) => feedback.sendTo(mapping(userId)) }.void
-    (finalBoard, messagesFuture)
+    (finalBoard, history, messagesFuture)
   }
 
 }

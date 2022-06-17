@@ -19,6 +19,7 @@ import game.role.Role
 import game.parser.ListParser
 import game.night.NightMessageHandler
 import game.response.FeedbackMessage
+import game.record.RecordedGameHistory
 import properties.GameProperties
 
 import org.javacord.api.DiscordApi
@@ -43,6 +44,7 @@ final class DayPhaseState(
   _gameProperties: GameProperties,
   override val playerIds: List[Id[User]],
   override val board: Board,
+  private val initialHistory: RecordedGameHistory,
 )(
   using ExecutionContext,
 ) extends GameState(_gameProperties) with SchedulingState with WithUserMapping with WithAssignmentParser {
@@ -54,6 +56,13 @@ final class DayPhaseState(
 
   private val assignmentBoard: Cell[AssignmentBoard] =
     Cell(AssignmentBoard.empty(board, playerIds))
+
+  // Note: There aren't a lot of roles that will add events to this
+  // during the day phase, but a few might need to make notes. In
+  // particular, the Curator's artifact may have some things to say if
+  // its speech restriction is not obeyed.
+  private val history: Cell[RecordedGameHistory] =
+    Cell(initialHistory)
 
   override def onMessageCreate(mgr: GamesManager, message: Message): Unit = {
     val text = message.getContent
@@ -115,7 +124,8 @@ final class DayPhaseState(
     }
 
   private def endOfDay(mgr: GamesManager): Unit = {
-    val newState = VotePhaseState(gameProperties, playerIds, board)
+    val finalHistory = history.value
+    val newState = VotePhaseState(gameProperties, playerIds, board, finalHistory)
     mgr.updateGame(channelId, newState)
   }
 

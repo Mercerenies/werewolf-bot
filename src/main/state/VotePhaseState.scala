@@ -21,6 +21,7 @@ import game.role.wincon.WinCondition
 import game.parser.ListParser
 import game.night.NightMessageHandler
 import game.response.FeedbackMessage
+import game.record.RecordedGameHistory
 import properties.GameProperties
 
 import org.javacord.api.DiscordApi
@@ -47,6 +48,7 @@ final class VotePhaseState(
   _gameProperties: GameProperties,
   override val playerIds: List[Id[User]],
   private val board: Board,
+  private val history: RecordedGameHistory,
 )(
   using ExecutionContext,
 ) extends GameState(_gameProperties) with SchedulingState with WithUserMapping with WithNamedUserList {
@@ -153,7 +155,7 @@ final class VotePhaseState(
       _ <- channel.sendMessage(VotePhaseState.winMessage(userMapping, winnerIds)).asScala
     } {
       mgr.endGame(channelId)
-      ///// Logs
+      ///// Logs (this.history + votes + winners)
     }
   }
 
