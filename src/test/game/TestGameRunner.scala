@@ -29,7 +29,7 @@ object TestGameRunner {
   def playGame(
     board: Board,
     playerActions: List[String],
-  ): (Board, Map[Id[User], FeedbackMessage]) = {
+  ): (Board, RecordedGameHistory, Map[Id[User], FeedbackMessage]) = {
 
     val playerIds = playerActions.indices.map(id).toList
 
@@ -42,8 +42,8 @@ object TestGameRunner {
 
     // Once all night actions have been collected, run the night
     // phase and collect feedback objects.
-    val NightPhaseResult(finalBoard, _, responses) = NightPhaseEvaluator.evaluate(board, playerIds, RecordedGameHistory.empty)
-    (finalBoard, responses.toMap)
+    val NightPhaseResult(finalBoard, history, responses) = NightPhaseEvaluator.evaluate(board, playerIds, RecordedGameHistory.empty)
+    (finalBoard, history, responses.toMap)
   }
 
   // Game simulator. Takes center cards and a list of players given by
@@ -55,7 +55,7 @@ object TestGameRunner {
     middle: Role,
     right: Role,
     players: List[(Role, String)],
-  ): (Board, Map[Id[User], FeedbackMessage]) = {
+  ): (Board, RecordedGameHistory, Map[Id[User], FeedbackMessage]) = {
     val initialBoard = BoardTestUtil.createBoard(left, middle, right, players.map(_._1))
     playGame(initialBoard, players.map(_._2))
   }

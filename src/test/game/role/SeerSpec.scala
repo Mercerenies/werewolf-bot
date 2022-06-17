@@ -21,7 +21,7 @@ class SeerSpec extends GameplayUnitSpec {
       right = Villager,
       playerCards = List(Werewolf, Seer, Werewolf),
     )
-    val (finalBoard, _) = playGame(board, List("", "", ""))
+    val (finalBoard, _, _) = playGame(board, List("", "", ""))
     finalBoard should be (board)
   }
 
@@ -32,7 +32,7 @@ class SeerSpec extends GameplayUnitSpec {
       right = Tanner,
       playerCards = List(Villager, Seer, Villager),
     )
-    val (finalBoard, feedback) = playGame(board, List("", "right middle", ""))
+    val (finalBoard, _, feedback) = playGame(board, List("", "right middle", ""))
     finalBoard should be (board)
 
     feedback(id(0)) should be (FeedbackMessage.none)
@@ -49,7 +49,7 @@ class SeerSpec extends GameplayUnitSpec {
       right = Tanner,
       playerCards = List(Villager, Seer, Seer),
     )
-    val (finalBoard, feedback) = playGame(board, List("", "", "none"))
+    val (finalBoard, _, feedback) = playGame(board, List("", "", "none"))
     finalBoard should be (board)
 
     feedback(id(0)) should be (FeedbackMessage.none)
@@ -65,7 +65,7 @@ class SeerSpec extends GameplayUnitSpec {
       right = Tanner,
       playerCards = List(Villager, Seer, Tanner),
     )
-    val (finalBoard, feedback) = playGame(board, List("", mockName(2), ""))
+    val (finalBoard, _, feedback) = playGame(board, List("", mockName(2), ""))
     finalBoard should be (board)
 
     feedback(id(0)) should be (FeedbackMessage.none)
@@ -82,7 +82,7 @@ class SeerSpec extends GameplayUnitSpec {
       right = Tanner,
       playerCards = List(Troublemaker, Seer, Tanner, Villager),
     )
-    val (finalBoard, feedback) = playGame(board, List(s"${mockName(2)} ${mockName(3)}", mockName(2), ""))
+    val (finalBoard, _, feedback) = playGame(board, List(s"${mockName(2)} ${mockName(3)}", mockName(2), ""))
 
     finalBoard(TablePosition.Left).role should be (Villager)
     finalBoard(TablePosition.Middle).role should be (Werewolf)
@@ -106,7 +106,7 @@ class SeerSpec extends GameplayUnitSpec {
       right = Tanner,
       playerCards = List(Troublemaker, Seer, Tanner),
     )
-    val (finalBoard, feedback) = playGame(board, List(s"${mockName(1)} ${mockName(2)}", mockName(2), ""))
+    val (finalBoard, _, feedback) = playGame(board, List(s"${mockName(1)} ${mockName(2)}", mockName(2), ""))
 
     finalBoard(TablePosition.Left).role should be (Villager)
     finalBoard(TablePosition.Middle).role should be (Werewolf)
