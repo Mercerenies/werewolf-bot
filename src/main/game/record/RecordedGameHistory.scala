@@ -34,6 +34,9 @@ object RecordedGameHistory {
 
   val empty: RecordedGameHistory = RecordedGameHistory(Vector())
 
+  def from(iter: Iterable[GameRecord]): RecordedGameHistory =
+    RecordedGameHistory(iter.toVector)
+
   given RecordedGameHistoryIsMonoid : Monoid[RecordedGameHistory] with
 
     def zero: RecordedGameHistory = empty
