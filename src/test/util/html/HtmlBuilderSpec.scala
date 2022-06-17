@@ -30,6 +30,24 @@ class HtmlBuilderSpec extends UnitSpec {
     } should be ("<html><head>sample&amp;sample</head><body>Regular text <b>Bold text</b></body></html>")
   }
 
+  it should "allow attributes to be used via the DSL" in {
+    begin {
+      body {
+        b.attr("style" := "potato") { t("Bold text") }
+        b.attr("style" := "\"") { t("Bold text") }
+      }
+    } should be ("<body><b style=\"potato\">Bold text</b><b style=\"&quot;\">Bold text</b></body>")
+  }
+
+  it should "allow multiple attributes to be used via the DSL" in {
+    begin {
+      body {
+        b.attr() { t("Bold text") } // Explicit empty attribute list
+        b.attr("a" := "a", "b" := "b") { t("Bold text") }
+      }
+    } should be ("<body><b>Bold text</b><b a=\"a\" b=\"b\">Bold text</b></body>")
+  }
+
   it should "close tags even if an exception is thrown on the inside" in {
     begin {
       try {
