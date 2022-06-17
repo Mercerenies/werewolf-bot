@@ -6,11 +6,13 @@ package record
 import id.UserMapping
 import board.{TablePosition, Position}
 import board.snapshot.BoardSnapshot
+import util.html.{HtmlFragment, HtmlBuilder}
 
 // A record which shows the state of the board at a particular moment.
 class SnapshotRecord(val snapshot: BoardSnapshot) extends GameRecord {
 
   // TODO Alpha wolf table position
+
   def displayText(userMapping: UserMapping): String = {
     val tableLines = (
       "Left: " + snapshot(TablePosition.Left) + "\n" +
@@ -21,6 +23,13 @@ class SnapshotRecord(val snapshot: BoardSnapshot) extends GameRecord {
       s"${userMapping.nameOf(id)} - ${snapshot(id).name}"
     }.mkString("\n")
     s"Board state at this moment:\n${tableLines}\n${playerLines}"
+  }
+
+  def htmlText(userMapping: UserMapping)(using HtmlFragment): Unit = {
+    import HtmlBuilder.*
+    li {
+      ??? /////
+    }
   }
 
 }
