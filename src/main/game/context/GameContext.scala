@@ -53,6 +53,9 @@ object GameContext {
   val getBoard: GameContext[Board] =
     GameContext(StateT.gets { _.board })
 
+  val getUserIds: GameContext[List[Id[User]]] =
+    GameContext(StateT.gets { _.userIds })
+
   def setBoard(newBoard: Board): GameContext[Unit] =
     GameContext(StateT.modify { _.copy(board = newBoard) })
 

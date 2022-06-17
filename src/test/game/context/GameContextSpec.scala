@@ -34,6 +34,16 @@ class GameContextSpec extends UnitSpec {
 
   }
 
+  it should "provide access to the underlying user ID list when asked" in {
+    val board = sampleBoard()
+
+    val (s, history, ids) = GameContext.getUserIds.run(board, sampleIds, RecordedGameHistory.empty)
+    history.toVector shouldBe empty
+    s should be (board)
+    ids should be (sampleIds)
+
+  }
+
   it should "allow modification to the underlying board with setBoard" in {
     val board1 = sampleBoard()
     val board2 = board1.swap(Position.left, Position.middle)
