@@ -65,16 +65,15 @@ object GameContext {
   def record(rec: GameRecord*): GameContext[Unit] =
     GameContext(RecordedGameHistory.from(rec).tell.liftM)
 
-  /*
-  def recordCurrentBoard(ids: List[Id[User]]): GameContext[Unit] =
+  val recordCurrentBoard: GameContext[Unit] =
     for {
       board <- getBoard
+      ids <- getUserIds
       snapshot = board.toSnapshot(ids)
       _ <- record(SnapshotRecord(snapshot))
     } yield {
       ()
     }
-   */
 
   given GameContextIsMonad : Monad[GameContext] with
 
