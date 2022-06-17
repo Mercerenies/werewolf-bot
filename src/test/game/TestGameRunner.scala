@@ -42,7 +42,7 @@ object TestGameRunner {
 
     // Once all night actions have been collected, run the night
     // phase and collect feedback objects.
-    val NightPhaseResult(finalBoard, _, responses) = NightPhaseEvaluator.evaluate(board, RecordedGameHistory.empty)
+    val NightPhaseResult(finalBoard, _, responses) = NightPhaseEvaluator.evaluate(board, playerIds, RecordedGameHistory.empty)
     (finalBoard, responses.toMap)
   }
 

@@ -18,13 +18,16 @@ class GameContextSpec extends UnitSpec {
 
   // Generally, for this class, we don't care about the actual roles;
   // We just care that what we get out is what we put in.
-  def sampleBoard(): Board =
+  private def sampleBoard(): Board =
     createBoard(Villager, Werewolf, Villager, List(Tanner, Tanner, Tanner))
+
+  private val sampleIds: List[Id[User]] =
+    List(Id.fromLong(0), Id.fromLong(1), Id.fromLong(2))
 
   "The GameContext monad" should "provide access to the underlying board when asked" in {
     val board = sampleBoard()
 
-    val (b1, history, b2) = GameContext.getBoard.run(board, RecordedGameHistory.empty)
+    val (b1, history, b2) = GameContext.getBoard.run(board, sampleIds, RecordedGameHistory.empty)
     history.toVector shouldBe empty
     b1 should be (board)
     b2 should be (board)
@@ -41,7 +44,7 @@ class GameContextSpec extends UnitSpec {
     } yield {
       (originalBoard, modifiedBoard)
     }
-    val (finalState, history, (originalBoard, modifiedBoard)) = m.run(board1, RecordedGameHistory.empty)
+    val (finalState, history, (originalBoard, modifiedBoard)) = m.run(board1, sampleIds, RecordedGameHistory.empty)
     history.toVector shouldBe empty
     finalState should be (board2)
     modifiedBoard should be (board2)
@@ -58,7 +61,7 @@ class GameContextSpec extends UnitSpec {
     } yield {
       (originalBoard, modifiedBoard)
     }
-    val (finalState, history, (originalBoard, modifiedBoard)) = m.run(board1, RecordedGameHistory.empty)
+    val (finalState, history, (originalBoard, modifiedBoard)) = m.run(board1, sampleIds, RecordedGameHistory.empty)
     history.toVector shouldBe empty
     finalState should be (board2)
     modifiedBoard should be (board2)
