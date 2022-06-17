@@ -25,11 +25,11 @@ case class HtmlElement(val tagName: String) {
     attr()(body)
 
   def attr(attrs: Attribute*)(body: (HtmlFragment) ?=> Unit)(using fragment: HtmlFragment): Unit = {
-    fragment.append(openingTag(attrs))
+    fragment.appendTag(openingTag(attrs))
     try {
       body(using fragment)
     } finally {
-      fragment.append(closingTag)
+      fragment.appendTag(closingTag)
     }
   }
 

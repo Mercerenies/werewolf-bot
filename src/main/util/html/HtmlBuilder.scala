@@ -19,8 +19,14 @@ object HtmlBuilder {
     builder.mkString
   }
 
+  def beginPlaintext(block: (HtmlFragment) ?=> Unit): String = {
+    val builder = PlaintextBuilderHtmlFragment()
+    block(using builder)
+    builder.mkString
+  }
+
   def t(text: String)(using fragment: HtmlFragment): Unit = {
-    fragment.append(escape(text))
+    fragment.append(text)
   }
 
   val html = HtmlElement("html")

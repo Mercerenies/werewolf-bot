@@ -7,6 +7,9 @@ class StringBuilderHtmlFragment extends HtmlFragment {
   private val builder: StringBuilder = StringBuilder()
 
   def append(text: String): Unit =
+    builder.append(HtmlBuilder.escape(text))
+
+  def appendTag(text: String): Unit =
     builder.append(text)
 
   def mkString: String =

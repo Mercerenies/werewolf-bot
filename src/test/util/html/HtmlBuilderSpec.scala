@@ -63,4 +63,21 @@ class HtmlBuilderSpec extends UnitSpec {
     } should be ("<body>12</body>")
   }
 
+  it should "suppress tags entirely when using the plaintext export" in {
+    beginPlaintext {
+      body {
+        b.attr("style" := "potato") { t("Bold text") }
+        b.attr("style" := "\"") { t("Bold text") }
+      }
+    } should be ("Bold textBold text")
+  }
+
+  it should "not escape HTML metacharacters when using the plaintext export" in {
+    beginPlaintext {
+      body {
+        b { t("&&\"&&<b>") }
+      }
+    } should be ("&&\"&&<b>")
+  }
+
 }
