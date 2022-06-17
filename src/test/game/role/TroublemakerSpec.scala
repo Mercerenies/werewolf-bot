@@ -21,7 +21,7 @@ class TroublemakerSpec extends GameplayUnitSpec {
       right = Villager,
       playerCards = List(Villager, Troublemaker, Tanner),
     )
-    val (finalBoard, _, feedback) = playGame(board, List("", "none", ""))
+    val (finalBoard, history, feedback) = playGame(board, List("", "none", ""))
     finalBoard should be (board)
 
     feedback(id(0)) should be (FeedbackMessage.none)
@@ -29,6 +29,12 @@ class TroublemakerSpec extends GameplayUnitSpec {
     feedback(id(1)).mkString should not include (mockName(1))
     feedback(id(1)).mkString should not include (mockName(2))
     feedback(id(2)) should be (FeedbackMessage.none)
+
+    val filtered = filterRecords(history)
+    history.toList should have length (1)
+    filtered should have length (1)
+    filtered(0).displayText(SampleUserMapping(3)) should not include (mockName(0))
+    filtered(0).displayText(SampleUserMapping(3)) should not include (mockName(2))
 
   }
 
@@ -39,7 +45,7 @@ class TroublemakerSpec extends GameplayUnitSpec {
       right = Villager,
       playerCards = List(Villager, Troublemaker, Tanner),
     )
-    val (finalBoard, _, feedback) = playGame(board, List("", s"${mockName(0)} ${mockName(2)}", ""))
+    val (finalBoard, history, feedback) = playGame(board, List("", s"${mockName(0)} ${mockName(2)}", ""))
 
     finalBoard(TablePosition.Left).role should be (Villager)
     finalBoard(TablePosition.Middle).role should be (Werewolf)
@@ -53,6 +59,13 @@ class TroublemakerSpec extends GameplayUnitSpec {
     feedback(id(1)).mkString should include (mockName(2))
     feedback(id(1)).mkString should not include regex ("(?i)villager|tanner|werewolf")
     feedback(id(2)) should be (FeedbackMessage.none)
+
+    val filtered = filterRecords(history)
+    history.toList should have length (2)
+    filtered should have length (1)
+    filtered(0).displayText(SampleUserMapping(3)) should include (mockName(0))
+    filtered(0).displayText(SampleUserMapping(3)) should include (mockName(2))
+    filtered(0).displayText(SampleUserMapping(3)) should not include regex ("(?i)villager|tanner|werewolf")
 
   }
 

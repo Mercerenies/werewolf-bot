@@ -43,7 +43,7 @@ class WerewolfSpec extends GameplayUnitSpec {
       right = Tanner,
       playerCards = List(Werewolf, Werewolf, Werewolf),
     )
-    val (finalBoard, _, feedback) = playGame(board, List("", "", ""))
+    val (finalBoard, history, feedback) = playGame(board, List("", "", ""))
     finalBoard should be (board)
 
     feedback(id(0)).mkString should include (mockName(0))
@@ -55,6 +55,15 @@ class WerewolfSpec extends GameplayUnitSpec {
     feedback(id(2)).mkString should include (mockName(0))
     feedback(id(2)).mkString should include (mockName(1))
     feedback(id(2)).mkString should include (mockName(2))
+
+    val filtered = filterRecords(history)
+    filtered should have length (3)
+    filtered.foreach { rec =>
+      rec.displayText(SampleUserMapping(3)) should include (mockName(0))
+      rec.displayText(SampleUserMapping(3)) should include (mockName(1))
+      rec.displayText(SampleUserMapping(3)) should include (mockName(2))
+    }
+
   }
 
   it should "inform only the werewolves of their teammates" in {
@@ -83,7 +92,7 @@ class WerewolfSpec extends GameplayUnitSpec {
       right = Tanner,
       playerCards = List(Villager, Werewolf, Villager),
     )
-    val (finalBoard, _, feedback) = playGame(board, List("", "right", ""))
+    val (finalBoard, history, feedback) = playGame(board, List("", "right", ""))
     finalBoard should be (board)
 
     // The solo werewolf should see that the 'tanner' card is on the 'right'
@@ -91,6 +100,11 @@ class WerewolfSpec extends GameplayUnitSpec {
     feedback(id(1)).mkString should include regex "(?i)tanner"
     feedback(id(1)).mkString should include regex "(?i)right"
     feedback(id(2)) should be (FeedbackMessage.none)
+
+    val filtered = filterRecords(history)
+    filtered should have length (1)
+    filtered(0).displayText(SampleUserMapping(3)) should include regex ("(?i)right")
+    filtered(0).displayText(SampleUserMapping(3)) should include regex ("(?i)tanner")
 
   }
 
@@ -101,12 +115,16 @@ class WerewolfSpec extends GameplayUnitSpec {
       right = Tanner,
       playerCards = List(Villager, Werewolf, Villager),
     )
-    val (finalBoard, _, feedback) = playGame(board, List("", "", ""))
+    val (finalBoard, history, feedback) = playGame(board, List("", "", ""))
     finalBoard should be (board)
 
     feedback(id(0)) should be (FeedbackMessage.none)
     feedback(id(1)).mkString should not include regex ("(?i)tanner|villager|left|middle|right")
     feedback(id(2)) should be (FeedbackMessage.none)
+
+    val filtered = filterRecords(history)
+    filtered should have length (1)
+    filtered(0).displayText(SampleUserMapping(3)) should not include regex ("(?i)left|middle|right|tanner|villager")
 
   }
 
