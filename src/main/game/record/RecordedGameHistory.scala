@@ -21,6 +21,9 @@ class RecordedGameHistory private(val impl: Vector[GameRecord]) {
   def toList: List[GameRecord] =
     impl.toList
 
+  def map(fn: (GameRecord) => GameRecord): RecordedGameHistory =
+    RecordedGameHistory(impl.map(fn))
+
 }
 
 object RecordedGameHistory {
