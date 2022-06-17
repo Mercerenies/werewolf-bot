@@ -29,4 +29,19 @@ class TannerSpec extends GameplayUnitSpec {
 
   }
 
+  it should "not record any game events in the records" in {
+    val board = createBoard(
+      left = Werewolf,
+      middle = Werewolf,
+      right = Villager,
+      playerCards = List(Tanner, Tanner, Tanner),
+    )
+    val (finalBoard, history, _) = playGame(board, List("", "", ""))
+
+    finalBoard should be (board)
+
+    filterRecords(history) shouldBe empty
+
+  }
+
 }
