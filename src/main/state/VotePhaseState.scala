@@ -155,7 +155,7 @@ final class VotePhaseState(
       _ <- channel.sendMessage(VotePhaseState.winMessage(userMapping, winnerIds)).asScala
     } {
       mgr.endGame(channelId)
-      ///// Logs (this.history + votes + winners)
+      ///// Logs (this.history + votes + deaths + winners)
     }
   }
 

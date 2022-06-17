@@ -18,15 +18,20 @@ import org.javacord.api.entity.user.User
 class PlayerVotesRecord(val mapping: Map[Id[User], Id[User]]) extends GameRecord {
   import HtmlBuilder.*
 
+  // A one-to-many mapping from a player to all of the players who
+  // voted for them. Players who received no votes are not included.
+  private def reverseMapping: Map[Id[User], List[Id[User]]] =
+    mapping.toList.groupMap { (_, target) => target } { (voter, _) => voter }
+
   def displayText(userMapping: UserMapping): String = {
-    beginPlaintext {
-      htmlText(userMapping)
-    }
+    val votals = reverseMapping.map { (target, voters) =>
+      val voterNames = Grammar.conjunctionList(voters.map { userMapping.nameOf(_) })
+      s"${userMapping.nameOf(target)} (${voters.length}) - ${voterNames}"
+    }.mkString("\n")
+    s"Final day votals:\n${votals}"
   }
 
   def htmlText(userMapping: UserMapping)(using HtmlFragment): Unit = {
-    val reverseMapping: Map[Id[User], List[Id[User]]] =
-      mapping.toList.groupMap { (_, target) => target } { (voter, _) => voter }
     li {
       t("Final day votals:")
       ul {
