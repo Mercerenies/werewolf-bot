@@ -42,6 +42,21 @@ class SeerSpec extends GameplayUnitSpec {
 
   }
 
+  it should "record the action of a seer who looks in the middle" in {
+    val board = createBoard(
+      left = Villager,
+      middle = Werewolf,
+      right = Tanner,
+      playerCards = List(Villager, Seer, Villager),
+    )
+    val (_, history, _) = playGame(board, List("", "right middle", ""))
+
+    val filtered = filterRecords(history)
+    filtered should have length (1)
+    filtered(0).displayText(SampleUserMapping(3)) should include regex "(?i)right.*tanner"
+    filtered(0).displayText(SampleUserMapping(3)) should include regex "(?i)middle.*werewolf"
+  }
+
   it should "provide empty feedback to a seer who does not look" in {
     val board = createBoard(
       left = Villager,
@@ -58,7 +73,21 @@ class SeerSpec extends GameplayUnitSpec {
 
   }
 
-  it should "provide feedback to a seer who does looks at another player's card" in {
+  it should "record the inaction of a seer who does not look" in {
+    val board = createBoard(
+      left = Villager,
+      middle = Werewolf,
+      right = Tanner,
+      playerCards = List(Villager, Seer, Villager),
+    )
+    val (_, history, _) = playGame(board, List("", "none", ""))
+
+    val filtered = filterRecords(history)
+    filtered should have length (1)
+    filtered(0).displayText(SampleUserMapping(3)) should not include regex ("(?i)werewolf|villager|tanner|left|middle|right")
+  }
+
+  it should "provide feedback to a seer who looks at another player's card" in {
     val board = createBoard(
       left = Villager,
       middle = Werewolf,
@@ -72,6 +101,22 @@ class SeerSpec extends GameplayUnitSpec {
     feedback(id(1)).mkString should include (mockName(2))
     feedback(id(1)).mkString should include regex "(?i)tanner"
     feedback(id(2)) should be (FeedbackMessage.none)
+
+  }
+
+  it should "record the action of a seer who looks at another player's card" in {
+    val board = createBoard(
+      left = Villager,
+      middle = Werewolf,
+      right = Tanner,
+      playerCards = List(Villager, Seer, Tanner),
+    )
+    val (_, history, _) = playGame(board, List("", mockName(2), ""))
+
+    val filtered = filterRecords(history)
+    filtered should have length (1)
+    filtered(0).displayText(SampleUserMapping(3)) should include (mockName(2))
+    filtered(0).displayText(SampleUserMapping(3)) should include regex ("(?i)tanner")
 
   }
 
