@@ -5,9 +5,10 @@ package context
 
 import board.BoardTestUtil.*
 import board.{Board, Position, TablePosition}
-import id.Id
+import id.{Id, UserMapping}
 import role.*
 import record.{RecordedGameHistory, GameRecord}
+import util.html.HtmlFragment
 
 import scalaz.{Id => _, *}
 import Scalaz.{Id => _, *}
@@ -15,6 +16,15 @@ import Scalaz.{Id => _, *}
 import org.javacord.api.entity.user.User
 
 class GameContextSpec extends UnitSpec {
+
+  private case class CensoredGameRecord(val r: GameRecord) extends GameRecord {
+
+    def displayText(userMapping: UserMapping) =
+      throw new RuntimeException("CensoredGameRecord.displayText")
+
+    def htmlText(userMapping: UserMapping)(using HtmlFragment) =
+      throw new RuntimeException("CensoredGameRecord.htmlText")
+  }
 
   // Generally, for this class, we don't care about the actual roles;
   // We just care that what we get out is what we put in.
@@ -117,6 +127,38 @@ class GameContextSpec extends UnitSpec {
 
     val (_, history, _) = m.run(sampleBoard(), sampleIds, RecordedGameHistory.from(List(gameEvent1, gameEvent2)))
     history.toList should be (List(gameEvent1, gameEvent2, gameEvent3))
+
+  }
+
+  it should "allow censoring records based on arbitrary functions" in {
+    val board = sampleBoard()
+
+    val gameEvent1: GameRecord = mock
+    val gameEvent2: GameRecord = mock
+    val gameEvent3: GameRecord = mock
+    val gameEvent4: GameRecord = mock
+    val gameEvent5: GameRecord = mock
+    val gameEvent6: GameRecord = mock
+
+    val m = for {
+      // Note: First two are uncensored.
+      _ <- for {
+        _ <- GameContext.record(gameEvent1)
+        _ <- GameContext.record(gameEvent2)
+      } yield ()
+      // Note: Next two are censored.
+      _ <- (for {
+        _ <- GameContext.record(gameEvent3)
+        _ <- GameContext.record(gameEvent4)
+      } yield ()).censorRecords { rec => rec.map(CensoredGameRecord(_)) }
+      // Note: Last two are uncensored
+      _ <- GameContext.record(gameEvent5, gameEvent6)
+    } yield {
+      ()
+    }
+
+    val (_, history, _) = m.run(sampleBoard(), sampleIds, RecordedGameHistory.empty)
+    history.toList should be (List(gameEvent1, gameEvent2, CensoredGameRecord(gameEvent3), CensoredGameRecord(gameEvent4), gameEvent5, gameEvent6))
 
   }
 
