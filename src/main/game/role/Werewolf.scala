@@ -14,6 +14,7 @@ import board.{Board, TablePosition}
 import response.FeedbackMessage
 import context.GameContext
 import choice.syntax.*
+import record.ActionPerformedRecord
 
 import org.javacord.api.entity.user.User
 
@@ -44,6 +45,7 @@ object Werewolf extends Role {
       nightHandlerImpl
 
     override def nightAction(userId: Id[User]): GameContext[FeedbackMessage] = {
+      import ActionPerformedRecord.*
       val tablePos = nightHandlerImpl.currentChoice
       for {
         board <- GameContext.getBoard
@@ -59,18 +61,43 @@ object Werewolf extends Role {
             // There's one werewolf, so look at the center card.
             tablePos match {
               case None => {
-                FeedbackMessage("You are the " + bold("solo werewolf") + ". You elected not to look at any cards.").point[GameContext]
+                for {
+                  _ <- GameContext.record(ActionPerformedRecord(this.toSnapshot, userId) {
+                    t("is the ")
+                    b { t("solo werewolf") }
+                    t(" and chose not to look at any cards")
+                  })
+                } yield {
+                  FeedbackMessage("You are the " + bold("solo werewolf") + ". You elected not to look at any cards.")
+                }
               }
               case Some(tablePos) => {
                 val centerCard = board(tablePos).role
-
-                FeedbackMessage("You are the " + bold("solo werewolf") + ". The " + bold(tablePos.toString) + " card is " + bold(centerCard.name) + ".").point[GameContext]
+                for {
+                  _ <- GameContext.record(ActionPerformedRecord(this.toSnapshot, userId) {
+                    t("is the ")
+                    b { t("solo werewolf") }
+                    t(" and saw that the ")
+                    position(tablePos)
+                    t(" card was ")
+                    roleName(centerCard)
+                  })
+                } yield {
+                  FeedbackMessage("You are the " + bold("solo werewolf") + ". The " + bold(tablePos.toString) + " card is " + bold(centerCard.name) + ".")
+                }
               }
             }
           } else {
             val werewolfNames = werewolfIds.map { mapping.nameOf(_) }.sorted
             val werewolfNamesList = Grammar.conjunctionList(werewolfNames)
-            FeedbackMessage("The werewolf team consists of " + bold(werewolfNamesList) + ".").point[GameContext]
+            for {
+              _ <- GameContext.record(ActionPerformedRecord(this.toSnapshot, userId) {
+                t("was informed that the werewolf team consists of ")
+                b { t(werewolfNamesList) }
+              })
+            } yield {
+              FeedbackMessage("The werewolf team consists of " + bold(werewolfNamesList) + ".")
+            }
           }
         }
       } yield {

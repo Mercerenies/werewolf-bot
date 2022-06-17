@@ -8,6 +8,7 @@ import board.{TablePosition, Position}
 import board.snapshot.{BoardSnapshot, RoleSnapshot}
 import util.html.{HtmlFragment, HtmlBuilder}
 import parser.assignment.{NamedUser, NamedPosition}
+import role.Role
 
 import org.javacord.api.entity.user.User
 
@@ -23,9 +24,9 @@ class ActionPerformedRecord(
 
   private def sentence(using HtmlFragment, ImplicitUserMapping): Unit = {
     t("The ")
-    role(subjectRole)
+    roleName(subjectRole)
     t(" (")
-    player(subject)
+    playerName(subject)
     t(") ")
     builder
     t(".")
@@ -66,19 +67,25 @@ object ActionPerformedRecord {
   def nameOf(id: Id[User])(using m: ImplicitUserMapping): String =
     m.nameOf(id)
 
-  def player(id: Id[User])(using HtmlFragment, ImplicitUserMapping): Unit =
-    b { t(nameOf(id)) }
-
-  def role(role: RoleSnapshot)(using HtmlFragment, ImplicitUserMapping): Unit =
+  def roleName(role: RoleSnapshot)(using HtmlFragment, ImplicitUserMapping): Unit =
     b { t(role.name) }
 
-  def tablePosition(pos: TablePosition)(using HtmlFragment, ImplicitUserMapping): Unit =
+  def playerName(id: Id[User])(using HtmlFragment, ImplicitUserMapping): Unit =
+    b { t(nameOf(id)) }
+
+  def position(id: Id[User])(using HtmlFragment, ImplicitUserMapping): Unit =
+    playerName(id)
+
+  def roleName(role: Role)(using HtmlFragment, ImplicitUserMapping): Unit =
+    b { t(role.name) }
+
+  def position(pos: TablePosition)(using HtmlFragment, ImplicitUserMapping): Unit =
     b { t(pos.name) }
 
   def position(pos: Position)(using HtmlFragment, ImplicitUserMapping): Unit =
     pos match {
-      case Position.Table(p) => tablePosition(p)
-      case Position.Player(p) => player(p)
+      case Position.Table(p) => position(p)
+      case Position.Player(p) => position(p)
     }
 
 }

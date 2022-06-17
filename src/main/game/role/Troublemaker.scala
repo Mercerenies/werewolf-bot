@@ -15,6 +15,7 @@ import response.FeedbackMessage
 import choice.syntax.*
 import parser.assignment.NamedUser
 import context.GameContext
+import record.ActionPerformedRecord
 
 import org.javacord.api.entity.user.User
 
@@ -47,17 +48,34 @@ object Troublemaker extends Role {
       nightHandlerImpl
 
     override def nightAction(userId: Id[User]): GameContext[FeedbackMessage] = {
+      import ActionPerformedRecord.*
       val playerChoice = nightHandlerImpl.currentChoice
       for {
         board <- GameContext.getBoard
         message <- playerChoice match {
           case None => {
-            FeedbackMessage(s"You elected to swap nobody's cards.").point[GameContext]
+            for {
+              _ <- GameContext.record(ActionPerformedRecord(this.toSnapshot, userId) {
+                t("chose not to swap any cards")
+              })
+            } yield {
+              FeedbackMessage(s"You elected to swap nobody's cards.")
+            }
           }
           case Some((a, b)) => {
-            val msg = FeedbackMessage(s"You have chosen to swap the cards of ${bold(a.name)} and ${bold(b.name)}.")
             val newBoard = board.swap(Position.Player(a.id), Position.Player(b.id))
-            GameContext.setBoard(newBoard) >| msg
+            for {
+              _ <- GameContext.setBoard(newBoard)
+              _ <- GameContext.record(ActionPerformedRecord(this.toSnapshot, userId) {
+                t("swapped the cards in front of ")
+                playerName(a.id)
+                t(" and ")
+                playerName(b.id)
+              })
+              _ <- GameContext.recordCurrentBoard
+            } yield {
+              FeedbackMessage(s"You have chosen to swap the cards of ${bold(a.name)} and ${bold(b.name)}.")
+            }
           }
         }
       } yield {

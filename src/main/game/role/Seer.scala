@@ -55,21 +55,50 @@ object Seer extends Role {
       nightHandlerImpl
 
     override def nightAction(userId: Id[User]): GameContext[FeedbackMessage] = {
+      import ActionPerformedRecord.*
       val playerChoice = nightHandlerImpl.currentChoice
       for {
         board <- GameContext.getBoard
         message <- playerChoice match {
           case UserChoice.None => {
-            FeedbackMessage("You elected not to look at any cards.").point[GameContext]
+            for {
+              _ <- GameContext.record(ActionPerformedRecord(this.toSnapshot, userId) {
+                t("chose not to look at any cards")
+              })
+            } yield {
+              FeedbackMessage("You elected not to look at any cards.")
+            }
           }
           case UserChoice.CenterCards(first, second) => {
             val firstCard = board(first).role
             val secondCard = board(second).role
-            FeedbackMessage(s"The ${first.name} card is ${bold(firstCard.name)}, and the ${second.name} card is ${bold(secondCard.name)}.").point[GameContext]
+            for {
+              _ <- GameContext.record(ActionPerformedRecord(this.toSnapshot, userId) {
+                t("observed that the ")
+                position(first)
+                t(" card was ")
+                roleName(firstCard)
+                t(" and that the ")
+                position(second)
+                t(" card was ")
+                roleName(secondCard)
+              })
+            } yield {
+              FeedbackMessage(s"The ${first.name} card is ${bold(firstCard.name)}, and the ${second.name} card is ${bold(secondCard.name)}.")
+            }
           }
           case UserChoice.PlayerCard(player) => {
             val card = board(player.id).role
-            FeedbackMessage(s"The card in front of ${player.displayName} is " + bold(card.name) + ".").point[GameContext]
+            for {
+              _ <- GameContext.record(ActionPerformedRecord(this.toSnapshot, userId) {
+                t("observed that the card in front of ")
+                position(player.id)
+                t(" card was ")
+                roleName(card)
+              })
+            } yield {
+              FeedbackMessage(s"The card in front of ${player.displayName} is " + bold(card.name) + ".")
+            }
           }
         }
       } yield {
