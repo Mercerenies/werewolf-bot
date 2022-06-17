@@ -15,31 +15,35 @@ import Scalaz.*
 // provide no direct access to that implementation and it may change
 // in the future.
 final class GameContext[A] private(
-  private val impl: State[ContextState, A],
+  private val impl: StateT[Board, [B] =>> Writer[RecordedGameHistory, B], A],
 ) {
 
   def run(board: Board, history: RecordedGameHistory): (Board, RecordedGameHistory, A) = {
-    val (state, a) = impl(ContextState(history, board))
-    (state.board, state.history, a)
+    val wba = impl(board)
+    val (newHistory, (finalBoard, a)) = wba.run
+    (finalBoard, history ++ newHistory, a)
   }
+
+/*
+  def censorRecords(fn: (RecordedGameHistory) => RecordedGameHistory): GameContext[A] =
+    GameContext(impl.colocal(fn
+ */
 
 }
 
 object GameContext {
 
   val getBoard: GameContext[Board] =
-    GameContext(State.gets { _.board })
+    GameContext(StateT.get)
 
   def setBoard(newBoard: Board): GameContext[Unit] =
-    GameContext(State.modify { _.copy(board = newBoard) })
+    GameContext(StateT.put(newBoard))
 
   def modifyBoard(fn: (Board) => Board): GameContext[Unit] =
     getBoard >>= { board => setBoard(fn(board)) }
 
   def record(rec: GameRecord*): GameContext[Unit] =
-    GameContext(State.modify { state =>
-      state.copy(history = state.history ++ rec)
-    })
+    GameContext(RecordedGameHistory.from(rec).tell.liftM)
 
   given GameContextIsMonad : Monad[GameContext] with
 
