@@ -7,7 +7,7 @@ import board.BoardTestUtil.*
 import board.{Board, Position, TablePosition}
 import id.Id
 import role.*
-import record.RecordedGameHistory
+import record.{RecordedGameHistory, GameRecord}
 
 import scalaz.{Id => _, *}
 import Scalaz.{Id => _, *}
@@ -80,7 +80,44 @@ class GameContextSpec extends UnitSpec {
 
   it should "record GameRecord instances that occur over the course of the game" in {
     val board = sampleBoard()
-    
+
+    val gameEvent1: GameRecord = mock
+    val gameEvent2: GameRecord = mock
+    val gameEvent3: GameRecord = mock
+
+    val m = GameContext.record(gameEvent1) >> GameContext.record(gameEvent2) >> GameContext.record(gameEvent3)
+
+    val (_, history, _) = m.run(sampleBoard(), sampleIds, RecordedGameHistory.empty)
+    history.toList should be (List(gameEvent1, gameEvent2, gameEvent3))
+
+  }
+
+  it should "record simultaneous GameRecord events in the order they're passed" in {
+    val board = sampleBoard()
+
+    val gameEvent1: GameRecord = mock
+    val gameEvent2: GameRecord = mock
+    val gameEvent3: GameRecord = mock
+
+    val m = GameContext.record(gameEvent1, gameEvent2) >> GameContext.record(gameEvent3)
+
+    val (_, history, _) = m.run(sampleBoard(), sampleIds, RecordedGameHistory.empty)
+    history.toList should be (List(gameEvent1, gameEvent2, gameEvent3))
+
+  }
+
+  it should "keep existing events at the front of the history" in {
+    val board = sampleBoard()
+
+    val gameEvent1: GameRecord = mock
+    val gameEvent2: GameRecord = mock
+    val gameEvent3: GameRecord = mock
+
+    val m = GameContext.record(gameEvent3)
+
+    val (_, history, _) = m.run(sampleBoard(), sampleIds, RecordedGameHistory.from(List(gameEvent1, gameEvent2)))
+    history.toList should be (List(gameEvent1, gameEvent2, gameEvent3))
+
   }
 
 }
