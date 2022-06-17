@@ -15,7 +15,7 @@ import Scalaz.*
 // provide no direct access to that implementation and it may change
 // in the future.
 final class GameContext[A] private(
-  private val impl: StateT[Board, [B] =>> Writer[RecordedGameHistory, B], A],
+  private val impl: StateT[Board, Writer[RecordedGameHistory, _], A],
 ) {
 
   def run(board: Board, history: RecordedGameHistory): (Board, RecordedGameHistory, A) = {
@@ -24,14 +24,25 @@ final class GameContext[A] private(
     (finalBoard, history ++ newHistory, a)
   }
 
-/*
-  def censorRecords(fn: (RecordedGameHistory) => RecordedGameHistory): GameContext[A] =
-    GameContext(impl.colocal(fn
- */
+  def censorRecords(fn: (RecordedGameHistory) => RecordedGameHistory): GameContext[A] = {
+    // Apply .colocal to the inner Writer. Does not affect the StateT
+    // part.
+    type Impl[F[_], B] = StateT[Board, F, B]
+    val transform = Hoist[Impl].hoist(GameContext.CensorTransform(fn))
+    GameContext(transform(impl))
+  }
 
 }
 
 object GameContext {
+
+  // WriterT.colocal, as a natural transformation.
+  private class CensorTransform[W1, W2](
+    val fn: (W1) => W2,
+  ) extends NaturalTransformation[Writer[W1, _], Writer[W2, _]] {
+    def apply[A](m: Writer[W1, A]): Writer[W2, A] =
+      m.colocal(fn)
+  }
 
   val getBoard: GameContext[Board] =
     GameContext(StateT.get)
