@@ -3,4 +3,5 @@ project/
 target/
 .bsp/
 token.txt
+res/*.pem
 *~
