@@ -1,0 +1,17 @@
+
+=======================================
+== COMMANDS TO GENERATE THE RSA KEYS ==
+=======================================
+
+I'm only putting this here for my convenience. This file is for
+informational purposes only and is not actually used by the software
+in any way.
+
+Generate the .pem file for the private key:
+    openssl genrsa -out private.pem 2048
+
+Generate the corresponding public key file:
+    openssl rsa -in private.pem -pubout -out public.pem
+
+Convert private key to .der (Java doesn't support .pem):
+    openssl pkcs8 -topk8 -inform PEM -in private.pem -outform DER -nocrypt -out private.der
