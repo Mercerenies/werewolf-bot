@@ -12,7 +12,7 @@ final class BotConfig(
 ) {
 
   val token: String =
-    Source.fromFile(tokenFilename).mkString.stripLineEnd
+    ResourceFiles.readResource(tokenFilename).stripLineEnd
 
   def produceApi(): Future[DiscordApi] =
     DiscordApiBuilder().setToken(token).login().asScala
