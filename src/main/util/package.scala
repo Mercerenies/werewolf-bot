@@ -51,3 +51,11 @@ def foldM[A, B, M[_]: Monad](list: List[B], acc: A)(op: (A, B) => M[A]): M[A] =
     case Nil => acc.point
     case (x :: xs) => op(acc, x) >>= { newAcc => foldM(xs, newAcc)(op) }
   }
+
+// Construct a translation table from two strings of equal length.
+def tr(a: String, b: String): Map[Char, Char] = {
+  if (a.length != b.length) {
+    throw new IllegalArgumentException("Strings of non-equal length")
+  }
+  (a zip b).toMap
+}
