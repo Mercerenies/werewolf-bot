@@ -27,9 +27,10 @@ object Base64 {
 
   // Does not modify the argument array.
   def decode(x: Array[Byte]): Array[Byte] = {
-    val buf = decoder.decode(x)
+    val input = x.clone()
     val trans = byteTranslationTable(tr("._-", "+/="))
-    buf.mapInPlace { b => trans.getOrElse(b, b) }
+    input.mapInPlace { b => trans.getOrElse(b, b) }
+    decoder.decode(input)
   }
 
 }
