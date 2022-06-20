@@ -10,6 +10,7 @@ import java.nio.charset.StandardCharsets
 
 import scala.io.Source
 import scala.concurrent.Future
+import scala.util.Using
 import scala.jdk.FutureConverters.*
 
 object ResourceFiles {
@@ -18,6 +19,13 @@ object ResourceFiles {
     this.getClass().getClassLoader()
 
   def readResource(name: String): String =
-    IOUtils.toString(classLoader.getResourceAsStream(name), StandardCharsets.UTF_8)
+    Using(classLoader.getResourceAsStream(name)) { stream =>
+      IOUtils.toString(stream, StandardCharsets.UTF_8)
+    }.get
+
+  def readResourceAsBytes(name: String): Array[Byte] =
+    Using(classLoader.getResourceAsStream(name)) { stream =>
+      IOUtils.toByteArray(stream)
+    }.get
 
 }
