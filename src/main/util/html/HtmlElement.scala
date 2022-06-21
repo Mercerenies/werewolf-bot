@@ -6,7 +6,7 @@ package html
 import scala.util.matching.Regex
 
 // Precondition: tagName shall be nonempty and shall contain only
-// alphabetical characters.
+// alphanumeric characters and shall begin with an alphabetic character.
 case class HtmlElement(val tagName: String) {
 
   if (!HtmlElement.TAG_NAME_VALIDATOR.matches(tagName)) {
@@ -38,6 +38,6 @@ case class HtmlElement(val tagName: String) {
 object HtmlElement {
 
   private val TAG_NAME_VALIDATOR: Regex =
-    raw"^[A-Za-z]+$$".r
+    raw"^[A-Za-z][A-Za-z0-9]*$$".r
 
 }
