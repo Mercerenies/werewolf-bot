@@ -28,6 +28,9 @@ class RecordedGameHistory private(val impl: Vector[GameRecord]) {
   def map(fn: (GameRecord) => GameRecord): RecordedGameHistory =
     RecordedGameHistory(impl.map(fn))
 
+  def foreach[U](fn: (GameRecord) => U): Unit =
+    impl.foreach(fn)
+
 }
 
 object RecordedGameHistory {
