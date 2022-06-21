@@ -51,21 +51,7 @@ open class HtmlExporter(
   // Default implementation provides a reasonable template, but it can
   // be overridden if desired. `body` should be executed exactly once.
   def toHtml(gameBody: => Unit)(using HtmlFragment): Unit = {
-    import HtmlBuilder.*
-    html {
-      head {
-        title { t("One-Night Werewolf Game") }
-      }
-      body {
-        h1 { t("One-Night Werewolf Game") }
-        p {
-          t(HtmlExporter.formatDate(HtmlExporter.currentDate()))
-        }
-        div {
-          gameBody
-        }
-      }
-    }
+    HtmlExporter.defaultToHtml(gameBody)
   }
 
 }
@@ -111,5 +97,23 @@ object HtmlExporter {
 
   private def encodeData(page: Array[Byte]): Array[Byte] =
     Base64.encode(page)
+
+  def defaultToHtml(gameBody: => Unit)(using HtmlFragment): Unit = {
+    import HtmlBuilder.*
+    html {
+      head {
+        title { t("One-Night Werewolf Game") }
+      }
+      body {
+        h1 { t("One-Night Werewolf Game") }
+        p {
+          t(HtmlExporter.formatDate(HtmlExporter.currentDate()))
+        }
+        div {
+          gameBody
+        }
+      }
+    }
+  }
 
 }

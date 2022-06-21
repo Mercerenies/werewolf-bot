@@ -21,7 +21,7 @@ import game.role.wincon.WinCondition
 import game.parser.ListParser
 import game.night.NightMessageHandler
 import game.response.FeedbackMessage
-import game.record.RecordedGameHistory
+import game.record.{RecordedGameHistory, PlayerVotesRecord, PlayerWinRecord, PlayerDeathsRecord}
 import properties.GameProperties
 
 import org.javacord.api.DiscordApi
@@ -152,6 +152,7 @@ final class VotePhaseState(
       _ <- channel.sendMessage(VotePhaseState.deathMessage(userMapping, majority)).asScala
       endgame = Endgame(board, playerIds, majority)
       winnerIds = WinCondition.determineWinners(endgame).toList
+      finalHistory = history ++ List(PlayerVotesRecord(votes), PlayerDeathsRecord(majority), PlayerWinRecord(winnerIds))
       _ <- channel.sendMessage(VotePhaseState.winMessage(userMapping, winnerIds)).asScala
     } {
       mgr.endGame(channelId)
