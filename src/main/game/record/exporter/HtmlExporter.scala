@@ -10,8 +10,9 @@ import http.{RequestMethod, UrlEncodedForm, HttpRequests, Header}
 import crypto.{PrivateKey, Base64, RsaSigner}
 
 import java.net.URL
-import java.util.UUID
+import java.util.{UUID, Date}
 import java.nio.charset.StandardCharsets
+import java.text.SimpleDateFormat
 
 import scala.concurrent.{Future, ExecutionContext}
 import scala.util.{Try, Success, Failure}
@@ -24,7 +25,6 @@ open class HtmlExporter(
   def this(destinationUrl: String) = this(new URL(destinationUrl))
 
   final def exportRecord(record: RecordedGameHistory, userMapping: UserMapping)(using ExecutionContext): Future[Unit] = {
-    ///// Template for html to wrap the <li>
     val fullPage: String = HtmlBuilder.begin {
       this.toHtml {
         HtmlBuilder.ul {
@@ -59,7 +59,7 @@ open class HtmlExporter(
       body {
         h1 { t("One-Night Werewolf Game") }
         p {
-          ///// Note for current day
+          t(HtmlExporter.formatDate(HtmlExporter.currentDate()))
         }
         div {
           gameBody
@@ -71,6 +71,15 @@ open class HtmlExporter(
 }
 
 object HtmlExporter {
+
+  private val DATE_FORMATTER =
+    SimpleDateFormat("EEE, MMM d, yyyy")
+
+  private def formatDate(date: Date): String =
+    DATE_FORMATTER.format(date)
+
+  private def currentDate(): Date =
+    Date() // Default constructor for date returns the current one.
 
   private def generateUuid(): String =
     UUID.randomUUID().toString()
