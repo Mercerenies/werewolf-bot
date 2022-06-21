@@ -28,7 +28,7 @@ object Pandoc {
 
     override def out(s: => String): Unit = {
       // Send stdout to the buffer
-      builder.append(s + "\n")
+      builder.append(s).append("\n")
     }
 
     override def err(s: => String): Unit = {
