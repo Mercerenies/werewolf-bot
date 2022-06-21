@@ -24,6 +24,7 @@ open class HtmlExporter(
   def this(destinationUrl: String) = this(new URL(destinationUrl))
 
   final def exportRecord(record: RecordedGameHistory, userMapping: UserMapping)(using ExecutionContext): Future[Unit] = {
+    ///// Template for html to wrap the <li>
     val fullPage: String = HtmlBuilder.begin { record.foreach { _.htmlText(userMapping) } }
     val header = Header("Content-Type" -> "application/x-www-form-urlencoded")
 
