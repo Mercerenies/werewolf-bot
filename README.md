@@ -10,9 +10,11 @@ the dependencies for the bot. Simply use `sbt compile` to compile the
 project and `sbt run` to run it. `sbt test` can be used to run the
 test suite.
 
-**Optional:** If you wish to be able to upload PDFs of game logs to
-Discord, you will need to install the `wkhtmltopdf` tool, available at
-[https://wkhtmltopdf.org/](https://wkhtmltopdf.org/). If this tool is
-not on your system path, the feature will be silently disabled. Note
-that you may need to restart the bot after installing the tool in
-order to enable the PDF feature.
+## Optional Pandoc Add-on
+
+**Optional:** If you wish to be able to upload text files of game logs
+to Discord, you will need to install the `pandoc` command line tool,
+available at [https://pandoc.org/](https://pandoc.org/). If this tool
+is not on your system path, the feature will be silently disabled.
+Note that you may need to restart the bot after installing the tool in
+order to enable the feature.
