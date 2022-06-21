@@ -5,7 +5,7 @@ package record
 package exporter
 
 import id.UserMapping
-import util.html.HtmlBuilder
+import util.html.{HtmlBuilder, HtmlFragment}
 import http.{RequestMethod, UrlEncodedForm, HttpRequests, Header}
 import crypto.{PrivateKey, Base64, RsaSigner}
 
@@ -25,7 +25,13 @@ open class HtmlExporter(
 
   final def exportRecord(record: RecordedGameHistory, userMapping: UserMapping)(using ExecutionContext): Future[Unit] = {
     ///// Template for html to wrap the <li>
-    val fullPage: String = HtmlBuilder.begin { record.foreach { _.htmlText(userMapping) } }
+    val fullPage: String = HtmlBuilder.begin {
+      this.toHtml {
+        HtmlBuilder.ul {
+          record.foreach { _.htmlText(userMapping) }
+        }
+      }
+    }
     val header = Header("Content-Type" -> "application/x-www-form-urlencoded")
 
     val uuid = HtmlExporter.generateUuid()
@@ -41,6 +47,26 @@ open class HtmlExporter(
   def onSuccess(uuid: String)(using ExecutionContext): Future[Unit] = Future.unit
 
   def onFailure(throwable: Throwable)(using ExecutionContext): Future[Unit] = Future.unit
+
+  // Default implementation provides a reasonable template, but it can
+  // be overridden if desired. `body` should be executed exactly once.
+  def toHtml(gameBody: => Unit)(using HtmlFragment): Unit = {
+    import HtmlBuilder.*
+    html {
+      head {
+        title { t("One-Night Werewolf Game") }
+      }
+      body {
+        h1 { t("One-Night Werewolf Game") }
+        p {
+          ///// Note for current day
+        }
+        div {
+          gameBody
+        }
+      }
+    }
+  }
 
 }
 
