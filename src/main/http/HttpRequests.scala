@@ -4,10 +4,12 @@ package http
 
 import java.net.{URL, HttpURLConnection}
 
+import scala.concurrent.{Future, ExecutionContext}
+
 object HttpRequests {
 
   // Precondition: url is an HTTP URL.
-  def makeRequest(url: URL, method: RequestMethod, header: Header, body: Array[Byte]): HttpResponse = {
+  def makeRequestSync(url: URL, method: RequestMethod, header: Header, body: Array[Byte]): HttpResponse = {
     val conn = url.openConnection.asInstanceOf[HttpURLConnection]
     conn.setDoOutput(true)
     conn.setRequestMethod(method.toString)
@@ -25,5 +27,9 @@ object HttpRequests {
     HttpResponse.fromConnection(conn)
 
   }
+
+  // Precondition: url is an HTTP URL.
+  def makeRequest(url: URL, method: RequestMethod, header: Header, body: Array[Byte])(using ExecutionContext): Future[HttpResponse] =
+    Future { makeRequestSync(url, method, header, body) }
 
 }
