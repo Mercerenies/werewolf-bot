@@ -17,26 +17,29 @@ import scala.concurrent.{Future, ExecutionContext}
 import scala.util.{Try, Success, Failure}
 
 // Makes an HTML page and sends it to the given web address.
-class HtmlExporter(
-  private val destinationUrl: URL,
+open class HtmlExporter(
+  val destinationUrl: URL,
 ) extends RecordExporter {
 
   def this(destinationUrl: String) = this(new URL(destinationUrl))
 
-  def exportRecord(record: RecordedGameHistory, userMapping: UserMapping)(using ExecutionContext): Future[Unit] = {
+  final def exportRecord(record: RecordedGameHistory, userMapping: UserMapping)(using ExecutionContext): Future[Unit] = {
     val fullPage: String = HtmlBuilder.begin { record.foreach { _.htmlText(userMapping) } }
     val header = Header("Content-Type" -> "application/x-www-form-urlencoded")
 
     val uuid = HtmlExporter.generateUuid()
     val body = HtmlExporter.buildMessageBody(page = fullPage, uuid = uuid)
 
-    for {
-      _ <- HttpRequests.makeRequest(destinationUrl, RequestMethod.POST, header, body)
-    } yield {
-      ()
+    HttpRequests.makeRequest(destinationUrl, RequestMethod.POST, header, body).transformWith {
+      case Failure(err) => onFailure(err)
+      case Success(_) => onSuccess(uuid)
     }
 
   }
+
+  def onSuccess(uuid: String)(using ExecutionContext): Future[Unit] = Future.unit
+
+  def onFailure(throwable: Throwable)(using ExecutionContext): Future[Unit] = Future.unit
 
 }
 
