@@ -18,3 +18,11 @@ final class BotConfig(
     DiscordApiBuilder().setToken(token).login().asScala
 
 }
+
+object BotConfig {
+
+  // The name of the Discord member responsible for maintaining this
+  // bot. This mention tag is pinged when certain errors occur.
+  val ADMIN_NAME: String = "@Mercerenies#4792"
+
+}
