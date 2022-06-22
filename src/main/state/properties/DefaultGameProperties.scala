@@ -34,4 +34,6 @@ case class DefaultGameProperties(
     )
   } // TODO Server is not set up for prod yet :(
 
+  def isSelfVotingAllowed: Boolean = false
+
 }

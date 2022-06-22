@@ -28,4 +28,8 @@ trait GameProperties {
 
   def recordExporter(api: DiscordApi): RecordExporter
 
+  // Normally, self-voting is forbidden. In the debug instance, I want
+  // it available so I can test using a one-player game.
+  def isSelfVotingAllowed: Boolean
+
 }

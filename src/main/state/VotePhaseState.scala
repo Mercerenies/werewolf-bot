@@ -78,7 +78,7 @@ final class VotePhaseState(
         case 0 => {
           message.reply("Please indicate the name of a player you wish to vote for.")
         }
-        case 1 if matches(0).id == Id(user) => {
+        case 1 if (matches(0).id == Id(user)) && (!gameProperties.isSelfVotingAllowed) => {
           message.reply("You cannot vote for yourself.")
         }
         case 1 => {

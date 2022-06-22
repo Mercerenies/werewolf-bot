@@ -35,4 +35,6 @@ case class DebugGameProperties(
     )
   }
 
+  def isSelfVotingAllowed: Boolean = true
+
 }
