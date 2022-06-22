@@ -11,10 +11,10 @@ import scala.collection.immutable.Vector
 class RecordedGameHistory private(val impl: Vector[GameRecord]) {
 
   def +(record: GameRecord): RecordedGameHistory =
-    RecordedGameHistory(impl :+ record)
+    new RecordedGameHistory(impl :+ record)
 
   def ++(records: IterableOnce[GameRecord]): RecordedGameHistory =
-    RecordedGameHistory(impl ++ records)
+    new RecordedGameHistory(impl ++ records)
 
   def ++(records: RecordedGameHistory): RecordedGameHistory =
     this ++ records.impl
@@ -26,7 +26,7 @@ class RecordedGameHistory private(val impl: Vector[GameRecord]) {
     impl.toList
 
   def map(fn: (GameRecord) => GameRecord): RecordedGameHistory =
-    RecordedGameHistory(impl.map(fn))
+    new RecordedGameHistory(impl.map(fn))
 
   def foreach[U](fn: (GameRecord) => U): Unit =
     impl.foreach(fn)
@@ -35,10 +35,13 @@ class RecordedGameHistory private(val impl: Vector[GameRecord]) {
 
 object RecordedGameHistory {
 
-  val empty: RecordedGameHistory = RecordedGameHistory(Vector())
+  val empty: RecordedGameHistory = new RecordedGameHistory(Vector())
+
+  def apply(records: GameRecord*): RecordedGameHistory =
+    from(records)
 
   def from(iter: Iterable[GameRecord]): RecordedGameHistory =
-    RecordedGameHistory(iter.toVector)
+    new RecordedGameHistory(iter.toVector)
 
   given RecordedGameHistoryIsMonoid : Monoid[RecordedGameHistory] with
 
