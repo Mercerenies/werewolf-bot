@@ -5,6 +5,7 @@ package record
 package exporter
 
 import id.UserMapping
+import util.foldM
 
 import scalaz.*
 import Scalaz.*
@@ -27,13 +28,25 @@ class CompositeExporter(
     // there are any errors and, if so, accumulate them all into one
     // big CompositeException.
     for {
-      allExports: List[Option[Throwable]] <- exporters.traverse { x => CompositeExporter.recoverFuture(x.exportRecord(record, userMapping)) }
-      allErrors: List[Throwable] = allExports.flatten
-      _ <- if (allErrors.isEmpty) { Future.unit } else { Future.failed(CompositeException(allErrors)) }
+      allErrors <- runEach(record, userMapping)
+      _ <- if (allErrors.isEmpty) { Future.unit } else { Future.failed(CompositeException(allErrors.reverse)) }
     } yield {
       ()
     }
   }
+
+  // Note: It is tempting to think of this fold as a traversal (and
+  // indeed, the original version of this code did just that), but a
+  // traversal is capable of running the exporters in parallel,
+  // whereas I want to guarantee that they run sequentially,
+  // accumulating errors as we go.
+  private def runEach(record: RecordedGameHistory, userMapping: UserMapping)(using ExecutionContext): Future[List[Throwable]] =
+    foldM(exporters, (Nil: List[Throwable])) { (acc, x) =>
+      CompositeExporter.recoverFuture(x.exportRecord(record, userMapping)) map {
+        case None => acc
+        case Some(err) => err :: acc
+      }
+    }
 
 }
 
