@@ -142,7 +142,12 @@ final class VotePhaseState(
       for {
         newTarget <- map.get(id) match {
           case None => {
-            val randomTarget = Random.sample(playerIds.filter { _ != id })
+            val validTargets = if (gameProperties.isSelfVotingAllowed) {
+              playerIds
+            } else {
+              playerIds.filter { _ != id }
+            }
+            val randomTarget = Random.sample(validTargets)
             for {
               srcUser <- api.getUser(id)
               targetUser <- api.getUser(randomTarget)
