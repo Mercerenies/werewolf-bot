@@ -26,12 +26,14 @@ trait Role extends NamedEntity {
 
 object Role {
 
+  // In no particular order... :)
   val all: List[Role] = List(
     Villager,
     Werewolf,
     Tanner,
     Seer,
     Troublemaker,
+    Mason,
   )
 
   def formattedList(roleList: Iterable[Role]): String =
