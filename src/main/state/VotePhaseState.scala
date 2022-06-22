@@ -154,6 +154,8 @@ final class VotePhaseState(
       winnerIds = WinCondition.determineWinners(endgame).toList
       finalHistory = history ++ List(PlayerVotesRecord(votes), PlayerDeathsRecord(majority), PlayerWinRecord(winnerIds))
       _ <- channel.sendMessage(VotePhaseState.winMessage(userMapping, winnerIds)).asScala
+      recordExporter = gameProperties.recordExporter(mgr.api)
+      _ <- recordExporter.exportRecord(finalHistory, userMapping)
     } {
       mgr.endGame(channelId)
       ///// Logs (this.history + votes + deaths + winners)
