@@ -34,20 +34,20 @@ class SnapshotRecord(val snapshot: BoardSnapshot) extends GameRecord {
     val roles = positions.map { p => snapshot(p.toPosition) }
 
     import HtmlBuilder.*
-    li {
+    li.attr("class" := "snapshot-record") {
       t("The state of the board is now:")
-      div {
-        table {
+      div.attr("class" := "snapshot-record-div") {
+        table.attr("class" := "snapshot-record-table") {
           // Header row (role cards)
-          tr {
+          tr.attr("class" := "snapshot-record-role-row") {
             roles.foreach { role =>
-              td { t(role.name) }
+              td.attr("class" := "snapshot-record-role") { t(role.name) }
             }
           }
           // Footer row (position / player names)
-          tr {
+          tr.attr("class" := "snapshot-record-player-row") {
             positions.foreach { p =>
-              td { t(p.name) }
+              td.attr("class" := "snapshot-record-player") { t(p.name) }
             }
           }
         }

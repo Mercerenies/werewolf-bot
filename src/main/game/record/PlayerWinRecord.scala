@@ -28,7 +28,7 @@ class PlayerWinRecord(val deaths: List[Id[User]]) extends GameRecord {
   }
 
   def htmlText(userMapping: UserMapping)(using HtmlFragment): Unit = {
-    li {
+    li.attr("class" := "player-win") {
       t(displayText(userMapping))
     }
   }

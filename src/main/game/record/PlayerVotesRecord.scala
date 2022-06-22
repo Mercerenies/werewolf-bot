@@ -32,12 +32,12 @@ class PlayerVotesRecord(val mapping: Map[Id[User], Id[User]]) extends GameRecord
   }
 
   def htmlText(userMapping: UserMapping)(using HtmlFragment): Unit = {
-    li {
+    li.attr("class" := "player-votals") {
       t("Final day votals:")
-      ul {
+      ul.attr("class" := "player-votals-list") {
         reverseMapping.foreach { (target, voters) =>
           val voterNames = Grammar.conjunctionList(voters.map { userMapping.nameOf(_) })
-          li {
+          li.attr("class" := "player-votals-item") {
             t(userMapping.nameOf(target))
             t(s" (${voters.length}) - ")
             t(voterNames)

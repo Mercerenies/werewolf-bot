@@ -49,6 +49,8 @@ object HtmlBuilder {
   val tr = HtmlElement("tr")
   val td = HtmlElement("td")
   val th = HtmlElement("th")
+  val main = HtmlElement("main")
+  val link = HtmlElement("link")
   val div = HtmlElement("div")
   val span = HtmlElement("span")
 

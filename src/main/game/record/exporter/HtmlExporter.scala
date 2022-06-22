@@ -25,9 +25,10 @@ open class HtmlExporter(
   def this(destinationUrl: String) = this(new URL(destinationUrl))
 
   final def exportRecord(record: RecordedGameHistory, userMapping: UserMapping)(using ExecutionContext): Future[Unit] = {
+    import HtmlBuilder.:=
     val fullPage: String = HtmlBuilder.begin {
       this.toHtml {
-        HtmlBuilder.ul {
+        HtmlBuilder.ul.attr("class" := "main-list") {
           record.foreach { _.htmlText(userMapping) }
         }
       }
@@ -104,13 +105,14 @@ object HtmlExporter {
     html {
       head {
         title { t("One-Night Werewolf Game") }
+        link.attr("href" := "wolfie_style.css", "rel" := "stylesheet") {}
       }
       body {
-        h1 { t("One-Night Werewolf Game") }
-        p {
+        h1.attr("class" := "game-header") { t("One-Night Werewolf Game") }
+        p.attr("class" := "game-timestamp") {
           t(HtmlExporter.formatDate(HtmlExporter.currentDate()))
         }
-        div {
+        main.attr("class" := "game-mainpane") {
           gameBody
         }
       }

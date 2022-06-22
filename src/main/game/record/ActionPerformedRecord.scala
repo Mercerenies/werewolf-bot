@@ -41,7 +41,7 @@ class ActionPerformedRecord(
 
   def htmlText(userMapping: UserMapping)(using HtmlFragment): Unit = {
     given ImplicitUserMapping = ImplicitUserMapping(userMapping)
-    li {
+    li.attr("class" := "action-performed") {
       sentence
     }
   }
@@ -68,19 +68,19 @@ object ActionPerformedRecord {
     m.nameOf(id)
 
   def roleName(role: RoleSnapshot)(using HtmlFragment, ImplicitUserMapping): Unit =
-    b { t(role.name) }
+    b.attr("class" := "game-entity game-entity-role") { t(role.name) }
 
   def playerName(id: Id[User])(using HtmlFragment, ImplicitUserMapping): Unit =
-    b { t(nameOf(id)) }
+    b.attr("class" := "game-entity game-entity-player") { t(nameOf(id)) }
 
   def position(id: Id[User])(using HtmlFragment, ImplicitUserMapping): Unit =
     playerName(id)
 
   def roleName(role: Role)(using HtmlFragment, ImplicitUserMapping): Unit =
-    b { t(role.name) }
+    b.attr("class" := "game-entity game-entity-role") { t(role.name) }
 
   def position(pos: TablePosition)(using HtmlFragment, ImplicitUserMapping): Unit =
-    b { t(pos.name) }
+    b.attr("class" := "game-entity game-entity-table-position") { t(pos.name) }
 
   def position(pos: Position)(using HtmlFragment, ImplicitUserMapping): Unit =
     pos match {
