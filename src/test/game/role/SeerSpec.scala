@@ -144,6 +144,32 @@ class SeerSpec extends GameplayUnitSpec {
 
   }
 
+  it should "observe the player's cards from before a robber acts" in {
+    val board = createBoard(
+      left = Villager,
+      middle = Werewolf,
+      right = Tanner,
+      playerCards = List(Robber, Seer, Tanner, Villager),
+    )
+    val (finalBoard, _, feedback) = playGame(board, List(mockName(2), mockName(2), ""))
+
+    finalBoard(TablePosition.Left).role should be (Villager)
+    finalBoard(TablePosition.Middle).role should be (Werewolf)
+    finalBoard(TablePosition.Right).role should be (Tanner)
+    finalBoard(id(0)).role should be (Tanner)
+    finalBoard(id(1)).role should be (Seer)
+    finalBoard(id(2)).role should be (Robber)
+    finalBoard(id(3)).role should be (Villager)
+
+    feedback(id(0)).mkString should include (mockName(2))
+    feedback(id(0)).mkString should include regex "(?i)tanner"
+    feedback(id(1)).mkString should include (mockName(2))
+    feedback(id(1)).mkString should include regex "(?i)tanner"
+    feedback(id(2)) should be (FeedbackMessage.none)
+    feedback(id(3)) should be (FeedbackMessage.none)
+
+  }
+
   it should "see the original cards correctly even if the seer card ends up swapped by troublemaker" in {
     val board = createBoard(
       left = Villager,
@@ -162,6 +188,30 @@ class SeerSpec extends GameplayUnitSpec {
 
     feedback(id(1)).mkString should include (mockName(2))
     feedback(id(1)).mkString should include regex "(?i)tanner"
+    feedback(id(2)) should be (FeedbackMessage.none)
+
+  }
+
+  it should "see the original cards correctly even if the seer card ends up swapped by robber" in {
+    val board = createBoard(
+      left = Villager,
+      middle = Werewolf,
+      right = Tanner,
+      playerCards = List(Robber, Seer, Tanner),
+    )
+    val (finalBoard, _, feedback) = playGame(board, List(mockName(1), mockName(0), ""))
+
+    finalBoard(TablePosition.Left).role should be (Villager)
+    finalBoard(TablePosition.Middle).role should be (Werewolf)
+    finalBoard(TablePosition.Right).role should be (Tanner)
+    finalBoard(id(0)).role should be (Seer)
+    finalBoard(id(1)).role should be (Robber)
+    finalBoard(id(2)).role should be (Tanner)
+
+    feedback(id(0)).mkString should include (mockName(1))
+    feedback(id(0)).mkString should include regex "(?i)seer"
+    feedback(id(1)).mkString should include (mockName(0))
+    feedback(id(1)).mkString should include regex "(?i)robber"
     feedback(id(2)) should be (FeedbackMessage.none)
 
   }

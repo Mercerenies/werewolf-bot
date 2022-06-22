@@ -34,6 +34,7 @@ object Role {
     Seer,
     Troublemaker,
     Mason,
+    Robber,
   )
 
   def formattedList(roleList: Iterable[Role]): String =
