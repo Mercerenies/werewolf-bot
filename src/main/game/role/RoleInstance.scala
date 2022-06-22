@@ -46,9 +46,12 @@ trait RoleInstance {
 
   def winCondition: WinCondition
 
-  // If this is true, then other werewolves (and the minion) will see
-  // this role when they get to see who the werewolf team is.
-  def seenAsWerewolf: Boolean = false
+  // Grouped roles, such as werewolves and masons, use this to
+  // identify the other members of their group. Anybody who should
+  // appear as a "werewolf" to other werewolves or to the minion, for
+  // instance, should list GroupedRoleIdentity.Werewolf in this list,
+  // including doppelgangers who happened to copy werewolves.
+  def seenAs: List[GroupedRoleIdentity] = Nil
 
   // An immutable snapshot of this role's state at a given moment, for
   // the purposes of creating the game's records at the end. For roles

@@ -108,7 +108,8 @@ object Werewolf extends Role {
     override val winCondition: WinCondition =
       WerewolfWinCondition
 
-    override val seenAsWerewolf: Boolean = true
+    override def seenAs: List[GroupedRoleIdentity] =
+      List(GroupedRoleIdentity.Werewolf)
 
   }
 
@@ -128,7 +129,11 @@ object Werewolf extends Role {
   override val introBlurb: String =
     "You are a " + bold("Werewolf") + ". You will be informed of who the other werewolves are. If there are no other werewolves, you may look at a card in the center of the table."
 
-  private def findWerewolfIds(board: Board): List[Id[User]] =
-    board.playerRoleInstances.filter { (_, instance) => instance.seenAsWerewolf }.map { (userId, _) => userId }
+  def findWerewolfIds(board: Board): List[Id[User]] =
+    board.playerRoleInstances.filter { (_, instance) =>
+      instance.seenAs.contains(GroupedRoleIdentity.Werewolf)
+    }.map { (userId, _) =>
+      userId
+    }
 
 }

@@ -4,7 +4,7 @@ package game
 package board
 
 import id.Id
-import role.{Role, RoleInstance}
+import role.{Role, RoleInstance, Werewolf}
 
 import org.javacord.api.entity.user.User
 
@@ -16,8 +16,8 @@ final class Endgame(
   val deaths: List[Id[User]],
 ) {
 
-  val werewolves: List[Id[User]] =
-    board.playerRoleInstances.filter { (_, instance) => instance.seenAsWerewolf }.map { (userId, _) => userId }
+  def werewolves: List[Id[User]] =
+    Werewolf.findWerewolfIds(board)
 
   def anyWerewolvesDied: Boolean =
     !(werewolves.toSet & deaths.toSet).isEmpty
