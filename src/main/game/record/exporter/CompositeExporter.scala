@@ -19,6 +19,8 @@ class CompositeExporter(
   private val exporters: List[RecordExporter],
 ) extends RecordExporter {
 
+  def this(exporters: RecordExporter*) = this(exporters.toList)
+
   def exportRecord(record: RecordedGameHistory, userMapping: UserMapping)(using ExecutionContext): Future[Unit] = {
     // We want to run all the exporters, capturing (but not failing
     // on) any errors that occur. Then we want to check and see if
