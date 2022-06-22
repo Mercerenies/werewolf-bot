@@ -65,7 +65,7 @@ final class VotePhaseState(
 
   override def onStatusCommand(mgr: GamesManager, interaction: SlashCommandInteraction): Future[CommandResponse[Unit]] =
     Future.successful {
-      CommandResponse.simple("This Werewolf game is currently " + bold("in the voting phase") + ". Please sent your vote to me via DM.").void
+      CommandResponse.simple("This Werewolf game is currently " + bold("in the voting phase") + ". Please send your vote to me via DM.").void
     }
 
   override def onDirectMessageCreate(mgr: GamesManager, user: User, message: Message): Unit = {
