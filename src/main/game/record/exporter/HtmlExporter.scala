@@ -72,7 +72,7 @@ object HtmlExporter {
 
   private def buildMessageBody(page: String, uuid: String): Array[Byte] = {
     val pageBytes: Array[Byte] = page.getBytes(StandardCharsets.UTF_8)
-    val uuidBytes: Array[Byte] = uuid.getBytes(StandardCharsets.UTF_8)
+    val uuidBytes: Array[Byte] = (uuid + "*BEGINDATA*").getBytes(StandardCharsets.UTF_8)
 
     val pkey = loadPrivateKey()
     val signature = signData(uuidBytes ++ pageBytes, pkey)
