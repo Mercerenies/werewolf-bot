@@ -95,7 +95,26 @@ final class VotePhaseState(
   override def onEnterState(mgr: GamesManager): Unit = {
     val channel = mgr.api.getServerTextChannel(channelId)
     val server = channel.getServer
+
+    // Send initial message in public
     voteStartMessage(mgr.api, server).flatMap { channel.sendMessage(_).asScala }
+
+    // Send message to all players
+    for {
+      userList <- getUserList(mgr.api)
+      _ <- playerIds.traverse { playerId =>
+        val filteredList = if (!gameProperties.isSelfVotingAllowed) {
+          userList.filter { _.id != playerId }
+        } else {
+          userList
+        }
+        val userNames = filteredList.map(_.name)
+        val directMessage = bold("Please indicate the name of the player you wish to vote for.") + " Options are " + Grammar.conjunctionList(userNames) + "."
+        mgr.api.getUser(playerId) >>= { _.sendMessage(directMessage).asScala }
+      }
+    } {
+      ()
+    }
 
     // Schedule end of voting phase
     schedule(mgr, gameProperties.votePhaseLength.toDuration) { () =>
