@@ -216,4 +216,52 @@ class SeerSpec extends GameplayUnitSpec {
 
   }
 
+  it should "see the original cards correctly even if observing a drunk" in {
+    val board = createBoard(
+      left = Villager,
+      middle = Werewolf,
+      right = Tanner,
+      playerCards = List(Drunk, Seer, Tanner),
+    )
+    val (finalBoard, _, feedback) = playGame(board, List("middle", mockName(0), ""))
+
+    finalBoard(TablePosition.Left).role should be (Villager)
+    finalBoard(TablePosition.Middle).role should be (Drunk)
+    finalBoard(TablePosition.Right).role should be (Tanner)
+    finalBoard(id(0)).role should be (Werewolf)
+    finalBoard(id(1)).role should be (Seer)
+    finalBoard(id(2)).role should be (Tanner)
+
+    feedback(id(0)).mkString should include regex ("(?i)middle")
+    feedback(id(0)).mkString should not include regex ("(?i)werewolf|villager|tanner")
+    feedback(id(1)).mkString should include (mockName(0))
+    feedback(id(1)).mkString should include regex "(?i)drunk"
+    feedback(id(2)) should be (FeedbackMessage.none)
+
+  }
+
+  it should "see the original cards correctly even if observing a card which will later be swapped by a drunk" in {
+    val board = createBoard(
+      left = Villager,
+      middle = Werewolf,
+      right = Tanner,
+      playerCards = List(Drunk, Seer, Tanner),
+    )
+    val (finalBoard, _, feedback) = playGame(board, List("middle", "left middle", ""))
+
+    finalBoard(TablePosition.Left).role should be (Villager)
+    finalBoard(TablePosition.Middle).role should be (Drunk)
+    finalBoard(TablePosition.Right).role should be (Tanner)
+    finalBoard(id(0)).role should be (Werewolf)
+    finalBoard(id(1)).role should be (Seer)
+    finalBoard(id(2)).role should be (Tanner)
+
+    feedback(id(0)).mkString should include regex ("(?i)middle")
+    feedback(id(0)).mkString should not include regex ("(?i)werewolf|villager|tanner")
+    feedback(id(1)).mkString should include regex "(?i)villager"
+    feedback(id(1)).mkString should include regex "(?i)werewolf"
+    feedback(id(2)) should be (FeedbackMessage.none)
+
+  }
+
 }
