@@ -38,7 +38,7 @@ object Troublemaker extends Role {
 
     private val nightHandlerImpl =
       ChoiceMessageHandler(
-        noValue :+: choiceFactory.twoPlayersNotSelfOption(initialUserId)
+        (noValue :+: choiceFactory.twoPlayersNotSelfOption(initialUserId)).formattedList
       ) {
         case None | Some(Left(NoValue)) => None
         case Some(Right((a, b))) => Some((a, b))

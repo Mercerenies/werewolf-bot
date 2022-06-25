@@ -44,7 +44,7 @@ object Seer extends Role {
 
     private val nightHandlerImpl =
       ChoiceMessageHandler(
-        noValue :+: choiceFactory.twoTablePositions :+: choiceFactory.playerNotSelfOption(initialUserId)
+        (noValue :+: choiceFactory.twoTablePositions :+: choiceFactory.playerNotSelfOption(initialUserId)).formattedList
       ) {
         case None | Some(Left(NoValue)) => UserChoice.None
         case Some(Right(Left((a, b)))) => UserChoice.CenterCards(a, b)

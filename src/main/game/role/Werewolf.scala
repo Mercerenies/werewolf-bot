@@ -35,7 +35,7 @@ object Werewolf extends Role {
 
     private val nightHandlerImpl =
       ChoiceMessageHandler(
-        noValue :+: choiceFactory.tablePosition
+        (noValue :+: choiceFactory.tablePosition).formattedList
       ) {
         case None | Some(Left(NoValue)) => None
         case Some(Right(x)) => Some(x)

@@ -38,7 +38,7 @@ object Robber extends Role {
 
     private val nightHandlerImpl =
       ChoiceMessageHandler(
-        noValue :+: choiceFactory.playerNotSelfOption(initialUserId)
+        (noValue :+: choiceFactory.playerNotSelfOption(initialUserId)).formattedList
       ) {
         case None | Some(Left(NoValue)) => None
         case Some(Right(a)) => Some(a)
