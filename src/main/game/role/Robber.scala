@@ -92,7 +92,7 @@ object Robber extends Role {
 
   override val name: String = "Robber"
 
-  override val aliases: List[String] = List("rob")
+  override val aliases: List[String] = List()
 
   override val baseAlignment: Alignment = Alignment.Town
 
