@@ -264,4 +264,47 @@ class SeerSpec extends GameplayUnitSpec {
 
   }
 
+  it should "see the original player cards correctly even if observing a card which will be swapped by a witch" in {
+    val board = createBoard(
+      left = Villager,
+      middle = Werewolf,
+      right = Tanner,
+      playerCards = List(Witch, Seer, Tanner),
+    )
+    val (finalBoard, _, feedback) = playGame(board, List("middle " + mockName(2), "left middle", ""))
+
+    finalBoard(TablePosition.Left).role should be (Villager)
+    finalBoard(TablePosition.Middle).role should be (Tanner)
+    finalBoard(TablePosition.Right).role should be (Tanner)
+    finalBoard(id(0)).role should be (Witch)
+    finalBoard(id(1)).role should be (Seer)
+    finalBoard(id(2)).role should be (Werewolf)
+
+    feedback(id(1)).mkString should include regex "(?i)villager"
+    feedback(id(1)).mkString should include regex "(?i)werewolf"
+    feedback(id(1)).mkString should not include regex ("(?i)tanner")
+
+  }
+
+  it should "see the original table cards correctly even if observing a card which will be swapped by a witch" in {
+    val board = createBoard(
+      left = Villager,
+      middle = Werewolf,
+      right = Tanner,
+      playerCards = List(Witch, Seer, Tanner),
+    )
+    val (finalBoard, _, feedback) = playGame(board, List("middle " + mockName(2), mockName(2), ""))
+
+    finalBoard(TablePosition.Left).role should be (Villager)
+    finalBoard(TablePosition.Middle).role should be (Tanner)
+    finalBoard(TablePosition.Right).role should be (Tanner)
+    finalBoard(id(0)).role should be (Witch)
+    finalBoard(id(1)).role should be (Seer)
+    finalBoard(id(2)).role should be (Werewolf)
+
+    feedback(id(1)).mkString should include (mockName(2))
+    feedback(id(1)).mkString should include regex "(?i)tanner"
+
+  }
+
 }
