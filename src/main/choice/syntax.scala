@@ -5,6 +5,7 @@ package choice
 import name.{NamedEntity, NoValue}
 
 import scala.annotation.targetName
+import scala.reflect.ClassTag
 
 object syntax {
 
@@ -33,7 +34,7 @@ object syntax {
       FormattedListChoice(self)
 
     @targetName("andThenRec")
-    def :*:[B <: Tuple](other: Choice[B]): Choice[A *: B] =
+    def :*:[B <: Tuple](other: Choice[B])(using ClassTag[B]): Choice[A *: B] =
       ConjunctionChoice(self, other)
 
 }
