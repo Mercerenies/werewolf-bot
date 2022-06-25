@@ -20,6 +20,12 @@ class ChoiceSpec extends UnitSpec {
 
   val numOptions = List(number1, number2, number3)
 
+  val aa = SimpleName("aa")
+  val bb = SimpleName("bb")
+  val cc = SimpleName("cc")
+
+  val aOptions = List(aa, bb, cc)
+
   "The Choice trait" should "never successfully parse on NoChoice" in {
     NoChoice.parse("ABC") should be (Left(NoFurtherOptions))
     NoChoice.parse("") should be (Left(NoFurtherOptions))
@@ -67,6 +73,23 @@ class ChoiceSpec extends UnitSpec {
     parser.parse("aaa 1 1 bbb") should be (Left(RepeatedElement))
     parser.parse("aaa bar 1 bbb") should be (Right( Left(bar) ))
     parser.parse("aaa bar baz 1 2 bbb") should be (Right( Right((number1, number2)) ))
+  }
+
+  it should "parse from conjunctive pairs of choices" in {
+    val parser = syntax.oneOf(options) :**: syntax.oneOf(numOptions)
+    parser.parse("foo 1") should be (Right((foo, number1)))
+    parser.parse("1 foo") should be (Right((foo, number1)))
+    parser.parse("foo") should be (Left(NoFurtherOptions))
+    parser.parse("1") should be (Left(NoFurtherOptions))
+    parser.parse("aaa bar bbb") should be (Left(NoFurtherOptions))
+    parser.parse("aaa bar 3 bbb") should be (Right(bar, number3))
+    parser.parse("aaa 1 2 bbb") should be (Left(NoFurtherOptions))
+  }
+
+  it should "parse from conjunctive collections of choices" in {
+    val parser = syntax.oneOf(options) :*: syntax.oneOf(numOptions) :**: syntax.oneOf(aOptions)
+    parser.parse("foo 1 aa") should be (Right((foo, number1, aa)))
+    parser.parse("1 bb foo") should be (Right((foo, number1, bb)))
   }
 
   it should "provide good blurbs for the given parser" in {
