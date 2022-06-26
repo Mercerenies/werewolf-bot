@@ -32,7 +32,7 @@ case class DefaultGameProperties(
       DiscordHtmlExporter("http://mercerenies.sdf.org/wolfie", channel),
       DiscordEmbedExporter(channel),
     )
-  } // TODO Server is not set up for prod yet :(
+  }
 
   def isSelfVotingAllowed: Boolean = false
 
