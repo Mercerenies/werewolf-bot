@@ -111,7 +111,7 @@ final class DayPhaseState(
       players <- playerIds.traverse { api.getUser(_) }
     } yield {
       bold("It is now daytime!") + "\n\n" +
-        "The following players are participating: " + players.map(_.getDisplayName(server)).mkString(", ") + "\n" + // TODO Correct order
+        "The following players are participating (in table order): " + players.map(_.getDisplayName(server)).mkString(", ") + "\n" +
         "The following roles are in play: " + board.roles.mkString(", ") + "\n" +
         bold(s"Day will end in ${gameProperties.dayPhaseLength}")
     }

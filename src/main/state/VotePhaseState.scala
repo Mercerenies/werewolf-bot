@@ -128,7 +128,7 @@ final class VotePhaseState(
       players <- playerIds.traverse { api.getUser(_) }
     } yield {
       bold("It is now time to vote!") + "\n\n" +
-        "As a reminder, the following players are participating: " + players.map(_.getDisplayName(server)).mkString(", ") + "\n" + // TODO Correct order
+        "As a reminder, the following players are participating: " + players.map(_.getDisplayName(server)).mkString(", ") + "\n" +
       "Please " + bold("DM me your vote") + ". All players must submit a vote.\n" +
       bold(s"The voting phase will end in ${gameProperties.votePhaseLength}")
     }
