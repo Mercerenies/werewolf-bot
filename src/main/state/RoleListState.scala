@@ -56,7 +56,7 @@ final class RoleListState(
     // We only care about messages sent by the game host / server
     // admin and which ping the bot.
     (message.getAuthor.getId == hostId.toLong) &&
-      (util.mentions(message, Id(mgr.api.getYourself)))
+      (util.mentions(message, mgr.api.getYourself))
 
   private def requiredRoleCount = Rules.rolesNeeded(playerIds.length)
 

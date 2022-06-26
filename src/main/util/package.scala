@@ -16,8 +16,11 @@ import scala.collection.mutable.HashSet
 
 // Various convenience helpers that had nowhere better to go
 
-def mentions(message: Message, userId: Id[User]): Boolean =
-  message.getMentionedUsers.asScala.exists { _.getId == userId.toLong }
+def mentions(message: Message, user: User): Boolean =
+  // Direct mentions
+  message.getMentionedUsers.asScala.exists { _.getId == user.getId } ||
+    // or Role mentions
+    message.getMentionedRoles.asScala.exists { _.hasUser(user) }
 
 // If the two lists are not of the same length, the longer one will
 // have some elements unassigned.
