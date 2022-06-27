@@ -21,13 +21,13 @@ final class GameContext[A] private(
   private val impl: StateT[ContextState, Writer[RecordedGameHistory, _], A],
 ) {
 
-  def run(board: Board, ids: List[Id[User]], history: RecordedGameHistory): (Board, RecordedGameHistory, A) = {
+  def run(board: Board, ids: List[Id[User]], history: RecordedGameHistory): ContextResult[A] = {
     val wba = impl(ContextState(board, ids))
     val (newHistory, (state, a)) = wba.run
     // Note: We ignore state.userIds, since none of the public
     // functions in this file modify that, so it's effectively a
     // reader.
-    (state.board, history ++ newHistory, a)
+    ContextResult(state.board, history ++ newHistory, a)
   }
 
   def censorRecords(fn: (RecordedGameHistory) => RecordedGameHistory): GameContext[A] = {

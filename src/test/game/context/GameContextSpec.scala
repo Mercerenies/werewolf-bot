@@ -37,7 +37,7 @@ class GameContextSpec extends UnitSpec {
   "The GameContext monad" should "provide access to the underlying board when asked" in {
     val board = sampleBoard()
 
-    val (b1, history, b2) = GameContext.getBoard.run(board, sampleIds, RecordedGameHistory.empty)
+    val ContextResult(b1, history, b2) = GameContext.getBoard.run(board, sampleIds, RecordedGameHistory.empty)
     history.toVector shouldBe empty
     b1 should be (board)
     b2 should be (board)
@@ -47,7 +47,7 @@ class GameContextSpec extends UnitSpec {
   it should "provide access to the underlying user ID list when asked" in {
     val board = sampleBoard()
 
-    val (s, history, ids) = GameContext.getUserIds.run(board, sampleIds, RecordedGameHistory.empty)
+    val ContextResult(s, history, ids) = GameContext.getUserIds.run(board, sampleIds, RecordedGameHistory.empty)
     history.toVector shouldBe empty
     s should be (board)
     ids should be (sampleIds)
@@ -64,7 +64,7 @@ class GameContextSpec extends UnitSpec {
     } yield {
       (originalBoard, modifiedBoard)
     }
-    val (finalState, history, (originalBoard, modifiedBoard)) = m.run(board1, sampleIds, RecordedGameHistory.empty)
+    val ContextResult(finalState, history, (originalBoard, modifiedBoard)) = m.run(board1, sampleIds, RecordedGameHistory.empty)
     history.toVector shouldBe empty
     finalState should be (board2)
     modifiedBoard should be (board2)
@@ -81,7 +81,7 @@ class GameContextSpec extends UnitSpec {
     } yield {
       (originalBoard, modifiedBoard)
     }
-    val (finalState, history, (originalBoard, modifiedBoard)) = m.run(board1, sampleIds, RecordedGameHistory.empty)
+    val ContextResult(finalState, history, (originalBoard, modifiedBoard)) = m.run(board1, sampleIds, RecordedGameHistory.empty)
     history.toVector shouldBe empty
     finalState should be (board2)
     modifiedBoard should be (board2)
@@ -97,8 +97,8 @@ class GameContextSpec extends UnitSpec {
 
     val m = GameContext.record(gameEvent1) >> GameContext.record(gameEvent2) >> GameContext.record(gameEvent3)
 
-    val (_, history, _) = m.run(sampleBoard(), sampleIds, RecordedGameHistory.empty)
-    history.toList should be (List(gameEvent1, gameEvent2, gameEvent3))
+    val result = m.run(sampleBoard(), sampleIds, RecordedGameHistory.empty)
+    result.history.toList should be (List(gameEvent1, gameEvent2, gameEvent3))
 
   }
 
@@ -111,8 +111,8 @@ class GameContextSpec extends UnitSpec {
 
     val m = GameContext.record(gameEvent1, gameEvent2) >> GameContext.record(gameEvent3)
 
-    val (_, history, _) = m.run(sampleBoard(), sampleIds, RecordedGameHistory.empty)
-    history.toList should be (List(gameEvent1, gameEvent2, gameEvent3))
+    val result = m.run(sampleBoard(), sampleIds, RecordedGameHistory.empty)
+    result.history.toList should be (List(gameEvent1, gameEvent2, gameEvent3))
 
   }
 
@@ -125,8 +125,8 @@ class GameContextSpec extends UnitSpec {
 
     val m = GameContext.record(gameEvent3)
 
-    val (_, history, _) = m.run(sampleBoard(), sampleIds, RecordedGameHistory.from(List(gameEvent1, gameEvent2)))
-    history.toList should be (List(gameEvent1, gameEvent2, gameEvent3))
+    val result = m.run(sampleBoard(), sampleIds, RecordedGameHistory.from(List(gameEvent1, gameEvent2)))
+    result.history.toList should be (List(gameEvent1, gameEvent2, gameEvent3))
 
   }
 
@@ -157,8 +157,8 @@ class GameContextSpec extends UnitSpec {
       ()
     }
 
-    val (_, history, _) = m.run(sampleBoard(), sampleIds, RecordedGameHistory.empty)
-    history.toList should be (List(gameEvent1, gameEvent2, CensoredGameRecord(gameEvent3), CensoredGameRecord(gameEvent4), gameEvent5, gameEvent6))
+    val result = m.run(sampleBoard(), sampleIds, RecordedGameHistory.empty)
+    result.history.toList should be (List(gameEvent1, gameEvent2, CensoredGameRecord(gameEvent3), CensoredGameRecord(gameEvent4), gameEvent5, gameEvent6))
 
   }
 

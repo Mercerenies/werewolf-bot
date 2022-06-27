@@ -5,7 +5,7 @@ package game
 import id.{Id, UserMapping}
 import board.Board
 import response.FeedbackMessage
-import context.GameContext
+import context.{GameContext, ContextResult}
 import record.RecordedGameHistory
 
 import org.javacord.api.entity.user.User
@@ -15,3 +15,14 @@ case class NightPhaseResult(
   val history: RecordedGameHistory,
   val feedback: Map[Id[User], FeedbackMessage],
 )
+
+object NightPhaseResult {
+
+  def fromContextResult(result: ContextResult[Iterable[(Id[User], FeedbackMessage)]]): NightPhaseResult =
+    NightPhaseResult(
+      board = result.board,
+      history = result.history,
+      feedback = result.result.toMap,
+    )
+
+}
