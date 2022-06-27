@@ -7,6 +7,8 @@ import id.Id
 
 import org.javacord.api.entity.user.User
 
+import scala.math.Ordering
+
 // A position on the board where a role card shall sit.
 enum Position {
   // A card in the middle of the table.
@@ -30,16 +32,17 @@ object Position {
     tablePositions ++ userPositions
   }
 
+  def positionOrdering(playerList: List[Id[User]]): Ordering[Position] =
+    Ordering.by {
+      case Table(tablePosition) => (0, tablePosition.ordinal)
+      case Player(id) => (1, playerList.indexOf(id))
+    }
+
   // Sort a list of positions: Table positions go first in their
   // natural ordering, then players in the order given in the player
   // list.
   def sortPositions(playerList: List[Id[User]], positions: List[Position]): List[Position] = {
-    def sortIndex(pos: Position): (Int, Long) =
-      pos match {
-        case Table(tablePosition) => (0, tablePosition.ordinal)
-        case Player(id) => (1, playerList.indexOf(id))
-      }
-    positions.sortBy(sortIndex)
+    positions.sorted(using positionOrdering(playerList))
   }
 
   val left: Position = Position.Table(TablePosition.Left)
