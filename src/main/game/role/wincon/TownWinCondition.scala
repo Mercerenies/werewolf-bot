@@ -17,6 +17,9 @@ case object TownWinCondition extends WinCondition {
   override val blurb: String =
     "You win if a Werewolf is killed. If there are no Werewolves, then you win if no one dies."
 
+  override val snapshotSummary: String =
+    "Town"
+
   override val precedence: Int =
     WinPrecedence.TOWN_AND_TANNER
 

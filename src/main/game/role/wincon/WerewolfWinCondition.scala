@@ -18,6 +18,9 @@ case object WerewolfWinCondition extends WinCondition {
   override val blurb: String =
     "You win if a Werewolf is " + italic("not") + " killed."
 
+  override val snapshotSummary: String =
+    "Werewolf"
+
   override val precedence: Int =
     WinPrecedence.WEREWOLF
 

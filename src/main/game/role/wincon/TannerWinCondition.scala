@@ -17,6 +17,9 @@ case object TannerWinCondition extends WinCondition {
   override val blurb: String =
     "Your goal is to die. You win if you are one of the players who is killed."
 
+  override val snapshotSummary: String =
+    "Tanner"
+
   override val precedence: Int =
     WinPrecedence.TOWN_AND_TANNER
 

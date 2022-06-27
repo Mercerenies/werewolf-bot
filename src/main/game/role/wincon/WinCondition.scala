@@ -20,6 +20,11 @@ trait WinCondition {
 
   def blurb: String
 
+  // Used if a wincon-copying role (like the Paranormal Investigator)
+  // ends up with this win condition. This text will be shown in the
+  // game summary for the given role.
+  def snapshotSummary: String
+
   // For evaluating win conditions, those with a higher precedence
   // evaluate first. If a win condition (such as Tanner) triggers a
   // HardWin, then all wincons with a lower precedence automatically
