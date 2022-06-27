@@ -34,6 +34,9 @@ trait Role extends NamedEntity {
   // is put into play from the center by e.g. a Witch or a Drunk.
   def baseWinCondition: WinCondition
 
+  def baseSeenAs: List[GroupedRoleIdentity] =
+    Nil
+
   def createInstance(mapping: UserMapping, initialUser: Option[Id[User]]): this.Instance
 
   def introBlurb: String
@@ -48,6 +51,7 @@ object Role {
     Exposer,
     Insomniac,
     Mason,
+    ParanormalInvestigator,
     Revealer,
     Robber,
     Seer,

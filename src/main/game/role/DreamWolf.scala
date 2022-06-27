@@ -57,6 +57,9 @@ object DreamWolf extends Role {
 
   override val baseWinCondition: WinCondition = WerewolfWinCondition
 
+  override def baseSeenAs: List[GroupedRoleIdentity] =
+    List(GroupedRoleIdentity.Werewolf)
+
   override val precedence: Int = Precedence.NO_ACTION
 
   override def createInstance(mapping: UserMapping, initialUserId: Option[Id[User]]): this.Instance =

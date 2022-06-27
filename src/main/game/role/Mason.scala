@@ -89,6 +89,9 @@ object Mason extends Role {
 
   override val precedence: Int = Precedence.MASON
 
+  override def baseSeenAs: List[GroupedRoleIdentity] =
+    List(GroupedRoleIdentity.Mason)
+
   override def createInstance(mapping: UserMapping, initialUserId: Option[Id[User]]): this.Instance =
     Mason.Instance(mapping)
 

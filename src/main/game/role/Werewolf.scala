@@ -125,6 +125,9 @@ object Werewolf extends Role {
 
   override val precedence: Int = Precedence.WEREWOLF
 
+  override def baseSeenAs: List[GroupedRoleIdentity] =
+    List(GroupedRoleIdentity.Werewolf)
+
   override def createInstance(mapping: UserMapping, initialUserId: Option[Id[User]]): this.Instance =
     Werewolf.Instance(mapping)
 
