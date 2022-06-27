@@ -8,6 +8,7 @@ import org.javacord.api.entity.user.User
 import org.scalatestplus.mockito.MockitoSugar
 
 import id.{UserMapping, Id}
+import wincon.*
 import state.NightPhaseState
 import response.FeedbackMessage
 import board.{Board, TablePosition, Position}
@@ -129,6 +130,58 @@ class WitchSpec extends GameplayUnitSpec {
     feedback(id(3)).mkString should include (mockName(2))
     feedback(id(3)).mkString should include regex ("(?i)tanner")
     feedback(id(3)).mkString should not include regex ("(?i)werewolf|robber|witch|villager")
+
+  }
+
+  it should "give a town win condition if it casts the Paranormal Investigator card on a player" in {
+    val board = createBoard(
+      left = Villager,
+      middle = Werewolf,
+      right = ParanormalInvestigator,
+      playerCards = List(Witch, Tanner, Villager),
+    )
+    val (finalBoard, history, feedback, _) = playGame(board, List("right " + mockName(1), "", ""))
+
+    finalBoard(TablePosition.Left).role should be (Villager)
+    finalBoard(TablePosition.Middle).role should be (Werewolf)
+    finalBoard(TablePosition.Right).role should be (Tanner)
+    finalBoard(id(0)).role should be (Witch)
+    finalBoard(id(1)).role should be (ParanormalInvestigator)
+    finalBoard(id(2)).role should be (Villager)
+
+    finalBoard(id(1)).winCondition should be (TownWinCondition)
+    finalBoard(id(1)).seenAs should be (Nil)
+
+  }
+
+  it should "preserve the Paranormal Investigator win condition if the card Witch puts in the middle is added back into play" in {
+    val board = createBoard(
+      left = Villager,
+      middle = Villager,
+      right = Villager,
+      playerCards = List(Witch, ParanormalInvestigator, Werewolf, Drunk),
+    )
+    val (finalBoard, history, feedback, _) = playGame(board, List("right " + mockName(1), mockName(2), "", "right"))
+
+    finalBoard(TablePosition.Left).role should be (Villager)
+    finalBoard(TablePosition.Middle).role should be (Villager)
+    finalBoard(TablePosition.Right).role should be (Drunk)
+    finalBoard(id(0)).role should be (Witch)
+    finalBoard(id(1)).role should be (Villager)
+    finalBoard(id(2)).role should be (Werewolf)
+    finalBoard(id(3)).role should be (ParanormalInvestigator)
+
+    finalBoard(id(0)).winCondition should be (TownWinCondition)
+    finalBoard(id(0)).seenAs should be (Nil)
+
+    finalBoard(id(1)).winCondition should be (TownWinCondition)
+    finalBoard(id(1)).seenAs should be (Nil)
+
+    finalBoard(id(2)).winCondition should be (WerewolfWinCondition)
+    finalBoard(id(2)).seenAs should be (List(GroupedRoleIdentity.Werewolf))
+
+    finalBoard(id(3)).winCondition should be (WerewolfWinCondition)
+    finalBoard(id(3)).seenAs should be (List(GroupedRoleIdentity.Werewolf))
 
   }
 

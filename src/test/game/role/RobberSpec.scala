@@ -7,6 +7,7 @@ import org.javacord.api.entity.user.User
 
 import org.scalatestplus.mockito.MockitoSugar
 
+import wincon.*
 import id.{UserMapping, Id}
 import state.NightPhaseState
 import response.FeedbackMessage
@@ -88,6 +89,32 @@ class RobberSpec extends GameplayUnitSpec {
     feedback(id(4)).mkString should include (mockName(0))
     feedback(id(4)).mkString should include (mockName(1))
     feedback(id(4)).mkString should not include regex ("(?i)werewolf|robber|tanner|villager")
+
+  }
+
+  it should "take the Paranormal Investigator's win condition if it robs the Paranormal Investigator" in {
+    val board = createBoard(
+      left = Villager,
+      middle = Werewolf,
+      right = Villager,
+      playerCards = List(ParanormalInvestigator, Werewolf, Robber),
+    )
+    val (finalBoard, history, feedback, _) = playGame(board, List(mockName(1), "", mockName(0)))
+
+    finalBoard(TablePosition.Left).role should be (Villager)
+    finalBoard(TablePosition.Middle).role should be (Werewolf)
+    finalBoard(TablePosition.Right).role should be (Villager)
+    finalBoard(id(0)).role should be (Robber)
+    finalBoard(id(1)).role should be (Werewolf)
+    finalBoard(id(2)).role should be (ParanormalInvestigator)
+
+    finalBoard(id(0)).winCondition should be (TownWinCondition)
+    finalBoard(id(1)).winCondition should be (WerewolfWinCondition)
+    finalBoard(id(2)).winCondition should be (WerewolfWinCondition)
+
+    feedback(id(0)).mkString should include regex ("(?i)werewolf")
+    feedback(id(2)).mkString should include regex ("(?i)paranormal investigator")
+    feedback(id(2)).mkString should not include regex ("(?i)werewolf")
 
   }
 

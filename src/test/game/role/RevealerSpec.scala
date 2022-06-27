@@ -7,6 +7,7 @@ import org.javacord.api.entity.user.User
 
 import org.scalatestplus.mockito.MockitoSugar
 
+import wincon.*
 import id.{UserMapping, Id}
 import state.NightPhaseState
 import response.FeedbackMessage
@@ -161,6 +162,25 @@ class RevealerSpec extends GameplayUnitSpec {
     feedback(id(3)).mkString should include regex ("(?i)villager")
 
     reveals should be (Set(Position.Player(id(0))))
+
+  }
+
+  it should "reveal a Paranormal Investigator card, even if it happens to be werewolf-aligned" in {
+    val board = createBoard(
+      left = Villager,
+      middle = Werewolf,
+      right = Tanner,
+      playerCards = List(Villager, Werewolf, ParanormalInvestigator, Revealer),
+    )
+    val (finalBoard, history, feedback, reveals) = playGame(board, List("", "", mockName(1), mockName(2)))
+    finalBoard should be (board)
+
+    feedback(id(2)).mkString should include regex ("(?i)werewolf")
+    feedback(id(3)).mkString should include regex ("(?i)paranormal investigator")
+
+    finalBoard(id(2)).winCondition should be (WerewolfWinCondition)
+
+    reveals should be (Set(Position.Player(id(2))))
 
   }
 

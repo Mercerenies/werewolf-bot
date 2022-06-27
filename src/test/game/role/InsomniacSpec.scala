@@ -7,6 +7,7 @@ import org.javacord.api.entity.user.User
 
 import org.scalatestplus.mockito.MockitoSugar
 
+import wincon.*
 import id.{UserMapping, Id}
 import state.NightPhaseState
 import response.FeedbackMessage
@@ -128,6 +129,34 @@ class InsomniacSpec extends GameplayUnitSpec {
 
     feedback(id(0)) should be (FeedbackMessage.none)
     feedback(id(2)).mkString should include regex ("(?i)tanner")
+
+  }
+
+  it should "not inform an insomniac of their win condition if they are swapped with a paranormal investigator" in {
+    val board = createBoard(
+      left = Villager,
+      middle = Werewolf,
+      right = Tanner,
+      playerCards = List(ParanormalInvestigator, Troublemaker, Insomniac, Werewolf),
+    )
+    val (finalBoard, _, feedback, _) = playGame(board, List(mockName(3), mockName(0) + " " + mockName(2), "", ""))
+
+    finalBoard(TablePosition.Left).role should be (Villager)
+    finalBoard(TablePosition.Middle).role should be (Werewolf)
+    finalBoard(TablePosition.Right).role should be (Tanner)
+    finalBoard(id(0)).role should be (Insomniac)
+    finalBoard(id(1)).role should be (Troublemaker)
+    finalBoard(id(2)).role should be (ParanormalInvestigator)
+    finalBoard(id(3)).role should be (Werewolf)
+
+    finalBoard(id(0)).winCondition should be (TownWinCondition)
+    finalBoard(id(0)).seenAs should be (Nil)
+
+    finalBoard(id(2)).winCondition should be (WerewolfWinCondition)
+    finalBoard(id(2)).seenAs should be (List(GroupedRoleIdentity.Werewolf))
+
+    feedback(id(2)).mkString should include regex ("(?i)paranormal investigator")
+    feedback(id(2)).mkString should not include regex ("(?i)werewolf")
 
   }
 

@@ -8,6 +8,7 @@ import org.javacord.api.entity.user.User
 import org.scalatestplus.mockito.MockitoSugar
 
 import id.{UserMapping, Id}
+import wincon.*
 import state.NightPhaseState
 import response.FeedbackMessage
 import board.{Board, TablePosition, Position}
@@ -126,6 +127,27 @@ class DrunkSpec extends GameplayUnitSpec {
     finalBoard(id(1)).role should be (Robber)
     finalBoard(id(2)).role should be (Troublemaker)
     finalBoard(id(3)).role should be (Drunk)
+
+  }
+
+  it should "have a town win condition if it swaps with the Paranormal Investigator card" in {
+    val board = createBoard(
+      left = Villager,
+      middle = Werewolf,
+      right = ParanormalInvestigator,
+      playerCards = List(Drunk, Tanner, Villager),
+    )
+    val (finalBoard, history, feedback, _) = playGame(board, List("right", "", ""))
+
+    finalBoard(TablePosition.Left).role should be (Villager)
+    finalBoard(TablePosition.Middle).role should be (Werewolf)
+    finalBoard(TablePosition.Right).role should be (Drunk)
+    finalBoard(id(0)).role should be (ParanormalInvestigator)
+    finalBoard(id(1)).role should be (Tanner)
+    finalBoard(id(2)).role should be (Villager)
+
+    finalBoard(id(0)).winCondition should be (TownWinCondition)
+    finalBoard(id(0)).seenAs should be (Nil)
 
   }
 
