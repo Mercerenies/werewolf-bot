@@ -77,4 +77,24 @@ object FiniteChoice {
 
   }
 
+  class OneOrTwoOf[+A <: NamedEntity](
+    entities: List[A],
+  ) extends Choice[(A, Option[A])] {
+    import syntax.:+:
+
+    private val one = FiniteChoice(entities, 1, false)
+    private val two = FiniteChoice(entities, 2, false)
+
+    override def blurb: String =
+      "one or two of " + Grammar.conjunctionList(entities.map(_.name), "or")
+
+    override def parse(text: String): Either[ChoiceError, (A, Option[A])] =
+      (two :+: one).parse(text) map {
+        case Left(List(x, y)) => (x, Some(y))
+        case Right(List(x)) => (x, None)
+        case x => throw new AssertionError(s"Bad result from impl.parse: ${x}")
+      }
+
+  }
+
 }

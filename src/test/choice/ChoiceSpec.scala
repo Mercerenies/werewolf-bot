@@ -63,6 +63,18 @@ class ChoiceSpec extends UnitSpec {
     parser.parse("baz baz") should be (Left(RepeatedElement))
   }
 
+  it should "parse (optionally) multiple from a finite collection of options" in {
+    val parser = syntax.oneOrTwoOf(options)
+    parser.parse("i am a foo") should be (Right((foo, None)))
+    parser.parse("the BAR is here") should be (Right((bar, None)))
+    parser.parse("baz bar") should be (Right((baz, Some(bar))))
+    parser.parse("baz baz") should be (Left(RepeatedElement))
+    parser.parse("bar baz") should be (Right((bar, Some(baz))))
+    parser.parse("foo bar baz") should be (Left(NoFurtherOptions))
+    parser.parse("---") should be (Left(NoFurtherOptions))
+    parser.parse("") should be (Left(NoFurtherOptions))
+  }
+
   it should "parse from disjunctive collections of choices" in {
     val parser = syntax.oneOf(options) :+: syntax.twoOf(numOptions)
     parser.parse("e") should be (Left(NoFurtherOptions))
@@ -98,6 +110,7 @@ class ChoiceSpec extends UnitSpec {
     syntax.oneOf(options).blurb should be ("one of Foo, Bar, or Baz")
     syntax.twoOf(options).blurb should be ("two of Foo, Bar, or Baz")
     (syntax.oneOf(options) :+: syntax.twoOf(numOptions)).blurb should be ("one of Foo, Bar, or Baz or two of 1, 2, or 3")
+    syntax.oneOrTwoOf(options).blurb should be ("one or two of Foo, Bar, or Baz")
   }
 
 }

@@ -18,6 +18,9 @@ object syntax {
   def twoOf[A <: NamedEntity](options: List[A]): Choice[(A, A)] =
     FiniteChoice.TwoOf(options)
 
+  def oneOrTwoOf[A <: NamedEntity](options: List[A]): Choice[(A, Option[A])] =
+    FiniteChoice.OneOrTwoOf(options)
+
   extension[A](self: Choice[A])
 
     @targetName("orElse")
