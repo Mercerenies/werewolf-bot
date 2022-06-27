@@ -67,13 +67,12 @@ object Exposer extends Role {
             for {
               _ <- GameContext.revealCard(Position.Table(pos))
               _ <- GameContext.record(ActionPerformedRecord(this.toSnapshot, userId) {
-                t("saw flipped over the ")
+                t("flipped over the ")
                 position(pos)
                 t(" card, which was ")
                 roleName(centerCard)
                 t(".")
               })
-              _ <- GameContext.recordCurrentBoard
             } yield {
               FeedbackMessage(s"You flipped over the ${bold(pos.name)} card, revealing that it was ${bold(centerCard.name)}.")
             }
