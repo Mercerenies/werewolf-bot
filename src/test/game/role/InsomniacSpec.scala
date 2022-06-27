@@ -1,13 +1,13 @@
 
 package com.mercerenies.werewolf
 package game
+package role
 
 import org.javacord.api.entity.user.User
 
 import org.scalatestplus.mockito.MockitoSugar
 
 import id.{UserMapping, Id}
-import role.*
 import state.NightPhaseState
 import response.FeedbackMessage
 import board.{Board, TablePosition, Position}
