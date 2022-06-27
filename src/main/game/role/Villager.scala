@@ -42,6 +42,8 @@ object Villager extends Role {
 
   override val baseAlignment: Alignment = Alignment.Town
 
+  override val baseWinCondition: WinCondition = TownWinCondition
+
   override val precedence: Int = Precedence.NO_ACTION
 
   override def createInstance(mapping: UserMapping, initialUserId: Option[Id[User]]): this.Instance =

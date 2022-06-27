@@ -121,6 +121,8 @@ object Werewolf extends Role {
 
   override val baseAlignment: Alignment = Alignment.Werewolf
 
+  override val baseWinCondition: WinCondition = WerewolfWinCondition
+
   override val precedence: Int = Precedence.WEREWOLF
 
   override def createInstance(mapping: UserMapping, initialUserId: Option[Id[User]]): this.Instance =

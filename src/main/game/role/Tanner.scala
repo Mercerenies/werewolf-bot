@@ -42,6 +42,8 @@ object Tanner extends Role {
 
   override val baseAlignment: Alignment = Alignment.ThirdParty
 
+  override val baseWinCondition: WinCondition = TannerWinCondition
+
   override val precedence: Int = Precedence.NO_ACTION
 
   override def createInstance(mapping: UserMapping, initialUserId: Option[Id[User]]): this.Instance =

@@ -85,6 +85,8 @@ object Mason extends Role {
 
   override val baseAlignment: Alignment = Alignment.Town
 
+  override val baseWinCondition: WinCondition = TownWinCondition
+
   override val precedence: Int = Precedence.MASON
 
   override def createInstance(mapping: UserMapping, initialUserId: Option[Id[User]]): this.Instance =
