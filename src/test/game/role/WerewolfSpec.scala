@@ -21,8 +21,9 @@ class WerewolfSpec extends GameplayUnitSpec {
       right = Villager,
       playerCards = List(Werewolf, Villager, Werewolf),
     )
-    val (finalBoard, _, _) = playGame(board, List("", "", ""))
+    val (finalBoard, _, _, reveals) = playGame(board, List("", "", ""))
     finalBoard should be (board)
+    reveals shouldBe empty
   }
 
   it should "not change the state of the game when solo" in {
@@ -32,7 +33,7 @@ class WerewolfSpec extends GameplayUnitSpec {
       right = Villager,
       playerCards = List(Werewolf, Tanner, Villager),
     )
-    val (finalBoard, _, _) = playGame(board, List("", "", ""))
+    val (finalBoard, _, _, reveals) = playGame(board, List("", "", ""))
     finalBoard should be (board)
   }
 
@@ -43,7 +44,7 @@ class WerewolfSpec extends GameplayUnitSpec {
       right = Tanner,
       playerCards = List(Werewolf, Werewolf, Werewolf),
     )
-    val (finalBoard, history, feedback) = playGame(board, List("", "", ""))
+    val (finalBoard, history, feedback, _) = playGame(board, List("", "", ""))
     finalBoard should be (board)
 
     feedback(id(0)).mkString should include (mockName(0))
@@ -73,7 +74,7 @@ class WerewolfSpec extends GameplayUnitSpec {
       right = Tanner,
       playerCards = List(Werewolf, Werewolf, Villager),
     )
-    val (finalBoard, _, feedback) = playGame(board, List("", "", ""))
+    val (finalBoard, _, feedback, _) = playGame(board, List("", "", ""))
     finalBoard should be (board)
 
     feedback(id(0)).mkString should include (mockName(0))
@@ -92,7 +93,7 @@ class WerewolfSpec extends GameplayUnitSpec {
       right = Tanner,
       playerCards = List(Villager, Werewolf, Villager),
     )
-    val (finalBoard, history, feedback) = playGame(board, List("", "right", ""))
+    val (finalBoard, history, feedback, _) = playGame(board, List("", "right", ""))
     finalBoard should be (board)
 
     // The solo werewolf should see that the 'tanner' card is on the 'right'
@@ -115,7 +116,7 @@ class WerewolfSpec extends GameplayUnitSpec {
       right = Tanner,
       playerCards = List(Villager, Werewolf, Villager),
     )
-    val (finalBoard, history, feedback) = playGame(board, List("", "", ""))
+    val (finalBoard, history, feedback, _) = playGame(board, List("", "", ""))
     finalBoard should be (board)
 
     feedback(id(0)) should be (FeedbackMessage.none)
@@ -135,7 +136,7 @@ class WerewolfSpec extends GameplayUnitSpec {
       right = Tanner,
       playerCards = List(Villager, Werewolf, Villager),
     )
-    val (finalBoard, _, feedback) = playGame(board, List("", "none", ""))
+    val (finalBoard, _, feedback, _) = playGame(board, List("", "none", ""))
     finalBoard should be (board)
 
     feedback(id(0)) should be (FeedbackMessage.none)

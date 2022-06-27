@@ -21,7 +21,7 @@ class TroublemakerSpec extends GameplayUnitSpec {
       right = Villager,
       playerCards = List(Villager, Troublemaker, Tanner),
     )
-    val (finalBoard, history, feedback) = playGame(board, List("", "none", ""))
+    val (finalBoard, history, feedback, _) = playGame(board, List("", "none", ""))
     finalBoard should be (board)
 
     feedback(id(0)) should be (FeedbackMessage.none)
@@ -45,7 +45,7 @@ class TroublemakerSpec extends GameplayUnitSpec {
       right = Villager,
       playerCards = List(Villager, Troublemaker, Tanner),
     )
-    val (finalBoard, history, feedback) = playGame(board, List("", s"${mockName(0)} ${mockName(2)}", ""))
+    val (finalBoard, history, feedback, _) = playGame(board, List("", s"${mockName(0)} ${mockName(2)}", ""))
 
     finalBoard(TablePosition.Left).role should be (Villager)
     finalBoard(TablePosition.Middle).role should be (Werewolf)

@@ -21,7 +21,7 @@ class RobberSpec extends GameplayUnitSpec {
       right = Villager,
       playerCards = List(Villager, Robber, Tanner),
     )
-    val (finalBoard, history, feedback) = playGame(board, List("", "none", ""))
+    val (finalBoard, history, feedback, _) = playGame(board, List("", "none", ""))
     finalBoard should be (board)
 
     feedback(id(0)) should be (FeedbackMessage.none)
@@ -40,7 +40,7 @@ class RobberSpec extends GameplayUnitSpec {
       right = Villager,
       playerCards = List(Villager, Robber, Tanner),
     )
-    val (finalBoard, history, feedback) = playGame(board, List("", mockName(0), ""))
+    val (finalBoard, history, feedback, _) = playGame(board, List("", mockName(0), ""))
 
     finalBoard(TablePosition.Left).role should be (Villager)
     finalBoard(TablePosition.Middle).role should be (Werewolf)
@@ -70,7 +70,7 @@ class RobberSpec extends GameplayUnitSpec {
       right = Villager,
       playerCards = List(Villager, Werewolf, Robber, Tanner, Troublemaker),
     )
-    val (finalBoard, history, feedback) = playGame(board, List("", "", mockName(0), "", mockName(0) + " " + mockName(1)))
+    val (finalBoard, history, feedback, _) = playGame(board, List("", "", mockName(0), "", mockName(0) + " " + mockName(1)))
 
     finalBoard(TablePosition.Left).role should be (Villager)
     finalBoard(TablePosition.Middle).role should be (Werewolf)

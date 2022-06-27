@@ -21,7 +21,7 @@ class DrunkSpec extends GameplayUnitSpec {
       right = Tanner,
       playerCards = List(Drunk, Villager, Villager),
     )
-    val (finalBoard, history, feedback) = playGame(board, List("right", "", ""))
+    val (finalBoard, history, feedback, _) = playGame(board, List("right", "", ""))
 
     finalBoard(TablePosition.Left).role should be (Villager)
     finalBoard(TablePosition.Middle).role should be (Werewolf)
@@ -51,7 +51,7 @@ class DrunkSpec extends GameplayUnitSpec {
       right = Tanner,
       playerCards = List(Drunk, Villager, Villager),
     )
-    val (finalBoard, history, feedback) = playGame(board, List("", "", ""))
+    val (finalBoard, history, feedback, _) = playGame(board, List("", "", ""))
 
     finalBoard(TablePosition.Left).role should be (Drunk)
     finalBoard(TablePosition.Middle).role should be (Werewolf)
@@ -79,7 +79,7 @@ class DrunkSpec extends GameplayUnitSpec {
       right = Villager,
       playerCards = List(Drunk, Tanner, Tanner, Troublemaker),
     )
-    val (finalBoard, history, feedback) = playGame(board, List("middle", "", "", mockName(0) + " " + mockName(1)))
+    val (finalBoard, history, feedback, _) = playGame(board, List("middle", "", "", mockName(0) + " " + mockName(1)))
 
     finalBoard(TablePosition.Left).role should be (Villager)
     finalBoard(TablePosition.Middle).role should be (Tanner)
@@ -98,7 +98,7 @@ class DrunkSpec extends GameplayUnitSpec {
       right = Villager,
       playerCards = List(Drunk, Tanner, Tanner, Robber),
     )
-    val (finalBoard, history, feedback) = playGame(board, List("right", "", "", mockName(0)))
+    val (finalBoard, history, feedback, _) = playGame(board, List("right", "", "", mockName(0)))
 
     finalBoard(TablePosition.Left).role should be (Villager)
     finalBoard(TablePosition.Middle).role should be (Werewolf)
@@ -117,7 +117,7 @@ class DrunkSpec extends GameplayUnitSpec {
       right = Villager,
       playerCards = List(Drunk, Tanner, Troublemaker, Robber),
     )
-    val (finalBoard, history, feedback) = playGame(board, List("right", "", mockName(0) + " " + mockName(1), mockName(0)))
+    val (finalBoard, history, feedback, _) = playGame(board, List("right", "", mockName(0) + " " + mockName(1), mockName(0)))
 
     finalBoard(TablePosition.Left).role should be (Villager)
     finalBoard(TablePosition.Middle).role should be (Werewolf)

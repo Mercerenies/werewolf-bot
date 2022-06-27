@@ -21,7 +21,7 @@ class VillagerSpec extends GameplayUnitSpec {
       right = Tanner,
       playerCards = List(Villager, Seer, Villager),
     )
-    val (finalBoard, _, feedback) = playGame(board, List("", "", ""))
+    val (finalBoard, _, feedback, _) = playGame(board, List("", "", ""))
 
     finalBoard should be (board)
 
@@ -37,7 +37,7 @@ class VillagerSpec extends GameplayUnitSpec {
       right = Tanner,
       playerCards = List(Villager, Villager, Villager),
     )
-    val (finalBoard, history, feedback) = playGame(board, List("", "", ""))
+    val (finalBoard, history, feedback, _) = playGame(board, List("", "", ""))
 
     finalBoard should be (board)
 

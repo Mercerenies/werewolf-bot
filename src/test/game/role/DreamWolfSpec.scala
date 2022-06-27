@@ -21,8 +21,9 @@ class DreamWolfSpec extends GameplayUnitSpec {
       right = Villager,
       playerCards = List(Werewolf, Villager, DreamWolf),
     )
-    val (finalBoard, _, _) = playGame(board, List("", "", ""))
+    val (finalBoard, _, _, reveals) = playGame(board, List("", "", ""))
     finalBoard should be (board)
+    reveals shouldBe empty
   }
 
   it should "count as a werewolf but not be informed of the other werewolves" in {
@@ -32,7 +33,7 @@ class DreamWolfSpec extends GameplayUnitSpec {
       right = Tanner,
       playerCards = List(Werewolf, Werewolf, DreamWolf),
     )
-    val (finalBoard, history, feedback) = playGame(board, List("", "", ""))
+    val (finalBoard, history, feedback, _) = playGame(board, List("", "", ""))
     finalBoard should be (board)
 
     feedback(id(0)).mkString should include (mockName(0))
@@ -55,7 +56,7 @@ class DreamWolfSpec extends GameplayUnitSpec {
       right = Tanner,
       playerCards = List(Villager, DreamWolf, Villager),
     )
-    val (finalBoard, history, feedback) = playGame(board, List("", "", ""))
+    val (finalBoard, history, feedback, _) = playGame(board, List("", "", ""))
     finalBoard should be (board)
 
     feedback(id(0)) should be (FeedbackMessage.none)

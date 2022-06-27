@@ -21,7 +21,7 @@ class MasonSpec extends GameplayUnitSpec {
       right = Villager,
       playerCards = List(Villager, Mason, Mason),
     )
-    val (finalBoard, history, feedback) = playGame(board, List("", "", ""))
+    val (finalBoard, history, feedback, _) = playGame(board, List("", "", ""))
     finalBoard should be (board)
 
     feedback(id(0)) should be (FeedbackMessage.none)
@@ -35,7 +35,7 @@ class MasonSpec extends GameplayUnitSpec {
       right = Villager,
       playerCards = List(Villager, Mason, Mason),
     )
-    val (finalBoard, history, feedback) = playGame(board, List("", "", ""))
+    val (finalBoard, history, feedback, _) = playGame(board, List("", "", ""))
     finalBoard should be (board)
 
     feedback(id(0)) should be (FeedbackMessage.none)
@@ -60,7 +60,7 @@ class MasonSpec extends GameplayUnitSpec {
       right = Villager,
       playerCards = List(Villager, Mason, Mason, Troublemaker),
     )
-    val (finalBoard, history, feedback) = playGame(board, List("", "", "", mockName(0) + " " + mockName(1)))
+    val (finalBoard, history, feedback, _) = playGame(board, List("", "", "", mockName(0) + " " + mockName(1)))
     finalBoard(id(0)).role should be (Mason)
     finalBoard(id(1)).role should be (Villager)
     finalBoard(id(2)).role should be (Mason)
@@ -81,7 +81,7 @@ class MasonSpec extends GameplayUnitSpec {
       right = Mason,
       playerCards = List(Villager, Werewolf, Mason),
     )
-    val (finalBoard, history, feedback) = playGame(board, List("", "", ""))
+    val (finalBoard, history, feedback, _) = playGame(board, List("", "", ""))
     finalBoard should be (board)
 
     feedback(id(0)) should be (FeedbackMessage.none)

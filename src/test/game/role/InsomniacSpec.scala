@@ -21,7 +21,7 @@ class InsomniacSpec extends GameplayUnitSpec {
       right = Tanner,
       playerCards = List(Tanner, Insomniac, Villager),
     )
-    val (finalBoard, _, _) = playGame(board, List("right", "", ""))
+    val (finalBoard, _, _, _) = playGame(board, List("right", "", ""))
     finalBoard should be (board)
   }
 
@@ -32,7 +32,7 @@ class InsomniacSpec extends GameplayUnitSpec {
       right = Tanner,
       playerCards = List(Villager, Villager, Insomniac),
     )
-    val (finalBoard, history, feedback) = playGame(board, List("", "", ""))
+    val (finalBoard, history, feedback, _) = playGame(board, List("", "", ""))
     finalBoard should be (board)
 
     feedback(id(0)) should be (FeedbackMessage.none)
@@ -53,7 +53,7 @@ class InsomniacSpec extends GameplayUnitSpec {
       right = Insomniac,
       playerCards = List(Villager, Villager, Drunk),
     )
-    val (finalBoard, _, feedback) = playGame(board, List("", "", "right"))
+    val (finalBoard, _, feedback, _) = playGame(board, List("", "", "right"))
 
     finalBoard(TablePosition.Left).role should be (Villager)
     finalBoard(TablePosition.Middle).role should be (Werewolf)
@@ -75,7 +75,7 @@ class InsomniacSpec extends GameplayUnitSpec {
       right = Tanner,
       playerCards = List(Villager, Troublemaker, Insomniac),
     )
-    val (finalBoard, _, feedback) = playGame(board, List("", mockName(0) + " " + mockName(2), ""))
+    val (finalBoard, _, feedback, _) = playGame(board, List("", mockName(0) + " " + mockName(2), ""))
 
     finalBoard(TablePosition.Left).role should be (Villager)
     finalBoard(TablePosition.Middle).role should be (Werewolf)
@@ -96,7 +96,7 @@ class InsomniacSpec extends GameplayUnitSpec {
       right = Tanner,
       playerCards = List(Villager, Robber, Insomniac),
     )
-    val (finalBoard, _, feedback) = playGame(board, List("", mockName(2), ""))
+    val (finalBoard, _, feedback, _) = playGame(board, List("", mockName(2), ""))
 
     finalBoard(TablePosition.Left).role should be (Villager)
     finalBoard(TablePosition.Middle).role should be (Werewolf)
@@ -117,7 +117,7 @@ class InsomniacSpec extends GameplayUnitSpec {
       right = Tanner,
       playerCards = List(Villager, Witch, Insomniac),
     )
-    val (finalBoard, _, feedback) = playGame(board, List("", "right " + mockName(2), ""))
+    val (finalBoard, _, feedback, _) = playGame(board, List("", "right " + mockName(2), ""))
 
     finalBoard(TablePosition.Left).role should be (Villager)
     finalBoard(TablePosition.Middle).role should be (Werewolf)

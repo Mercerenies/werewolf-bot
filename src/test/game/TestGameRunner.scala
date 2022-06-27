@@ -10,7 +10,7 @@ import id.{UserMapping, Id}
 import role.Role
 import state.NightPhaseState
 import response.FeedbackMessage
-import board.{Board, BoardTestUtil}
+import board.{Board, BoardTestUtil, Position}
 import record.RecordedGameHistory
 
 object TestGameRunner {
@@ -29,7 +29,7 @@ object TestGameRunner {
   def playGame(
     board: Board,
     playerActions: List[String],
-  ): (Board, RecordedGameHistory, Map[Id[User], FeedbackMessage]) = {
+  ): (Board, RecordedGameHistory, Map[Id[User], FeedbackMessage], Set[Position]) = {
 
     val playerIds = playerActions.indices.map(id).toList
 
@@ -42,8 +42,8 @@ object TestGameRunner {
 
     // Once all night actions have been collected, run the night
     // phase and collect feedback objects.
-    val NightPhaseResult(finalBoard, history, responses) = NightPhaseEvaluator.evaluate(board, playerIds, RecordedGameHistory.empty)
-    (finalBoard, history, responses.toMap)
+    val NightPhaseResult(finalBoard, history, responses, revealedCards) = NightPhaseEvaluator.evaluate(board, playerIds, RecordedGameHistory.empty)
+    (finalBoard, history, responses.toMap, revealedCards)
   }
 
   // Game simulator. Takes center cards and a list of players given by
@@ -55,7 +55,7 @@ object TestGameRunner {
     middle: Role,
     right: Role,
     players: List[(Role, String)],
-  ): (Board, RecordedGameHistory, Map[Id[User], FeedbackMessage]) = {
+  ): (Board, RecordedGameHistory, Map[Id[User], FeedbackMessage], Set[Position]) = {
     val initialBoard = BoardTestUtil.createBoard(left, middle, right, players.map(_._1))
     playGame(initialBoard, players.map(_._2))
   }
