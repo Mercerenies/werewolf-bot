@@ -32,6 +32,7 @@ object Role {
     Exposer,
     Insomniac,
     Mason,
+    Revealer,
     Robber,
     Seer,
     Tanner,
