@@ -32,7 +32,7 @@ object Position {
     tablePositions ++ userPositions
   }
 
-  def positionOrdering(playerList: List[Id[User]]): Ordering[Position] =
+  def ordering(playerList: List[Id[User]]): Ordering[Position] =
     Ordering.by {
       case Table(tablePosition) => (0, tablePosition.ordinal)
       case Player(id) => (1, playerList.indexOf(id))
@@ -42,7 +42,7 @@ object Position {
   // natural ordering, then players in the order given in the player
   // list.
   def sortPositions(playerList: List[Id[User]], positions: List[Position]): List[Position] = {
-    positions.sorted(using positionOrdering(playerList))
+    positions.sorted(using ordering(playerList))
   }
 
   val left: Position = Position.Table(TablePosition.Left)
