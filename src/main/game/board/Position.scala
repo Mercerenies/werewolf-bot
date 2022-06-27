@@ -30,6 +30,18 @@ object Position {
     tablePositions ++ userPositions
   }
 
+  // Sort a list of positions: Table positions go first in their
+  // natural ordering, then players in the order given in the player
+  // list.
+  def sortPositions(playerList: List[Id[User]], positions: List[Position]): List[Position] = {
+    def sortIndex(pos: Position): (Int, Long) =
+      pos match {
+        case Table(tablePosition) => (0, tablePosition.ordinal)
+        case Player(id) => (1, playerList.indexOf(id))
+      }
+    positions.sortBy(sortIndex)
+  }
+
   val left: Position = Position.Table(TablePosition.Left)
   val middle: Position = Position.Table(TablePosition.Middle)
   val right: Position = Position.Table(TablePosition.Right)
