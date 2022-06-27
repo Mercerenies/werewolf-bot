@@ -117,7 +117,7 @@ object Werewolf extends Role {
 
   override val name: String = "Werewolf"
 
-  override val aliases: List[String] = List("WW")
+  override val aliases: List[String] = List()
 
   override val baseAlignment: Alignment = Alignment.Werewolf
 
