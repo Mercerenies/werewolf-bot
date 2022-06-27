@@ -27,7 +27,12 @@ final class GameContext[A] private(
     // Note: We ignore state.userIds, since none of the public
     // functions in this file modify that, so it's effectively a
     // reader.
-    ContextResult(state.board, history ++ newHistory, a)
+    ContextResult(
+      board = state.board,
+      history = history ++ newHistory,
+      revealedCards = state.revealedCards,
+      result = a,
+    )
   }
 
   def censorRecords(fn: (RecordedGameHistory) => RecordedGameHistory): GameContext[A] = {

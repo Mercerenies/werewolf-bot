@@ -148,9 +148,11 @@ object NightPhaseState extends Logging[NightPhaseState] {
   ): (Board, RecordedGameHistory, Future[Unit]) = {
     // TODO When there are multiple night phases, we'll need to keep
     // the old history here
-    val NightPhaseResult(finalBoard, history, messages) = NightPhaseEvaluator.evaluate(board, ids, initialHistory)
-    val messagesFuture = messages.toList.traverse { (userId, feedback) => feedback.sendTo(mapping(userId)) }.void
-    (finalBoard, history, messagesFuture)
+    val result = NightPhaseEvaluator.evaluate(board, ids, initialHistory)
+    val messagesFuture = result.feedback.toList.traverse { (userId, feedback) =>
+      feedback.sendTo(mapping(userId))
+    }.void
+    (result.board, result.history, messagesFuture)
   }
 
 }

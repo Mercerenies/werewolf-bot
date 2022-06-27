@@ -3,7 +3,7 @@ package com.mercerenies.werewolf
 package game
 
 import id.{Id, UserMapping}
-import board.Board
+import board.{Board, Position}
 import response.FeedbackMessage
 import context.{GameContext, ContextResult}
 import record.RecordedGameHistory
@@ -14,6 +14,7 @@ case class NightPhaseResult(
   val board: Board,
   val history: RecordedGameHistory,
   val feedback: Map[Id[User], FeedbackMessage],
+  val revealedCards: Set[Position],
 )
 
 object NightPhaseResult {
@@ -23,6 +24,7 @@ object NightPhaseResult {
       board = result.board,
       history = result.history,
       feedback = result.result.toMap,
+      revealedCards = result.revealedCards,
     )
 
 }
