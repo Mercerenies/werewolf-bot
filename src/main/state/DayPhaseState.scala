@@ -13,7 +13,7 @@ import name.{NameProvider, BaseNameProvider, DisplayNameProvider}
 import command.CommandResponse
 import manager.GamesManager
 import game.Rules
-import game.board.Board
+import game.board.{Board, Position}
 import game.board.assignment.{AssignmentBoard, AssignmentBoardFormatter, StandardAssignmentBoardFormatter}
 import game.role.Role
 import game.parser.ListParser
@@ -45,6 +45,7 @@ final class DayPhaseState(
   override val playerIds: List[Id[User]],
   override val board: Board,
   private val initialHistory: RecordedGameHistory,
+  _revealedCards: Set[Position],
 )(
   using ExecutionContext,
 ) extends GameState(_gameProperties) with SchedulingState with WithUserMapping with WithAssignmentParser {
@@ -56,6 +57,9 @@ final class DayPhaseState(
 
   private val assignmentBoard: Cell[AssignmentBoard] =
     Cell(AssignmentBoard.empty(board, playerIds))
+
+  private val revealedCards: List[Position] =
+    _revealedCards.toList.sorted(using Position.ordering(playerIds))
 
   // Note: There aren't a lot of roles that will add events to this
   // during the day phase, but a few might need to make notes. In
@@ -97,7 +101,23 @@ final class DayPhaseState(
   override def onEnterState(mgr: GamesManager): Unit = {
     val channel = mgr.api.getServerTextChannel(channelId)
     val server = channel.getServer
-    dayStartMessage(mgr.api, server).flatMap { channel.sendMessage(_).asScala }
+
+    // Send out day start messages
+    for {
+      // Generic day start message
+      userMapping <- getUserMapping(mgr.api)
+      dayStart <- dayStartMessage(mgr.api, server)
+      _ <- channel.sendMessage(dayStart).asScala
+      // Revealed cards
+      _ <- util.foldM(revealedCards, ()) { (_, pos) =>
+        val role = board(pos).role
+        val message = pos match {
+          case Position.Table(tablePos) => s"The ${bold(tablePos.name)} card has been flipped face up: It is ${bold(role.name)}."
+          case Position.Player(id) => s"The card in front of ${bold(userMapping.nameOf(id))} card has been flipped face up: It is ${bold(role.name)}."
+        }
+        channel.sendMessage(message).asScala >| ()
+      }
+    } ()
 
     // Schedule end of day phase
     schedule(mgr, gameProperties.dayPhaseLength.toDuration) { () =>

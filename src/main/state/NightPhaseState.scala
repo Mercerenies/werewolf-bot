@@ -13,7 +13,7 @@ import name.{NameProvider, BaseNameProvider, DisplayNameProvider}
 import command.CommandResponse
 import manager.GamesManager
 import game.{Rules, NightPhaseEvaluator, NightPhaseResult}
-import game.board.Board
+import game.board.{Board, Position}
 import game.role.Role
 import game.parser.ListParser
 import game.night.NightMessageHandler
@@ -108,9 +108,9 @@ final class NightPhaseState(
     for {
       userMapping <- getUserMapping(mgr.api)
     } yield {
-      val (finalBoard, history, nightMessagesFuture) = NightPhaseState.evaluateNightPhaseAndSend(initialHistory, userMapping, playerIds, board)
+      val (finalBoard, history, nightMessagesFuture, revealedCards) = NightPhaseState.evaluateNightPhaseAndSend(initialHistory, userMapping, playerIds, board)
       nightMessagesFuture.foreach { _ =>
-        val newState = DayPhaseState(gameProperties, playerIds, board, history)
+        val newState = DayPhaseState(gameProperties, playerIds, board, history, revealedCards)
         mgr.updateGame(channelId, newState)
       }
     }
@@ -138,6 +138,8 @@ object NightPhaseState extends Logging[NightPhaseState] {
   // sent. The final board state does not depend on this, but it may
   // be worth waiting until this completes to start the actual day
   // phase.
+  //
+  // TODO Returns a 4-tuple... fix that
   def evaluateNightPhaseAndSend(
     initialHistory: RecordedGameHistory,
     mapping: UserMapping,
@@ -145,14 +147,14 @@ object NightPhaseState extends Logging[NightPhaseState] {
     board: Board,
   )(
     using ExecutionContext,
-  ): (Board, RecordedGameHistory, Future[Unit]) = {
+  ): (Board, RecordedGameHistory, Future[Unit], Set[Position]) = {
     // TODO When there are multiple night phases, we'll need to keep
     // the old history here
     val result = NightPhaseEvaluator.evaluate(board, ids, initialHistory)
     val messagesFuture = result.feedback.toList.traverse { (userId, feedback) =>
       feedback.sendTo(mapping(userId))
     }.void
-    (result.board, result.history, messagesFuture)
+    (result.board, result.history, messagesFuture, result.revealedCards)
   }
 
 }

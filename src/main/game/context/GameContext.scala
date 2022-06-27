@@ -4,7 +4,7 @@ package game
 package context
 
 import id.Id
-import board.Board
+import board.{Board, Position}
 import record.{RecordedGameHistory, GameRecord, SnapshotRecord}
 
 import org.javacord.api.entity.user.User
@@ -69,6 +69,9 @@ object GameContext {
 
   def record(rec: GameRecord*): GameContext[Unit] =
     GameContext(RecordedGameHistory.from(rec).tell.liftM)
+
+  def revealCard(pos: Position): GameContext[Unit] =
+    GameContext(StateT.modify { _.withRevealed(pos) })
 
   val recordCurrentBoard: GameContext[Unit] =
     for {
