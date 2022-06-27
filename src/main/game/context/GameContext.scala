@@ -61,6 +61,15 @@ object GameContext {
   val getUserIds: GameContext[List[Id[User]]] =
     GameContext(StateT.gets { _.userIds })
 
+  def perform[A](arg: => A): GameContext[A] =
+    // Used to capture mutable state inside this monad: perform an
+    // action (that presumably mutates some data) and return the
+    // result.
+    GameContext(StateT { s =>
+      val result = arg
+      (s, result).point
+    })
+
   def setBoard(newBoard: Board): GameContext[Unit] =
     GameContext(StateT.modify { _.copy(board = newBoard) })
 
