@@ -67,4 +67,38 @@ class VillagerSpec extends GameplayUnitSpec {
 
   }
 
+  it should "follow the usual voting rules for majority on a split vote" in {
+    val board = createBoard(
+      left = Werewolf,
+      middle = Werewolf,
+      right = Tanner,
+      playerCards = List(Villager, Villager, Villager, Villager),
+    )
+    val votes = votals(0 -> 1, 1 -> 2, 2 -> 2, 3 -> 1)
+    val (deaths, history) = runVotes(board, votes)
+
+    deaths.dead should equal (List(1, 2)) (after being unordered)
+    deaths.`protected` should equal (List()) (after being unordered)
+
+    history.toList shouldBe empty
+
+  }
+
+  it should "follow the usual voting rules for majority on a null vote" in {
+    val board = createBoard(
+      left = Werewolf,
+      middle = Werewolf,
+      right = Tanner,
+      playerCards = List(Villager, Villager, Villager, Villager),
+    )
+    val votes = votals(0 -> 1, 1 -> 2, 2 -> 3, 3 -> 0)
+    val (deaths, history) = runVotes(board, votes)
+
+    deaths.dead should equal (List()) (after being unordered)
+    deaths.`protected` should equal (List()) (after being unordered)
+
+    history.toList shouldBe empty
+
+  }
+
 }
