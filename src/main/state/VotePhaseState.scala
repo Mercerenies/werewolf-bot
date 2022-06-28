@@ -22,6 +22,7 @@ import game.parser.ListParser
 import game.night.NightMessageHandler
 import game.response.FeedbackMessage
 import game.record.{RecordedGameHistory, PlayerVotesRecord, PlayerWinRecord, PlayerDeathsRecord}
+import game.votes.Votals
 import properties.GameProperties
 
 import org.javacord.api.DiscordApi
@@ -133,7 +134,7 @@ final class VotePhaseState(
       bold(s"The voting phase will end in ${gameProperties.votePhaseLength}")
     }
 
-  private def compileVotes(api: DiscordApi): Future[Map[Id[User], Id[User]]] = {
+  private def compileVotes(api: DiscordApi): Future[Votals[Id[User]]] = {
     val server = api.getServerTextChannel(channelId).getServer
     val originalMap: Map[Id[User], Id[User]] = Map.from(playerVotes) // Shallow copy
     util.foldM(playerOrder.toList, originalMap) { (map, id) =>
@@ -163,7 +164,7 @@ final class VotePhaseState(
       } yield {
         originalMap + ((id, newTarget))
       }
-    }
+    } map { Votals(_) }
   }
 
   private def endOfVotes(mgr: GamesManager): Unit = {
@@ -171,7 +172,7 @@ final class VotePhaseState(
     for {
       userMapping <- getUserMapping(mgr.api)
       votes <- compileVotes(mgr.api)
-      majority = VotePhaseState.getMajority(votes.values)
+      majority = votes.majority
       _ <- channel.sendMessage(bold("The game is now over.")).asScala
       _ <- channel.sendMessage(VotePhaseState.deathMessage(userMapping, majority)).asScala
       endgame = Endgame(board, playerOrder, majority)
@@ -182,25 +183,12 @@ final class VotePhaseState(
       _ <- recordExporter.exportRecord(finalHistory, userMapping)
     } {
       mgr.endGame(channelId)
-      ///// Logs (this.history + votes + deaths + winners)
     }
   }
 
 }
 
 object VotePhaseState extends Logging[VotePhaseState] {
-
-  // No guarantees on the order of outputs.
-  def getMajority[A](voteList: Iterable[A]): List[A] = {
-    val grouped: Map[A, Int] = voteList.groupBy(identity).map { (k, v) => (k, v.size) }
-    val mostVotes = grouped.values.maxOption.getOrElse(0)
-    if (mostVotes <= 1) {
-      // No one dies if everyone has one vote
-      Nil
-    } else {
-      grouped.filter { (_, v) => v == mostVotes }.keys.toList
-    }
-  }
 
   private def deathMessage(mapping: UserMapping, deaths: List[Id[User]]): String =
     deaths.size match {
