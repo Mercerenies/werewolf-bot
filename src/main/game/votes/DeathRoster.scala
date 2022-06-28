@@ -14,6 +14,9 @@ case class DeathRoster[A](
   def dead: List[A] =
     deaths.filter { (_, v) => v == DeathStatus.Dead }.map { (k, _) => k }.toList
 
+  def `protected`: List[A] =
+    deaths.filter { (_, v) => v == DeathStatus.Protected }.map { (k, _) => k }.toList
+
   def isDead(value: A): Boolean =
     this.get(value) == Some(DeathStatus.Dead)
 
