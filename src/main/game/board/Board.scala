@@ -15,6 +15,13 @@ final class Board(
 
   export toMap.get
 
+  // In no particular order.
+  def players: List[Id[User]] =
+    toMap.keys.toList.flatMap {
+      case Position.Table(_) => None
+      case Position.Player(id) => Some(id)
+    }
+
   // Returns the roles in alphabetical order by name.
   def roles: List[Role] =
     toMap.values.map { _.role }.toList.sortBy { _.name }
