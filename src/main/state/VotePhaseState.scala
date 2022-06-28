@@ -172,7 +172,7 @@ final class VotePhaseState(
     for {
       userMapping <- getUserMapping(mgr.api)
       votes <- compileVotes(mgr.api)
-      (deathRoster, deathRecords) = VotingEvaluator.evaluate(board, votes)
+      (deathRoster, deathRecords) = VotingEvaluator.evaluate(board, playerOrder, votes)
       _ <- channel.sendMessage(bold("The game is now over.")).asScala
       _ <- channel.sendMessage(VotePhaseState.deathMessage(userMapping, deathRoster.dead)).asScala
       endgame = Endgame(board, playerOrder, deathRoster.dead)

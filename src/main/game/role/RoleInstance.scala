@@ -11,6 +11,7 @@ import board.snapshot.{RoleSnapshot, SimpleRoleSnapshot}
 import response.FeedbackMessage
 import wincon.WinCondition
 import context.GameContext
+import votes.context.VotesContext
 
 import org.javacord.api.entity.user.User
 
@@ -52,6 +53,28 @@ trait RoleInstance {
   // instance, should list GroupedRoleIdentity.Werewolf in this list,
   // including doppelgangers who happened to copy werewolves.
   def seenAs: List[GroupedRoleIdentity] = Nil
+
+  // The action taken after all players have placed their votes but
+  // before the game has been decided. This applies to roles like
+  // Hunter and Bodyguard who manipulate the death list. This function
+  // should return true if any modifications were made to the death
+  // roster and false otherwise. Since the vast majority of roles do
+  // not have a votePhaseAction, the default implementation does
+  // nothing and returns false.
+  //
+  // WARNING: Subclasses which override this should use caution.
+  // VotesContext makes some fairly strong guarantees itself about
+  // which roster states are reachable from which ones (see the
+  // documentation in that file for details), and this method makes a
+  // stronger guarantee on top of that. votePhaseAction should be
+  // idempotent in a very strong sense. That is, suppose
+  // votePhaseAction(userId) is called once, then some arbitrary
+  // sequence of VotesContext actions is performed (subject to the
+  // assumptions in VotesContext), then votePhaseAction(userId) is
+  // called a second time. If the first call returned true, then the
+  // second call must perform no actions.
+  def votePhaseAction(userId: Id[User]): VotesContext[Boolean] =
+    false.point
 
   // An immutable snapshot of this role's state at a given moment, for
   // the purposes of creating the game's records at the end. For roles
