@@ -60,9 +60,26 @@ object VotingEvaluator {
       }
     }
 
-  private def oneIteration(board: Board, order: PlayerOrder): VotesContext[Boolean] =
-    order.toList.traverse { playerId =>
-      board(playerId).votePhaseAction(playerId)
-    }.map { xs => xs.foldLeft(false) { _ || _ } }
+  private def oneIteration(board: Board, order: PlayerOrder): VotesContext[Boolean] = {
+    val players = order.toList.sortBy { playerId => - board(playerId).votesPrecedence }
+    def go(rest: List[Id[User]]): VotesContext[Boolean] =
+      rest match {
+        case Nil => {
+          false.point
+        }
+        case x :: xs => {
+          board(x).votePhaseAction(x) >>= { modified =>
+            if (modified) {
+              // Short-circuit out, to make sure things happen in the
+              // right order.
+              true.point
+            } else {
+              go(xs)
+            }
+          }
+        }
+      }
+    go(players)
+  }
 
 }
