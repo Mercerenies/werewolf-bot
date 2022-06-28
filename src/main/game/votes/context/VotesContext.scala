@@ -56,6 +56,9 @@ object VotesContext {
   val getDeathRoster: VotesContext[DeathRoster[Id[User]]] =
     VotesContext(StateT.gets { _.deaths })
 
+  val getVotals: VotesContext[Votals[Id[User]]] =
+    VotesContext(StateT.gets { _.votals })
+
   def updatePlayer(user: Id[User], deathStatus: DeathStatus): VotesContext[Boolean] =
     for {
       roster <- getDeathRoster
