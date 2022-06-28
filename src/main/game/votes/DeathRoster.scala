@@ -11,6 +11,9 @@ case class DeathRoster[A](
 
   export deaths.{apply, get}
 
+  def dead: List[A] =
+    deaths.filter { (_, v) => v == DeathStatus.Dead }.map { (k, _) => k }.toList
+
   // Updates the status of the given player to the maximum of the
   // current status or the new one. If the current status is already
   // larger, then the value is not updated.
@@ -18,6 +21,9 @@ case class DeathRoster[A](
     val currentStatus = deaths.getOrElse(value, DeathStatus.minValue)
     DeathRoster(deaths + ((value, currentStatus max deathStatus)))
   }
+
+  def updatedAll(values: Iterable[(A, DeathStatus)]): DeathRoster[A] =
+    values.foldLeft(this) { (acc, curr) => acc.updated(curr._1, curr._2) }
 
 }
 

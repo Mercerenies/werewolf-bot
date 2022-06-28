@@ -22,7 +22,7 @@ import game.parser.ListParser
 import game.night.NightMessageHandler
 import game.response.FeedbackMessage
 import game.record.{RecordedGameHistory, PlayerVotesRecord, PlayerWinRecord, PlayerDeathsRecord}
-import game.votes.Votals
+import game.votes.{Votals, VotingEvaluator}
 import properties.GameProperties
 
 import org.javacord.api.DiscordApi
@@ -172,12 +172,12 @@ final class VotePhaseState(
     for {
       userMapping <- getUserMapping(mgr.api)
       votes <- compileVotes(mgr.api)
-      majority = votes.majority
+      (deathRoster, deathRecords) = VotingEvaluator.evaluate(board, votes)
       _ <- channel.sendMessage(bold("The game is now over.")).asScala
-      _ <- channel.sendMessage(VotePhaseState.deathMessage(userMapping, majority)).asScala
-      endgame = Endgame(board, playerOrder, majority)
+      _ <- channel.sendMessage(VotePhaseState.deathMessage(userMapping, deathRoster.dead)).asScala
+      endgame = Endgame(board, playerOrder, deathRoster.dead)
       winnerIds = WinCondition.determineWinners(endgame).toList
-      finalHistory = history ++ List(PlayerVotesRecord(votes), PlayerDeathsRecord(majority), PlayerWinRecord(winnerIds))
+      finalHistory = history ++ List(PlayerVotesRecord(votes)) ++ deathRecords ++ List(PlayerDeathsRecord(deathRoster.dead), PlayerWinRecord(winnerIds))
       _ <- channel.sendMessage(VotePhaseState.winMessage(userMapping, winnerIds)).asScala
       recordExporter = gameProperties.recordExporter(mgr.api)
       _ <- recordExporter.exportRecord(finalHistory, userMapping)
