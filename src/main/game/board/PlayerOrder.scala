@@ -22,6 +22,10 @@ case class PlayerOrder(
     throw new IllegalArgumentException("Empty player list not allowed in PlayerOrder")
   }
 
+  if (players.length != players.toSet.size) {
+    throw new IllegalArgumentException("Duplicate players not allowed in PlayerOrder")
+  }
+
   export players.length
 
   def toList: List[Id[User]] =
