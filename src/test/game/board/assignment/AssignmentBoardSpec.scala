@@ -36,7 +36,7 @@ class AssignmentBoardSpec extends UnitSpec {
       Position.Table(TablePosition.Left) -> Villager,
       Position.Table(TablePosition.Middle) -> Werewolf,
     )
-    val board = AssignmentBoard(mapping, PlayerOrder(Nil), MultiSet.empty)
+    val board = AssignmentBoard(mapping, PlayerOrder(List(id(0))), MultiSet.empty)
     board.toMap should be (mapping)
   }
 
