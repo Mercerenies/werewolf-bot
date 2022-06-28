@@ -11,6 +11,7 @@ import id.{UserMapping, Id}
 import state.NightPhaseState
 import response.FeedbackMessage
 import board.{Board, TablePosition, Position}
+import IterableNormalizations.*
 
 class VillagerSpec extends GameplayUnitSpec {
 
@@ -46,6 +47,23 @@ class VillagerSpec extends GameplayUnitSpec {
     feedback(id(2)) should be (FeedbackMessage.none)
 
     filterRecords(history) shouldBe empty
+
+  }
+
+  it should "follow the usual voting rules for majority" in {
+    val board = createBoard(
+      left = Werewolf,
+      middle = Werewolf,
+      right = Tanner,
+      playerCards = List(Villager, Villager, Villager),
+    )
+    val votes = votals(0 -> 1, 1 -> 2, 2 -> 2)
+    val (deaths, history) = runVotes(board, votes)
+
+    deaths.dead should equal (List(2)) (after being unordered)
+    deaths.`protected` should equal (List()) (after being unordered)
+
+    history.toList shouldBe empty
 
   }
 

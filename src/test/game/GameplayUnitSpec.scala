@@ -5,6 +5,7 @@ package game
 import board.BoardTestUtil
 import id.Id
 import record.{RecordedGameHistory, ActionPerformedRecord}
+import votes.Votals
 
 import org.javacord.api.entity.user.User
 
@@ -29,7 +30,11 @@ abstract class GameplayUnitSpec extends UnitSpec {
       case _ => None
     }
 
+  def votals(args: (Int, Int)*): Votals[Id[User]] =
+    Votals(args.map { (x, y) => (id(x), id(y)) }.toMap)
+
   export BoardTestUtil.{createBoard, SampleUserMapping}
   export TestGameRunner.{playGame, mockName}
+  export TestVotesRunner.runVotes
 
 }
