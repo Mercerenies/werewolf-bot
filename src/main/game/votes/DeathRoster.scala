@@ -14,6 +14,9 @@ case class DeathRoster[A](
   def dead: List[A] =
     deaths.filter { (_, v) => v == DeathStatus.Dead }.map { (k, _) => k }.toList
 
+  def isDead(value: A): Boolean =
+    this.get(value) == Some(DeathStatus.Dead)
+
   // Updates the status of the given player to the maximum of the
   // current status or the new one. If the current status is already
   // larger, then the value is not updated.
