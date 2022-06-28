@@ -11,7 +11,7 @@ import manager.GamesManager
 import properties.GameProperties
 import timer.Cancellable
 import game.parser.assignment.NamedUser
-import game.board.Board
+import game.board.{Board, PlayerOrder}
 
 import org.javacord.api.DiscordApi
 import org.javacord.api.entity.Nameable
@@ -34,14 +34,14 @@ import scala.jdk.CollectionConverters.*
 // list of NamedUser.
 transparent trait WithNamedUserList extends GameState {
 
-  val playerIds: List[Id[User]]
+  val playerOrder: PlayerOrder
 
   private val _userList: LazyValue[DiscordApi, List[NamedUser]] =
     LazyValue { api =>
       val channel = api.getServerTextChannel(channelId)
       val server = channel.getServer
       for {
-        players <- playerIds.traverse { api.getUser(_) }
+        players <- playerOrder.toList.traverse { api.getUser(_) }
       } yield {
         players.map { NamedUser.fromUser(_, server) }
       }

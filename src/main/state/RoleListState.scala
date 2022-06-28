@@ -12,7 +12,7 @@ import name.{NameProvider, BaseNameProvider, DisplayNameProvider}
 import command.CommandResponse
 import manager.GamesManager
 import game.Rules
-import game.board.Board
+import game.board.{Board, PlayerOrder}
 import game.role.{Role, RoleInstance}
 import game.parser.ListParser
 import properties.GameProperties
@@ -41,7 +41,7 @@ import Scalaz.{Id => _, *}
 // NightPhaseState.
 final class RoleListState(
   _gameProperties: GameProperties,
-  override val playerIds: List[Id[User]],
+  override val playerOrder: PlayerOrder,
 )(
   using ExecutionContext,
 ) extends GameState(_gameProperties) with WithUserMapping {
@@ -50,7 +50,8 @@ final class RoleListState(
   import scalaz.EitherT.eitherTHoist
 
   // Don't need any DMs so don't bother.
-  override val listeningPlayerList: List[Id[User]] = Nil
+  override val listeningPlayerList: List[Id[User]] =
+    Nil
 
   private def isMessageRelevant(mgr: GamesManager, server: Server, message: Message): Boolean =
     // We only care about messages sent by the game host / server
@@ -58,16 +59,16 @@ final class RoleListState(
     (message.getAuthor.getId == hostId.toLong) &&
       (util.mentions(message, mgr.api.getYourself))
 
-  private def requiredRoleCount = Rules.rolesNeeded(playerIds.length)
+  private def requiredRoleCount = Rules.rolesNeeded(playerOrder.length)
 
   private def gameStartMessage(api: DiscordApi, server: Server, roleList: List[Role]): Future[String] =
     for {
-      players <- playerIds.traverse { api.getUser(_) }
+      players <- playerOrder.toList.traverse { api.getUser(_) }
     } yield {
       val playerList = players.map(_.getDisplayName(server)).mkString(", ")
       val roleListSorted = roleList.sortBy(- _.precedence).map(_.name).mkString(", ")
       bold("Welcome to One Night Ultimate Werewolf") + "\n\n" +
-        "The following players are participating: " + playerList + "\n" +
+        "The following players are participating (in order): " + playerList + "\n" +
         "The following roles are in play: " + roleListSorted + "\n" +
         bold("I am sending each player's role via DM now.") + "\n" +
         bold(s"It is nighttime. Day will begin in ${gameProperties.nightPhaseLength}.")
@@ -99,12 +100,12 @@ final class RoleListState(
     val channel = mgr.api.getNamedTextChannel(channelId)
     for {
       mapping <- getUserMapping(mgr.api)
-      board = Board.assignRoles(mapping, playerIds, roles)
+      board = Board.assignRoles(mapping, playerOrder.toList, roles)
       startMessage <- gameStartMessage(mgr.api, server, roles)
       _ <- channel.sendMessage(startMessage).asScala
       _ <- RoleListState.sendAllInitialDirectMessages(mgr.api, server, board)
     } yield {
-      val newState = NightPhaseState(gameProperties, playerIds, board)
+      val newState = NightPhaseState(gameProperties, playerOrder, board)
       mgr.updateGame(channelId, newState)
       ()
     }

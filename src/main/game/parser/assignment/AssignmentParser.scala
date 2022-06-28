@@ -7,7 +7,7 @@ package assignment
 import id.Id
 import id.Ids.*
 import name.{NamedEntity, NamedEntityMatcher}
-import board.{Board, Position, TablePosition}
+import board.{Board, Position, TablePosition, PlayerOrder}
 import role.Role
 
 import org.javacord.api.DiscordApi
@@ -48,10 +48,10 @@ class AssignmentParser(
 
 object AssignmentParser {
 
-  def fromBoard(api: DiscordApi, server: Server, board: Board, ids: List[Id[User]])(using ExecutionContext): Future[AssignmentParser] = {
+  def fromBoard(api: DiscordApi, server: Server, board: Board, order: PlayerOrder)(using ExecutionContext): Future[AssignmentParser] = {
     val roles = MaybeRole.empty :: board.roles.map(MaybeRole.fromRole)
     for {
-      positions <- NamedPosition.all(api, server, board, ids)
+      positions <- NamedPosition.all(api, server, board, order)
     } yield {
       AssignmentParser(roles, positions)
     }

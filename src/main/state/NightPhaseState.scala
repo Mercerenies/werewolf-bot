@@ -13,7 +13,7 @@ import name.{NameProvider, BaseNameProvider, DisplayNameProvider}
 import command.CommandResponse
 import manager.GamesManager
 import game.{Rules, NightPhaseEvaluator, NightPhaseResult}
-import game.board.{Board, Position}
+import game.board.{Board, Position, PlayerOrder}
 import game.role.Role
 import game.parser.ListParser
 import game.night.NightMessageHandler
@@ -41,7 +41,7 @@ import Scalaz.{Id => _, *}
 
 final class NightPhaseState(
   _gameProperties: GameProperties,
-  override val playerIds: List[Id[User]],
+  override val playerOrder: PlayerOrder,
   private val board: Board,
 )(
   using ExecutionContext,
@@ -51,7 +51,7 @@ final class NightPhaseState(
   import scalaz.EitherT.eitherTHoist
 
   override val listeningPlayerList: List[Id[User]] =
-    playerIds
+    playerOrder.toList
 
   private val playerNightHandlers: Map[Id[User], NightMessageHandler] =
     Map.from(board.playerRoleInstances.map { (k, v) => (k, v.nightHandler) })
@@ -101,16 +101,16 @@ final class NightPhaseState(
 
   private def initialHistory: RecordedGameHistory =
     RecordedGameHistory(
-      SnapshotRecord(board.toSnapshot(playerIds)),
+      SnapshotRecord(board.toSnapshot(playerOrder)),
     )
 
   private def endOfNight(mgr: GamesManager): Unit = {
     for {
       userMapping <- getUserMapping(mgr.api)
     } yield {
-      val (finalBoard, history, nightMessagesFuture, revealedCards) = NightPhaseState.evaluateNightPhaseAndSend(initialHistory, userMapping, playerIds, board)
+      val (finalBoard, history, nightMessagesFuture, revealedCards) = NightPhaseState.evaluateNightPhaseAndSend(initialHistory, userMapping, playerOrder, board)
       nightMessagesFuture.foreach { _ =>
-        val newState = DayPhaseState(gameProperties, playerIds, board, history, revealedCards)
+        val newState = DayPhaseState(gameProperties, playerOrder, board, history, revealedCards)
         mgr.updateGame(channelId, newState)
       }
     }
@@ -143,14 +143,14 @@ object NightPhaseState extends Logging[NightPhaseState] {
   def evaluateNightPhaseAndSend(
     initialHistory: RecordedGameHistory,
     mapping: UserMapping,
-    ids: List[Id[User]],
+    order: PlayerOrder,
     board: Board,
   )(
     using ExecutionContext,
   ): (Board, RecordedGameHistory, Future[Unit], Set[Position]) = {
     // TODO When there are multiple night phases, we'll need to keep
     // the old history here
-    val result = NightPhaseEvaluator.evaluate(board, ids, initialHistory)
+    val result = NightPhaseEvaluator.evaluate(board, order, initialHistory)
     val messagesFuture = result.feedback.toList.traverse { (userId, feedback) =>
       feedback.sendTo(mapping(userId))
     }.void

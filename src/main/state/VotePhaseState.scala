@@ -14,7 +14,7 @@ import name.{NameProvider, BaseNameProvider, DisplayNameProvider}
 import command.CommandResponse
 import manager.GamesManager
 import game.Rules
-import game.board.{Board, Endgame}
+import game.board.{Board, Endgame, PlayerOrder}
 import game.board.assignment.{AssignmentBoard, AssignmentBoardFormatter, StandardAssignmentBoardFormatter}
 import game.role.Role
 import game.role.wincon.WinCondition
@@ -46,7 +46,7 @@ import Scalaz.{Id => _, *}
 
 final class VotePhaseState(
   _gameProperties: GameProperties,
-  override val playerIds: List[Id[User]],
+  override val playerOrder: PlayerOrder,
   private val board: Board,
   private val history: RecordedGameHistory,
 )(
@@ -58,7 +58,7 @@ final class VotePhaseState(
   private val playerVotes: TrieMap[Id[User], Id[User]] = TrieMap()
 
   override val listeningPlayerList: List[Id[User]] =
-    playerIds
+    playerOrder.toList
 
   override def onStartGame(mgr: GamesManager, interaction: SlashCommandInteraction): Future[CommandResponse[Unit]] =
     Future.successful(CommandResponse.ephemeral("There is already a game in this channel.").void)
@@ -102,7 +102,7 @@ final class VotePhaseState(
     // Send message to all players
     for {
       userList <- getUserList(mgr.api)
-      _ <- playerIds.traverse { playerId =>
+      _ <- playerOrder.toList.traverse { playerId =>
         val filteredList = if (!gameProperties.isSelfVotingAllowed) {
           userList.filter { _.id != playerId }
         } else {
@@ -125,7 +125,7 @@ final class VotePhaseState(
 
   private def voteStartMessage(api: DiscordApi, server: Server): Future[String] =
     for {
-      players <- playerIds.traverse { api.getUser(_) }
+      players <- playerOrder.toList.traverse { api.getUser(_) }
     } yield {
       bold("It is now time to vote!") + "\n\n" +
         "As a reminder, the following players are participating: " + players.map(_.getDisplayName(server)).mkString(", ") + "\n" +
@@ -136,16 +136,16 @@ final class VotePhaseState(
   private def compileVotes(api: DiscordApi): Future[Map[Id[User], Id[User]]] = {
     val server = api.getServerTextChannel(channelId).getServer
     val originalMap: Map[Id[User], Id[User]] = Map.from(playerVotes) // Shallow copy
-    util.foldM(playerIds, originalMap) { (map, id) =>
+    util.foldM(playerOrder.toList, originalMap) { (map, id) =>
       // For any player who failed to vote, choose a random vote
       // target and inform them that this has been done.
       for {
         newTarget <- map.get(id) match {
           case None => {
             val validTargets = if (gameProperties.isSelfVotingAllowed) {
-              playerIds
+              playerOrder.toList
             } else {
-              playerIds.filter { _ != id }
+              playerOrder.toList.filter { _ != id }
             }
             val randomTarget = Random.sample(validTargets)
             for {
@@ -174,7 +174,7 @@ final class VotePhaseState(
       majority = VotePhaseState.getMajority(votes.values)
       _ <- channel.sendMessage(bold("The game is now over.")).asScala
       _ <- channel.sendMessage(VotePhaseState.deathMessage(userMapping, majority)).asScala
-      endgame = Endgame(board, playerIds, majority)
+      endgame = Endgame(board, playerOrder, majority)
       winnerIds = WinCondition.determineWinners(endgame).toList
       finalHistory = history ++ List(PlayerVotesRecord(votes), PlayerDeathsRecord(majority), PlayerWinRecord(winnerIds))
       _ <- channel.sendMessage(VotePhaseState.winMessage(userMapping, winnerIds)).asScala

@@ -9,6 +9,7 @@ import command.CommandResponse
 import manager.GamesManager
 import properties.GameProperties
 import timer.Cancellable
+import game.board.PlayerOrder
 
 import org.javacord.api.DiscordApi
 import org.javacord.api.entity.Nameable
@@ -28,12 +29,12 @@ import scala.jdk.CollectionConverters.*
 // UserMapping.
 transparent trait WithUserMapping extends GameState {
 
-  val playerIds: List[Id[User]]
+  val playerOrder: PlayerOrder
 
   private val _userMapping: LazyValue[DiscordApi, UserMapping] =
     LazyValue { api =>
       val channel = api.getServerTextChannel(channelId)
-      UserMapping.fromServer(api, channel.getServer, playerIds)
+      UserMapping.fromServer(api, channel.getServer, playerOrder.toList)
     }
 
   export _userMapping.{getValue => getUserMapping}

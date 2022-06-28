@@ -17,7 +17,7 @@ import org.javacord.api.entity.user.User
 // belongs to that player.
 case class AssignmentBoard(
   val mapping: Map[Position, Role],
-  val playerList: List[Id[User]],
+  val playerOrder: PlayerOrder,
   val unassignedRoles: MultiSet[Role],
 ) {
 
@@ -36,7 +36,7 @@ case class AssignmentBoard(
       val newUnassignedRoles = unassignedRoles - role
       AssignmentBoard(
         mapping = mapping.updated(position, role),
-        playerList = playerList,
+        playerOrder = playerOrder,
         unassignedRoles = newUnassignedRoles,
       )
     } else {
@@ -50,7 +50,7 @@ case class AssignmentBoard(
           // Role was already assigned, so move it.
           AssignmentBoard(
             mapping = mapping - k + ((position, v)),
-            playerList = playerList,
+            playerOrder = playerOrder,
             unassignedRoles = unassignedRoles,
           )
         }
@@ -71,7 +71,7 @@ case class AssignmentBoard(
     }
     AssignmentBoard(
       mapping = mapping.removed(position),
-      playerList = playerList,
+      playerOrder = playerOrder,
       unassignedRoles = newUnassignedRoles,
     )
   }
@@ -84,10 +84,10 @@ object AssignmentBoard {
   // No game information will be revealed in the resulting
   // AssignmentBoard object except that which is already public (like
   // the player list and the list of roles that are in play)
-  def empty(board: Board, playerList: List[Id[User]]): AssignmentBoard =
+  def empty(board: Board, playerOrder: PlayerOrder): AssignmentBoard =
     AssignmentBoard(
       mapping = Map(),
-      playerList = playerList,
+      playerOrder = playerOrder,
       unassignedRoles = MultiSet.from(board.roles),
     )
 

@@ -35,7 +35,7 @@ trait EndgameTestUtil {
     val deadPlayerIds = deadPlayers.map(id)
     Endgame(
       board = board,
-      playerList = playerIds,
+      playerOrder = PlayerOrder(playerIds),
       deaths = deadPlayerIds,
     )
   }

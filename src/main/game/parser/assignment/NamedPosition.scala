@@ -7,7 +7,7 @@ package assignment
 import id.Id
 import id.Ids.*
 import name.NamedEntity
-import board.{Board, Position, TablePosition}
+import board.{Board, Position, TablePosition, PlayerOrder}
 
 import org.javacord.api.DiscordApi
 import org.javacord.api.entity.user.User
@@ -44,10 +44,10 @@ object NamedPosition {
 
   // Note: We don't use the board right now, but we will once roles
   // like Alpha Wolf can introduce new "center of table" cards.
-  def all(api: DiscordApi, server: Server, board: Board, ids: List[Id[User]])(using ExecutionContext): Future[List[NamedPosition]] = {
+  def all(api: DiscordApi, server: Server, board: Board, order: PlayerOrder)(using ExecutionContext): Future[List[NamedPosition]] = {
     val tablePositions = TablePosition.all.map { Table(_) }
     for {
-      users <- ids.traverse { api.getUser(_) }
+      users <- order.toList.traverse { api.getUser(_) }
     } yield {
       val namedUsers = users.map { user => Player(NamedUser.fromUser(user, server)) }
       tablePositions ++ namedUsers

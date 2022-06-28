@@ -10,7 +10,7 @@ import manager.GamesManager
 import properties.GameProperties
 import timer.Cancellable
 import game.parser.assignment.AssignmentParser
-import game.board.Board
+import game.board.{Board, PlayerOrder}
 
 import org.javacord.api.DiscordApi
 import org.javacord.api.entity.Nameable
@@ -30,14 +30,14 @@ import scala.jdk.CollectionConverters.*
 // AssignmentParser.
 transparent trait WithAssignmentParser extends GameState {
 
-  val playerIds: List[Id[User]]
+  val playerOrder: PlayerOrder
 
   val board: Board
 
   private val _assignmentParser: LazyValue[DiscordApi, AssignmentParser] =
     LazyValue { api =>
       val channel = api.getServerTextChannel(channelId)
-      AssignmentParser.fromBoard(api, channel.getServer, board, playerIds)
+      AssignmentParser.fromBoard(api, channel.getServer, board, playerOrder)
     }
 
   export _assignmentParser.{getValue => getAssignmentParser}

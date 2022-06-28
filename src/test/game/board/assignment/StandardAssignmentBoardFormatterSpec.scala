@@ -26,7 +26,7 @@ class StandardAssignmentBoardFormatterSpec extends UnitSpec {
     )
     AssignmentBoard(
       mapping = mapping,
-      playerList = List(id(0), id(2), id(1)),
+      playerOrder = PlayerOrder(List(id(0), id(2), id(1))),
       unassignedRoles = MultiSet(Villager),
     )
   }
@@ -46,7 +46,7 @@ class StandardAssignmentBoardFormatterSpec extends UnitSpec {
 
   "StandardAssignmentBoardFormatter" should "format an empty AssignmentBoard correctly" in {
     val formatter = StandardAssignmentBoardFormatter(MockUserMapping)
-    formatter.format(AssignmentBoard(Map(), List(id(0), id(1), id(2)), MultiSet.empty)) should be (
+    formatter.format(AssignmentBoard(Map(), PlayerOrder(List(id(0), id(1), id(2))), MultiSet.empty)) should be (
       "**Role Board**\nUser 0 (-)\nUser 1 (-)\nUser 2 (-)\nCenter (-; -; -)\nUnplaced ()"
     )
   }

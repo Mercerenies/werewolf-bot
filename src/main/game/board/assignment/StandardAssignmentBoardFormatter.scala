@@ -18,7 +18,7 @@ class StandardAssignmentBoardFormatter(
       unplacedLines(board)
 
   private def playerLines(board: AssignmentBoard): String =
-    board.playerList.map { playerId =>
+    board.playerOrder.map { playerId =>
       val playerName = userMapping.nameOf(playerId)
       val playerRole = board.getRoleName(Position.Player(playerId))
       s"${userMapping.nameOf(playerId)} (${playerRole})"

@@ -12,7 +12,7 @@ import org.javacord.api.entity.user.User
 // intended to help evaluate people's win conditions.
 final class Endgame(
   val board: Board,
-  val playerList: List[Id[User]], // Full list of players, alive or dead, in the game's order
+  val playerOrder: PlayerOrder, // Full list of players, alive or dead, in the game's order
   val deaths: List[Id[User]],
 ) {
 

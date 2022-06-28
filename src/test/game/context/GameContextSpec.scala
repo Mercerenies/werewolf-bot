@@ -4,7 +4,7 @@ package game
 package context
 
 import board.BoardTestUtil.*
-import board.{Board, Position, TablePosition}
+import board.{Board, Position, TablePosition, PlayerOrder}
 import id.{Id, UserMapping}
 import role.*
 import record.{RecordedGameHistory, GameRecord}
@@ -31,8 +31,8 @@ class GameContextSpec extends UnitSpec {
   private def sampleBoard(): Board =
     createBoard(Villager, Werewolf, Villager, List(Tanner, Tanner, Tanner))
 
-  private val sampleIds: List[Id[User]] =
-    List(Id.fromLong(0), Id.fromLong(1), Id.fromLong(2))
+  private val sampleIds: PlayerOrder =
+    PlayerOrder(List(Id.fromLong(0), Id.fromLong(1), Id.fromLong(2)))
 
   "The GameContext monad" should "provide access to the underlying board when asked" in {
     val board = sampleBoard()
@@ -47,7 +47,7 @@ class GameContextSpec extends UnitSpec {
   it should "provide access to the underlying user ID list when asked" in {
     val board = sampleBoard()
 
-    val ContextResult(s, history, _, ids) = GameContext.getUserIds.run(board, sampleIds, RecordedGameHistory.empty)
+    val ContextResult(s, history, _, ids) = GameContext.getPlayerOrder.run(board, sampleIds, RecordedGameHistory.empty)
     history.toVector shouldBe empty
     s should be (board)
     ids should be (sampleIds)

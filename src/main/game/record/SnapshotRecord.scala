@@ -20,7 +20,7 @@ class SnapshotRecord(val snapshot: BoardSnapshot) extends GameRecord {
       "Middle: " + snapshot(TablePosition.Middle) + "\n" +
       "Right: " + snapshot(TablePosition.Right)
     )
-    val playerLines = snapshot.playerList.map { id =>
+    val playerLines = snapshot.playerOrder.map { id =>
       s"${userMapping.nameOf(id)} - ${snapshot(id).name}"
     }.mkString("\n")
     s"Board state at this moment:\n${tableLines}\n${playerLines}"
@@ -30,7 +30,7 @@ class SnapshotRecord(val snapshot: BoardSnapshot) extends GameRecord {
 
     val positions =
       TablePosition.all.map { NamedPosition.Table(_) } ++
-        snapshot.playerList.map { id => NamedPosition.Player(NamedUser(id, userMapping.nameOf(id), None)) }
+        snapshot.playerOrder.map { id => NamedPosition.Player(NamedUser(id, userMapping.nameOf(id), None)) }
     val roles = positions.map { p => snapshot(p.toPosition) }
 
     import HtmlBuilder.*

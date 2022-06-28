@@ -49,9 +49,9 @@ final class Board(
     Board(toMap + ((first, secondInstance)) + ((second, firstInstance)))
   }
 
-  def toSnapshot(playerIds: List[Id[User]]): BoardSnapshot = {
+  def toSnapshot(playerOrder: PlayerOrder): BoardSnapshot = {
     val roleSnapshots = toMap.map { (id, inst) => (id, inst.toSnapshot) }.toMap
-    BoardSnapshot(roleSnapshots, playerIds)
+    BoardSnapshot(roleSnapshots, playerOrder)
   }
 
 }

@@ -10,7 +10,7 @@ import id.{UserMapping, Id}
 import role.Role
 import state.NightPhaseState
 import response.FeedbackMessage
-import board.{Board, BoardTestUtil, Position}
+import board.{Board, BoardTestUtil, Position, PlayerOrder}
 import record.RecordedGameHistory
 
 object TestGameRunner {
@@ -42,7 +42,7 @@ object TestGameRunner {
 
     // Once all night actions have been collected, run the night
     // phase and collect feedback objects.
-    val NightPhaseResult(finalBoard, history, responses, revealedCards) = NightPhaseEvaluator.evaluate(board, playerIds, RecordedGameHistory.empty)
+    val NightPhaseResult(finalBoard, history, responses, revealedCards) = NightPhaseEvaluator.evaluate(board, PlayerOrder(playerIds), RecordedGameHistory.empty)
     (finalBoard, history, responses.toMap, revealedCards)
   }
 

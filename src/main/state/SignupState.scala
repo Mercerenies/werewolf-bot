@@ -12,6 +12,7 @@ import name.{NameProvider, BaseNameProvider, DisplayNameProvider}
 import command.{CommandResponse, Permissions}
 import manager.GamesManager
 import game.Rules
+import game.board.PlayerOrder
 import properties.{GameProperties, DefaultGameProperties, DebugGameProperties}
 
 import org.javacord.api.DiscordApi
@@ -28,6 +29,7 @@ import scala.jdk.OptionConverters.*
 import scala.jdk.FutureConverters.*
 import scala.jdk.CollectionConverters.*
 import scala.concurrent.{Future, ExecutionContext}
+import scala.util.Random
 
 import scalaz.{Id => _, *}
 import Scalaz.{Id => _, *}
@@ -93,13 +95,14 @@ final class SignupState(
       message <- getGameStartMessage(mgr.api)
       server = mgr.api.getServerFromMessage(message)
       signups <- getSignups(mgr.api)
+      playerOrder = PlayerOrder(Random.shuffle(signups.toList.map(Id(_))))
     } yield {
       val user = interaction.getUser
       Permissions.mustBeAdminOrHost(server, hostId, user) {
         val playerCount = signups.length
         val rolesNeeded = Rules.rolesNeeded(playerCount)
         CommandResponse.simple(bold("Signups are now closed.") + s" There are ${playerCount} player(s). ${user.getMentionTag}, please ping me and indicate a list of ${rolesNeeded} roles to include in the game.").andThen { _ =>
-          mgr.updateGame(channelId, RoleListState(gameProperties, signups.map(Id(_)).toList))
+          mgr.updateGame(channelId, RoleListState(gameProperties, playerOrder))
         }
       }
     }

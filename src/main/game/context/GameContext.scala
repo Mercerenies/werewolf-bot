@@ -4,7 +4,7 @@ package game
 package context
 
 import id.Id
-import board.{Board, Position}
+import board.{Board, Position, PlayerOrder}
 import record.{RecordedGameHistory, GameRecord, SnapshotRecord}
 
 import org.javacord.api.entity.user.User
@@ -21,8 +21,8 @@ final class GameContext[A] private(
   private val impl: StateT[ContextState, Writer[RecordedGameHistory, _], A],
 ) {
 
-  def run(board: Board, ids: List[Id[User]], history: RecordedGameHistory): ContextResult[A] = {
-    val wba = impl(ContextState(board, ids))
+  def run(board: Board, playerOrder: PlayerOrder, history: RecordedGameHistory): ContextResult[A] = {
+    val wba = impl(ContextState(board, playerOrder))
     val (newHistory, (state, a)) = wba.run
     // Note: We ignore state.userIds, since none of the public
     // functions in this file modify that, so it's effectively a
@@ -58,8 +58,8 @@ object GameContext {
   val getBoard: GameContext[Board] =
     GameContext(StateT.gets { _.board })
 
-  val getUserIds: GameContext[List[Id[User]]] =
-    GameContext(StateT.gets { _.userIds })
+  val getPlayerOrder: GameContext[PlayerOrder] =
+    GameContext(StateT.gets { _.playerOrder })
 
   def perform[A](arg: => A): GameContext[A] =
     // Used to capture mutable state inside this monad: perform an
@@ -85,8 +85,8 @@ object GameContext {
   val recordCurrentBoard: GameContext[Unit] =
     for {
       board <- getBoard
-      ids <- getUserIds
-      snapshot = board.toSnapshot(ids)
+      order <- getPlayerOrder
+      snapshot = board.toSnapshot(order)
       _ <- record(SnapshotRecord(snapshot))
     } yield {
       ()

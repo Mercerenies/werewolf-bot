@@ -13,7 +13,7 @@ import name.{NameProvider, BaseNameProvider, DisplayNameProvider}
 import command.CommandResponse
 import manager.GamesManager
 import game.Rules
-import game.board.{Board, Position}
+import game.board.{Board, Position, PlayerOrder}
 import game.board.assignment.{AssignmentBoard, AssignmentBoardFormatter, StandardAssignmentBoardFormatter}
 import game.role.Role
 import game.parser.ListParser
@@ -42,7 +42,7 @@ import Scalaz.{Id => _, *}
 
 final class DayPhaseState(
   _gameProperties: GameProperties,
-  override val playerIds: List[Id[User]],
+  override val playerOrder: PlayerOrder,
   override val board: Board,
   private val initialHistory: RecordedGameHistory,
   _revealedCards: Set[Position],
@@ -56,10 +56,10 @@ final class DayPhaseState(
     Nil
 
   private val assignmentBoard: Cell[AssignmentBoard] =
-    Cell(AssignmentBoard.empty(board, playerIds))
+    Cell(AssignmentBoard.empty(board, playerOrder))
 
   private val revealedCards: List[Position] =
-    _revealedCards.toList.sorted(using Position.ordering(playerIds))
+    _revealedCards.toList.sorted(using Position.ordering(playerOrder))
 
   // Note: There aren't a lot of roles that will add events to this
   // during the day phase, but a few might need to make notes. In
@@ -128,7 +128,7 @@ final class DayPhaseState(
 
   private def dayStartMessage(api: DiscordApi, server: Server): Future[String] =
     for {
-      players <- playerIds.traverse { api.getUser(_) }
+      players <- playerOrder.toList.traverse { api.getUser(_) }
     } yield {
       bold("It is now daytime!") + "\n\n" +
         "The following players are participating (in table order): " + players.map(_.getDisplayName(server)).mkString(", ") + "\n" +
@@ -145,7 +145,7 @@ final class DayPhaseState(
 
   private def endOfDay(mgr: GamesManager): Unit = {
     val finalHistory = history.value
-    val newState = VotePhaseState(gameProperties, playerIds, board, finalHistory)
+    val newState = VotePhaseState(gameProperties, playerOrder, board, finalHistory)
     mgr.updateGame(channelId, newState)
   }
 

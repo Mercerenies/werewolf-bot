@@ -26,7 +26,7 @@ class AssignmentBoardSpec extends UnitSpec {
     )
     AssignmentBoard(
       mapping = mapping,
-      playerList = List(id(0), id(1), id(2)),
+      playerOrder = PlayerOrder(List(id(0), id(1), id(2))),
       unassignedRoles = MultiSet(Villager),
     )
   }
@@ -36,7 +36,7 @@ class AssignmentBoardSpec extends UnitSpec {
       Position.Table(TablePosition.Left) -> Villager,
       Position.Table(TablePosition.Middle) -> Werewolf,
     )
-    val board = AssignmentBoard(mapping, Nil, MultiSet.empty)
+    val board = AssignmentBoard(mapping, PlayerOrder(Nil), MultiSet.empty)
     board.toMap should be (mapping)
   }
 
@@ -51,7 +51,7 @@ class AssignmentBoardSpec extends UnitSpec {
   }
 
   it should "keep track of the player list in the correct order" in {
-    sampleBoard.playerList should be (List(id(0), id(1), id(2)))
+    sampleBoard.playerOrder should be (PlayerOrder(List(id(0), id(1), id(2))))
   }
 
   it should "allow unassigned roles to be assigned to empty slots" in {
