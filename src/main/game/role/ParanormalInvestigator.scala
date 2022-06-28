@@ -40,11 +40,8 @@ object ParanormalInvestigator extends Role {
     // Some(TownWinCondition) indicates that they copied the town
     // wincon from a (presumably third-party) role like the
     // Doppelganger whose default is TownWinCondition.
-    private val currentWinCondition: Cell[Option[WinCondition]] =
+    private val copiedRole: Cell[Option[RoleInstance]] =
       Cell(None)
-
-    private val currentGroupedRoles: Cell[List[GroupedRoleIdentity]] =
-      Cell(Nil)
 
     override val role: ParanormalInvestigator.type = ParanormalInvestigator.this
 
@@ -72,8 +69,7 @@ object ParanormalInvestigator extends Role {
         _ <- if (shouldCopyWincon) {
           for {
             _ <- GameContext.perform {
-              this.currentWinCondition.value = Some(viewedRole.baseWinCondition)
-              this.currentGroupedRoles.value = viewedRole.baseSeenAs
+              this.copiedRole.value = Some(viewedRole.createInstance(mapping, initialUserId))
             }
             _ <- GameContext.record(ActionPerformedRecord(this.toSnapshot, userId) {
               t("looked at the card in front of ")
@@ -141,15 +137,21 @@ object ParanormalInvestigator extends Role {
     }
 
     override def winCondition: WinCondition =
-      currentWinCondition.value.getOrElse(TownWinCondition)
+      copiedRole.value match {
+        case None => TownWinCondition
+        case Some(instance) => instance.winCondition
+      }
 
     override def seenAs: List[GroupedRoleIdentity] =
-      currentGroupedRoles.value
+      copiedRole.value match {
+        case None => Nil
+        case Some(instance) => instance.seenAs
+      }
 
     override def toSnapshot: RoleSnapshot =
-      currentWinCondition.value match {
+      copiedRole.value match {
         case None => super.toSnapshot
-        case Some(wincon) => CopiedRoleSnapshot(wincon)
+        case Some(instance) => CopiedRoleSnapshot(instance.winCondition)
       }
 
   }
