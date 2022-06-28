@@ -49,6 +49,7 @@ object Role {
     DreamWolf,
     Drunk,
     Exposer,
+    Hunter,
     Insomniac,
     Mason,
     ParanormalInvestigator,
