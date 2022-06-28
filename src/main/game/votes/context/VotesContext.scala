@@ -86,6 +86,13 @@ object VotesContext {
   def killPlayer(user: Id[User]): VotesContext[Boolean] =
     updatePlayer(user, DeathStatus.Dead)
 
+  def killPlayers(users: List[Id[User]]): VotesContext[Boolean] =
+    users.traverse {
+      VotesContext.killPlayer(_)
+    }.map { xs =>
+      xs.foldLeft(false) { _ || _ }
+    }
+
   def protectPlayer(user: Id[User]): VotesContext[Boolean] =
     updatePlayer(user, DeathStatus.Protected)
 

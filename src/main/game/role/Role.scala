@@ -46,6 +46,7 @@ trait Role extends NamedEntity {
 object Role {
 
   val all: List[Role] = List(
+    Bodyguard,
     DreamWolf,
     Drunk,
     Exposer,
