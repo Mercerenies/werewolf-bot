@@ -9,6 +9,8 @@ import snapshot.BoardSnapshot
 
 import org.javacord.api.entity.user.User
 
+import scala.math.floorMod
+
 // A thin wrapper around a List of user IDs. Provides helper
 // functionality for getting players relative to each other (e.g. "get
 // the player to the left of X")
@@ -33,5 +35,26 @@ case class PlayerOrder(
 
   def indexOf(id: Id[User]): Int =
     players.indexOf(id)
+
+  def indexOfChecked(id: Id[User]): Int = {
+    val result = indexOf(id)
+    if (result < 0) {
+      throw new NoSuchElementException(s"Could not find ${id} in ${players}")
+    } else {
+      result
+    }
+  }
+
+  private def getWrapped(index: Int): Id[User] =
+    players(floorMod(index, players.length))
+
+  def leftOf(id: Id[User]): Id[User] =
+    getWrapped(indexOfChecked(id) - 1)
+
+  def rightOf(id: Id[User]): Id[User] =
+    getWrapped(indexOfChecked(id) + 1)
+
+  def adjacentPlayers(id: Id[User]): (Id[User], Id[User]) =
+    (leftOf(id), rightOf(id))
 
 }
