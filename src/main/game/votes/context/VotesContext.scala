@@ -86,6 +86,9 @@ object VotesContext {
   def protectPlayer(user: Id[User]): VotesContext[Boolean] =
     updatePlayer(user, DeathStatus.Protected)
 
+  def record(rec: GameRecord*): VotesContext[Unit] =
+    VotesContext(RecordedGameHistory.from(rec).tell.liftM)
+
   given VotesContextIsMonad : Monad[VotesContext] with
 
     def point[A](a: => A) =
