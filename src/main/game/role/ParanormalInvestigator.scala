@@ -29,19 +29,9 @@ object ParanormalInvestigator extends Role {
   override class Instance(
     private val mapping: UserMapping,
     private val initialUserId: Option[Id[User]],
-  ) extends RoleInstance {
+  ) extends CopyingRoleInstance {
 
     private val choiceFactory = ChoiceFactory(mapping.toNamedUsers)
-
-    // Note: None is equivalent to TownWinCondition for endgame
-    // purposes. But they will display differently in the game
-    // records: None indicates that the PI never copied another role
-    // card and will show as "Paranormal Investigator", while
-    // Some(TownWinCondition) indicates that they copied the town
-    // wincon from a (presumably third-party) role like the
-    // Doppelganger whose default is TownWinCondition.
-    private val copiedRole: Cell[Option[RoleInstance]] =
-      Cell(None)
 
     override val role: ParanormalInvestigator.type = ParanormalInvestigator.this
 
@@ -69,7 +59,7 @@ object ParanormalInvestigator extends Role {
         _ <- if (shouldCopyWincon) {
           for {
             _ <- GameContext.perform {
-              this.copiedRole.value = Some(viewedRole.createInstance(mapping, initialUserId))
+              this.copiedRole = Some(viewedRole.createInstance(mapping, initialUserId))
             }
             _ <- GameContext.record(ActionPerformedRecord(this.toSnapshot, userId) {
               t("looked at the card in front of ")
@@ -136,21 +126,12 @@ object ParanormalInvestigator extends Role {
       }
     }
 
-    override def winCondition: WinCondition =
-      copiedRole.value match {
-        case None => TownWinCondition
-        case Some(instance) => instance.winCondition
-      }
-
-    override def seenAs: List[GroupedRoleIdentity] =
-      copiedRole.value match {
-        case None => Nil
-        case Some(instance) => instance.seenAs
-      }
+    override def defaultWinCondition: WinCondition =
+      TownWinCondition
 
     override def toSnapshot: RoleSnapshot =
-      copiedRole.value match {
-        case None => super.toSnapshot
+      copiedRole match {
+        case None => SimpleRoleSnapshot(this.role)
         case Some(instance) => CopiedRoleSnapshot(instance.winCondition)
       }
 
