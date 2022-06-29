@@ -58,6 +58,7 @@ object Role {
     Revealer,
     Robber,
     Seer,
+    Sheep,
     Tanner,
     Troublemaker,
     Villager,
