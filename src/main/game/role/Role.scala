@@ -45,17 +45,21 @@ trait Role extends NamedEntity {
 
 object Role {
 
+  import FluffyRipper.{Fluffy, Ripper}
+
   val all: List[Role] = List(
     Bodyguard,
     DreamWolf,
     Drunk,
     Exposer,
+    Fluffy,
     Hunter,
     Insomniac,
     Mason,
     Minion,
     ParanormalInvestigator,
     Revealer,
+    Ripper,
     Robber,
     Seer,
     Sheep,
