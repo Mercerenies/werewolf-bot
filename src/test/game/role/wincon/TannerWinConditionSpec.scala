@@ -131,4 +131,64 @@ class TannerWinConditionSpec extends UnitSpec {
 
   }
 
+  it should "count as a PI win if a PI copies a tanner and dies" in {
+    val endgame = createEndgame(
+      left = Villager,
+      middle = Villager,
+      right = Villager,
+      playerCards = List(Villager, Villager, Werewolf, Tanner, ParanormalInvestigator),
+      deadPlayers = List(0, 4),
+    )
+    endgame.board(id(4)).asInstanceOf[ParanormalInvestigator.Instance].copiedRole =
+      Some(Tanner.createInstance(SampleUserMapping(5), Some(id(4))))
+
+    WinCondition.determineWinners(endgame) should equal (List(4)) (after being unordered)
+
+  }
+
+  it should "count as a PI / tanner win if a PI copies a tanner and they both die" in {
+    val endgame = createEndgame(
+      left = Villager,
+      middle = Villager,
+      right = Villager,
+      playerCards = List(Villager, Villager, Werewolf, Tanner, ParanormalInvestigator),
+      deadPlayers = List(3, 4),
+    )
+    endgame.board(id(4)).asInstanceOf[ParanormalInvestigator.Instance].copiedRole =
+      Some(Tanner.createInstance(SampleUserMapping(5), Some(id(4))))
+
+    WinCondition.determineWinners(endgame) should equal (List(3, 4)) (after being unordered)
+
+  }
+
+  it should "count as a tanner-only win if a PI copies a tanner and only the original dies" in {
+    val endgame = createEndgame(
+      left = Villager,
+      middle = Villager,
+      right = Villager,
+      playerCards = List(Villager, Villager, Werewolf, Tanner, ParanormalInvestigator),
+      deadPlayers = List(3),
+    )
+    endgame.board(id(4)).asInstanceOf[ParanormalInvestigator.Instance].copiedRole =
+      Some(Tanner.createInstance(SampleUserMapping(5), Some(id(4))))
+
+    WinCondition.determineWinners(endgame) should equal (List(3)) (after being unordered)
+
+  }
+
+  it should "count as a PI/town win if a PI copies a tanner and dies alongside a werewolf" in {
+    val endgame = createEndgame(
+      left = Villager,
+      middle = Villager,
+      right = Villager,
+      playerCards = List(Villager, Villager, Werewolf, Tanner, ParanormalInvestigator),
+      deadPlayers = List(2, 4),
+    )
+    endgame.board(id(4)).asInstanceOf[ParanormalInvestigator.Instance].copiedRole =
+      Some(Tanner.createInstance(SampleUserMapping(5), Some(id(4))))
+
+    WinCondition.determineWinners(endgame) should equal (List(0, 1, 4)) (after being unordered)
+
+  }
+
 }

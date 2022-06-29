@@ -13,10 +13,12 @@ trait EndgameTestUtil {
 
   // Just to help with type inference since we only use Id[User] here.
 
-  private def id(x: Long): Id[User] =
+  export BoardTestUtil.SampleUserMapping
+
+  def id(x: Long): Id[User] =
     Id.fromLong(x)
 
-  private def id(x: Int): Id[User] =
+  def id(x: Int): Id[User] =
     Id.fromLong(x)
 
   // Constructs an Endgame given a simple layout consisting of a left,
