@@ -53,6 +53,21 @@ class MinionWinConditionSpec extends UnitSpec {
 
   }
 
+  it should "count a minion + paranormal investigator victory if the minion dies and a paranormal investigator viewed a minion" in {
+    val endgame = createEndgame(
+      left = Villager,
+      middle = Villager,
+      right = Villager,
+      playerCards = List(Villager, Villager, Werewolf, Werewolf, Minion, ParanormalInvestigator),
+      deadPlayers = List(4),
+    )
+    endgame.board(id(5)).asInstanceOf[ParanormalInvestigator.Instance].copiedRole =
+      Some(Minion.createInstance(SampleUserMapping(6), Some(id(5))))
+
+    WinCondition.determineWinners(endgame) should equal (List(2, 3, 4, 5)) (after being unordered)
+
+  }
+
   it should "count a minion loss if a werewolf dies" in {
     val endgame = createEndgame(
       left = Villager,
