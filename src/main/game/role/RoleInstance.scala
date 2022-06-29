@@ -39,7 +39,7 @@ trait RoleInstance {
   // if x is of type x.role.Instance.
   val coherenceProof: this.type <:< this.role.Instance
 
-  val nightHandler: NightMessageHandler
+  def nightHandler: NightMessageHandler
 
   val role: Role
 
