@@ -46,17 +46,7 @@ object Minion extends Role {
               FeedbackMessage("There are " + bold("no werewolves") + " at this time.")
             }
           } else {
-            val werewolfNames = werewolfIds.map { mapping.nameOf(_) }.sorted
-            val werewolfNamesList = Grammar.conjunctionList(werewolfNames)
-            for {
-              _ <- GameContext.record(ActionPerformedRecord(this.toSnapshot, userId) {
-                t("was informed that the werewolf team consists of ")
-                b { t(werewolfNamesList) }
-                t(".")
-              })
-            } yield {
-              FeedbackMessage("The werewolf team consists of " + bold(werewolfNamesList) + ".")
-            }
+            Werewolf.shareWerewolfTeam(mapping, this, userId, werewolfIds)
           }
         }
       } yield {

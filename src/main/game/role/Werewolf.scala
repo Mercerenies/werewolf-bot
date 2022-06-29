@@ -52,53 +52,10 @@ object Werewolf extends Role {
         message <- {
           val werewolfIds = findWerewolfIds(board)
           if (werewolfIds.length <= 1) {
-
-            // Sanity check; I sincerely hope this never triggers.
-            if (werewolfIds.length < 1) {
-              logger.warn(s"Werewolf ${userId} is trying to view the werewolf list but there are no werewolves")
-            }
-
             // There's one werewolf, so look at the center card.
-            tablePos match {
-              case None => {
-                for {
-                  _ <- GameContext.record(ActionPerformedRecord(this.toSnapshot, userId) {
-                    t("is the ")
-                    b { t("solo werewolf") }
-                    t(" and chose not to look at any cards")
-                  })
-                } yield {
-                  FeedbackMessage("You are the " + bold("solo werewolf") + ". You elected not to look at any cards.")
-                }
-              }
-              case Some(tablePos) => {
-                val centerCard = board(tablePos).role
-                for {
-                  _ <- GameContext.record(ActionPerformedRecord(this.toSnapshot, userId) {
-                    t("is the ")
-                    b { t("solo werewolf") }
-                    t(" and saw that the ")
-                    position(tablePos)
-                    t(" card was ")
-                    roleName(centerCard)
-                  })
-                } yield {
-                  FeedbackMessage("You are the " + bold("solo werewolf") + ". The " + bold(tablePos.toString) + " card is " + bold(centerCard.name) + ".")
-                }
-              }
-            }
+            viewCenterCard(this, userId, tablePos)
           } else {
-            val werewolfNames = werewolfIds.map { mapping.nameOf(_) }.sorted
-            val werewolfNamesList = Grammar.conjunctionList(werewolfNames)
-            for {
-              _ <- GameContext.record(ActionPerformedRecord(this.toSnapshot, userId) {
-                t("was informed that the werewolf team consists of ")
-                b { t(werewolfNamesList) }
-                t(".")
-              })
-            } yield {
-              FeedbackMessage("The werewolf team consists of " + bold(werewolfNamesList) + ".")
-            }
+            shareWerewolfTeam(mapping, this, userId, werewolfIds)
           }
         }
       } yield {
@@ -141,5 +98,53 @@ object Werewolf extends Role {
     }.map { (userId, _) =>
       userId
     }
+
+  def shareWerewolfTeam(mapping: UserMapping, instance: RoleInstance, userId: Id[User], werewolfIds: Iterable[Id[User]]): GameContext[FeedbackMessage] = {
+    import ActionPerformedRecord.*
+    val names = werewolfIds.toList.map { mapping.nameOf(_) }.sorted
+    val namesList = Grammar.conjunctionList(names)
+    for {
+      _ <- GameContext.record(ActionPerformedRecord(instance.toSnapshot, userId) {
+        t("was informed that the werewolf team consists of ")
+        b { t(namesList) }
+        t(".")
+      })
+    } yield {
+      FeedbackMessage("The werewolf team consists of " + bold(namesList) + ".")
+    }
+  }
+
+  def viewCenterCard(instance: RoleInstance, userId: Id[User], tablePos: Option[TablePosition]): GameContext[FeedbackMessage] = {
+    import ActionPerformedRecord.*
+    tablePos match {
+      case None => {
+        for {
+          _ <- GameContext.record(ActionPerformedRecord(instance.toSnapshot, userId) {
+            t("is the ")
+            b { t("solo werewolf") }
+            t(" and chose not to look at any cards")
+          })
+        } yield {
+          FeedbackMessage("You are the " + bold("solo werewolf") + ". You elected not to look at any cards.")
+        }
+      }
+      case Some(tablePos) => {
+        for {
+          board <- GameContext.getBoard
+          centerCard = board(tablePos).role
+          _ <- GameContext.record(ActionPerformedRecord(instance.toSnapshot, userId) {
+            t("is the ")
+            b { t("solo werewolf") }
+            t(" and saw that the ")
+            position(tablePos)
+            t(" card was ")
+            roleName(centerCard)
+          })
+        } yield {
+          FeedbackMessage("You are the " + bold("solo werewolf") + ". The " + bold(tablePos.toString) + " card is " + bold(centerCard.name) + ".")
+        }
+      }
+    }
+  }
 
 }
