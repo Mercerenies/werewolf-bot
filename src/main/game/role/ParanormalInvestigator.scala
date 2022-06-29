@@ -58,9 +58,6 @@ object ParanormalInvestigator extends Role {
         shouldCopyWincon = (viewedRole.baseAlignment != Alignment.Town)
         _ <- if (shouldCopyWincon) {
           for {
-            _ <- GameContext.perform {
-              this.copiedRole = Some(viewedRole.createInstance(mapping, initialUserId))
-            }
             _ <- GameContext.record(ActionPerformedRecord(this.toSnapshot, userId) {
               t("looked at the card in front of ")
               playerName(target)
@@ -68,6 +65,9 @@ object ParanormalInvestigator extends Role {
               roleName(viewedRole)
               t(", and copied their win condition and alignment.")
             })
+            _ <- GameContext.perform {
+              this.copiedRole = Some(viewedRole.createInstance(mapping, initialUserId))
+            }
             _ <- GameContext.recordCurrentBoard
           } yield {
             ()
