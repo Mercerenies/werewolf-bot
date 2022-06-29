@@ -25,4 +25,7 @@ final class Endgame(
   def anyoneDied: Boolean =
     !deaths.isEmpty
 
+  def isDead(id: Id[User]): Boolean =
+    deaths.contains(id)
+
 }
