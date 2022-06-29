@@ -92,6 +92,27 @@ class HunterSpec extends GameplayUnitSpec {
 
   }
 
+  it should "kill the target if a paranormal investigator who copied a hunter is killed" in {
+    // PIs don't copy hunters in actual gameplay, since hunters are
+    // town-aligned. But the interaction is, according to the code,
+    // well-defined, so we're going to test it.
+    val board = createBoard(
+      left = Werewolf,
+      middle = Werewolf,
+      right = Tanner,
+      playerCards = List(Villager, Villager, Villager, ParanormalInvestigator, Hunter),
+    )
+    board(id(3)).asInstanceOf[ParanormalInvestigator.Instance].copiedRole =
+      Some(Hunter.createInstance(SampleUserMapping(5), Some(id(3))))
+
+    val votes = votals(0 -> 3, 1 -> 3, 2 -> 3, 3 -> 0, 4 -> 2)
+    val (deaths, _) = runVotes(board, votes)
+
+    deaths.dead should equal (List(0, 3)) (after being unordered)
+    deaths.`protected` should equal (List()) (after being unordered)
+
+  }
+
   it should "kill the target if the hunter is killed in a split vote" in {
     val board = createBoard(
       left = Werewolf,
