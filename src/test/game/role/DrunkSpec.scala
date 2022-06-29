@@ -15,7 +15,11 @@ import board.{Board, TablePosition, Position}
 
 class DrunkSpec extends GameplayUnitSpec {
 
-  "The Drunk role" should "swap with the designated card, without being told what it is" in {
+  "The Drunk role" should "be included in the global role list" in {
+    Role.all should contain (Drunk)
+  }
+
+  it should "swap with the designated card, without being told what it is" in {
     val board = createBoard(
       left = Villager,
       middle = Werewolf,

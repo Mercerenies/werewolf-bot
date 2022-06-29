@@ -14,7 +14,11 @@ import board.{Board, TablePosition, Position}
 
 class MasonSpec extends GameplayUnitSpec {
 
-  "The Mason role" should "perform no action" in {
+  "The Mason role" should "be included in the global role list" in {
+    Role.all should contain (Mason)
+  }
+
+  it should "perform no action" in {
     val board = createBoard(
       left = Villager,
       middle = Werewolf,

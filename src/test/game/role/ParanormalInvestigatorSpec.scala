@@ -15,7 +15,11 @@ import board.{Board, TablePosition, Position}
 
 class ParanormalInvestigatorSpec extends GameplayUnitSpec {
 
-  "The Paranormal Investigator role" should "perform no action if a PI fails to respond" in {
+  "The Paranormal Investigator role" should "be included in the global role list" in {
+    Role.all should contain (ParanormalInvestigator)
+  }
+
+  it should "perform no action if a PI fails to respond" in {
     val board = createBoard(
       left = Villager,
       middle = Werewolf,

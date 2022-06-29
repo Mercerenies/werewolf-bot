@@ -14,7 +14,11 @@ import board.{Board, TablePosition, Position}
 
 class TroublemakerSpec extends GameplayUnitSpec {
 
-  "The Troublemaker role" should "perform no action if a troublemaker elects to do nothing" in {
+  "The Troublemaker role" should "be included in the global role list" in {
+    Role.all should contain (Troublemaker)
+  }
+
+  it should "perform no action if a troublemaker elects to do nothing" in {
     val board = createBoard(
       left = Villager,
       middle = Werewolf,

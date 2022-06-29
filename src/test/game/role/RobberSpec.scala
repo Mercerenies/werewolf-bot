@@ -15,7 +15,11 @@ import board.{Board, TablePosition, Position}
 
 class RobberSpec extends GameplayUnitSpec {
 
-  "The Robber role" should "perform no action if a robber elects to do nothing" in {
+  "The Robber role" should "be included in the global role list" in {
+    Role.all should contain (Robber)
+  }
+
+  it should "perform no action if a robber elects to do nothing" in {
     val board = createBoard(
       left = Villager,
       middle = Werewolf,

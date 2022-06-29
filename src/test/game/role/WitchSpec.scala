@@ -15,7 +15,11 @@ import board.{Board, TablePosition, Position}
 
 class WitchSpec extends GameplayUnitSpec {
 
-  "The Witch role" should "perform no action if a witch elects to do nothing" in {
+  "The Witch role" should "be included in the global role list" in {
+    Role.all should contain (Witch)
+  }
+
+  it should "perform no action if a witch elects to do nothing" in {
     val board = createBoard(
       left = Villager,
       middle = Werewolf,

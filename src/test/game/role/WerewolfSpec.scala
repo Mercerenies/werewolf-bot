@@ -14,7 +14,11 @@ import board.{Board, TablePosition, Position}
 
 class WerewolfSpec extends GameplayUnitSpec {
 
-  "The Werewolf role" should "not change the state of the game" in {
+  "The Werewolf role" should "be included in the global role list" in {
+    Role.all should contain (Werewolf)
+  }
+
+  it should "not change the state of the game" in {
     val board = createBoard(
       left = Werewolf,
       middle = Werewolf,

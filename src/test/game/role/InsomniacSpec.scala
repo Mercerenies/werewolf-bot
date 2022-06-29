@@ -15,7 +15,11 @@ import board.{Board, TablePosition, Position}
 
 class InsomniacSpec extends GameplayUnitSpec {
 
-  "The Insomniac role" should "not modify the board state in any way" in {
+  "The Insomniac role" should "be included in the global role list" in {
+    Role.all should contain (Insomniac)
+  }
+
+  it should "not modify the board state in any way" in {
     val board = createBoard(
       left = Villager,
       middle = Werewolf,

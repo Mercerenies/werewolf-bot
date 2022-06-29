@@ -14,7 +14,11 @@ import board.{Board, TablePosition, Position}
 
 class TannerSpec extends GameplayUnitSpec {
 
-  "The Tanner role" should "provide no feedback and not change the state of the game" in {
+  "The Tanner role" should "be included in the global role list" in {
+    Role.all should contain (Tanner)
+  }
+
+  it should "provide no feedback and not change the state of the game" in {
     val board = createBoard(
       left = Werewolf,
       middle = Werewolf,

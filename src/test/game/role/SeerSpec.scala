@@ -14,7 +14,11 @@ import board.{Board, TablePosition, Position}
 
 class SeerSpec extends GameplayUnitSpec {
 
-  "The Seer role" should "not change the state of the game" in {
+  "The Seer role" should "be included in the global role list" in {
+    Role.all should contain (Seer)
+  }
+
+  it should "not change the state of the game" in {
     val board = createBoard(
       left = Werewolf,
       middle = Werewolf,

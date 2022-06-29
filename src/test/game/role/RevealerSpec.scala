@@ -15,7 +15,11 @@ import board.{Board, TablePosition, Position}
 
 class RevealerSpec extends GameplayUnitSpec {
 
-  "The Revealer role" should "receive feedback and reveal a card publicly" in {
+  "The Revealer role" should "be included in the global role list" in {
+    Role.all should contain (Revealer)
+  }
+
+  it should "receive feedback and reveal a card publicly" in {
     val board = createBoard(
       left = Villager,
       middle = Werewolf,

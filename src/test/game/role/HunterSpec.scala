@@ -15,7 +15,11 @@ import IterableNormalizations.*
 
 class HunterSpec extends GameplayUnitSpec {
 
-  "The Hunter role" should "provide no feedback and not change the state of the game" in {
+  "The Hunter role" should "be included in the global role list" in {
+    Role.all should contain (Hunter)
+  }
+
+  it should "provide no feedback and not change the state of the game" in {
     val board = createBoard(
       left = Werewolf,
       middle = Werewolf,

@@ -14,7 +14,11 @@ import board.{Board, TablePosition, Position}
 
 class DreamWolfSpec extends GameplayUnitSpec {
 
-  "The Dream Wolf role" should "not change the state of the game" in {
+  "The Dream Wolf role" should "be included in the global role list" in {
+    Role.all should contain (DreamWolf)
+  }
+
+  it should "not change the state of the game" in {
     val board = createBoard(
       left = Werewolf,
       middle = Werewolf,
