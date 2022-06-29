@@ -53,6 +53,7 @@ object Role {
     Hunter,
     Insomniac,
     Mason,
+    Minion,
     ParanormalInvestigator,
     Revealer,
     Robber,

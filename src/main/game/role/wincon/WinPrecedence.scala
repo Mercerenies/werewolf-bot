@@ -7,6 +7,6 @@ package wincon
 object WinPrecedence {
 
   val TOWN_AND_TANNER = 10
-  val WEREWOLF = 0
+  val WEREWOLF_AND_MINION = 0
 
 }

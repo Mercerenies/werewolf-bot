@@ -94,6 +94,7 @@ object Werewolf extends Role {
               _ <- GameContext.record(ActionPerformedRecord(this.toSnapshot, userId) {
                 t("was informed that the werewolf team consists of ")
                 b { t(werewolfNamesList) }
+                t(".")
               })
             } yield {
               FeedbackMessage("The werewolf team consists of " + bold(werewolfNamesList) + ".")

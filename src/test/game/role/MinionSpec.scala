@@ -1,0 +1,83 @@
+
+package com.mercerenies.werewolf
+package game
+package role
+
+import org.javacord.api.entity.user.User
+
+import org.scalatestplus.mockito.MockitoSugar
+
+import id.{UserMapping, Id}
+import state.NightPhaseState
+import response.FeedbackMessage
+import board.{Board, TablePosition, Position}
+
+class MinionSpec extends GameplayUnitSpec {
+
+  "The Minion role" should "be included in the global role list" in {
+    Role.all should contain (Minion)
+  }
+
+  it should "not change the state of the game" in {
+    val board = createBoard(
+      left = Werewolf,
+      middle = Werewolf,
+      right = Villager,
+      playerCards = List(Werewolf, Villager, Werewolf, Minion),
+    )
+    val (finalBoard, _, _, reveals) = playGame(board, List("", "", "", ""))
+    finalBoard should be (board)
+    reveals shouldBe empty
+  }
+
+  it should "not change the state of the game, even if there are no werewolves" in {
+    val board = createBoard(
+      left = Werewolf,
+      middle = Werewolf,
+      right = Villager,
+      playerCards = List(Minion, Tanner, Villager),
+    )
+    val (finalBoard, _, _, reveals) = playGame(board, List("", "", ""))
+    finalBoard should be (board)
+  }
+
+  it should "inform the minion of the werewolf team" in {
+    val board = createBoard(
+      left = Werewolf,
+      middle = Werewolf,
+      right = Tanner,
+      playerCards = List(Werewolf, Werewolf, Werewolf, Minion),
+    )
+    val (finalBoard, history, feedback, _) = playGame(board, List("", "", "", ""))
+    finalBoard should be (board)
+
+    feedback(id(0)).mkString should include (mockName(0))
+    feedback(id(0)).mkString should include (mockName(1))
+    feedback(id(0)).mkString should include (mockName(2))
+    feedback(id(0)).mkString should not include (mockName(3))
+    feedback(id(1)).mkString should include (mockName(0))
+    feedback(id(1)).mkString should include (mockName(1))
+    feedback(id(1)).mkString should include (mockName(2))
+    feedback(id(1)).mkString should not include (mockName(3))
+    feedback(id(2)).mkString should include (mockName(0))
+    feedback(id(2)).mkString should include (mockName(1))
+    feedback(id(2)).mkString should include (mockName(2))
+    feedback(id(2)).mkString should not include (mockName(3))
+    feedback(id(3)).mkString should include (mockName(0))
+    feedback(id(3)).mkString should include (mockName(1))
+    feedback(id(3)).mkString should include (mockName(2))
+
+    val filtered = filterRecords(history)
+    history.toVector should have length (4)
+    filtered should have length (4)
+    filtered.foreach { rec =>
+      rec.displayText(SampleUserMapping(3)) should include (mockName(0))
+      rec.displayText(SampleUserMapping(3)) should include (mockName(1))
+      rec.displayText(SampleUserMapping(3)) should include (mockName(2))
+    }
+    // Third message should be about the minion
+    filtered(3).displayText(SampleUserMapping(3)) should include regex ("(?i)minion")
+
+  }
+
+}

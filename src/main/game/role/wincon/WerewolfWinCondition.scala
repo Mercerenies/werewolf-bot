@@ -22,7 +22,7 @@ case object WerewolfWinCondition extends WinCondition {
     "Werewolf"
 
   override val precedence: Int =
-    WinPrecedence.WEREWOLF
+    WinPrecedence.WEREWOLF_AND_MINION
 
   def determineOutcome(endgame: Endgame, user: Id[User]): Outcome = {
     // Werewolves win as long as none of the dead are werewolves.
