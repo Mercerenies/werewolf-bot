@@ -32,9 +32,16 @@ case object TownWinCondition extends WinCondition {
     //
     // A town win is always hard and prevents the werewolf team from
     // winning.
-    val satisfied =
-      endgame.anyWerewolvesDied || (!endgame.anyoneDied && endgame.werewolves.isEmpty)
-    Outcome.hardWin(satisfied)
+    if (endgame.anyWerewolvesDied) {
+      // Hard win: Minion and werewolves definitely lose.
+      Outcome.HardWin
+    } else if (!endgame.anyoneDied && endgame.werewolves.isEmpty) {
+      // Soft win: Allow minions to win (there are no werewolves, so
+      // WerewolfWinCondition is vacuous).
+      Outcome.SoftWin
+    } else {
+      Outcome.SoftLoss
+    }
   }
 
 }
