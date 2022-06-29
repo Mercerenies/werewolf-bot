@@ -6,6 +6,7 @@ package role
 import logging.Logging
 import name.NoValue
 import id.{Id, UserMapping}
+import instance.RoleInstance
 import util.Grammar
 import util.TextDecorator.*
 import wincon.{WinCondition, WerewolfWinCondition}

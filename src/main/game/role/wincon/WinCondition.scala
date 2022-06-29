@@ -6,7 +6,7 @@ package wincon
 
 import id.Id
 import board.Endgame
-import role.RoleInstance
+import role.instance.RoleInstance
 
 import org.javacord.api.entity.user.User
 

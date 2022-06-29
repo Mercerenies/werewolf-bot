@@ -5,6 +5,7 @@ package role
 
 import logging.Logging
 import name.NoValue
+import instance.RoleInstance
 import id.{Id, UserMapping}
 import util.Grammar
 import util.TextDecorator.*

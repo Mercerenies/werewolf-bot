@@ -4,7 +4,8 @@ package game
 package board
 
 import id.{Id, UserMapping}
-import role.{Role, RoleInstance}
+import role.Role
+import role.instance.RoleInstance
 import snapshot.BoardSnapshot
 
 import org.javacord.api.entity.user.User

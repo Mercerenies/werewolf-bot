@@ -4,6 +4,7 @@ package game
 package role
 
 import id.{Id, UserMapping}
+import instance.RoleInstance
 import util.Grammar
 import util.TextDecorator.*
 import wincon.{WinCondition, TownWinCondition}

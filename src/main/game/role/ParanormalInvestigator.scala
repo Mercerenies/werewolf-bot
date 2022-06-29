@@ -6,6 +6,7 @@ package role
 import logging.Logging
 import name.NoValue
 import id.{Id, UserMapping}
+import instance.{RoleInstance, CopyingRoleInstance}
 import util.{Grammar, Cell}
 import util.TextDecorator.*
 import wincon.{WinCondition, TownWinCondition}

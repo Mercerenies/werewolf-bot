@@ -13,7 +13,8 @@ import command.CommandResponse
 import manager.GamesManager
 import game.Rules
 import game.board.{Board, PlayerOrder}
-import game.role.{Role, RoleInstance}
+import game.role.Role
+import game.role.instance.RoleInstance
 import game.parser.ListParser
 import properties.GameProperties
 

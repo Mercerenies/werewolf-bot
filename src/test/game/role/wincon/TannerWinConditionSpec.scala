@@ -7,7 +7,7 @@ package wincon
 import id.{Id, UserMapping}
 import board.{Board, Endgame}
 import board.EndgameTestUtil.*
-import role.{Role, RoleInstance}
+import role.Role
 import IterableNormalizations.*
 
 import org.javacord.api.entity.user.User

@@ -2,6 +2,7 @@
 package com.mercerenies.werewolf
 package game
 package role
+package instance
 
 import id.{Id, UserMapping}
 import name.NamedEntity

@@ -5,6 +5,7 @@ package role
 
 import name.NamedEntity
 import id.{Id, UserMapping}
+import instance.RoleInstance
 import util.TextDecorator.*
 import wincon.WinCondition
 

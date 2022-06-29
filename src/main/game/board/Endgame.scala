@@ -4,7 +4,7 @@ package game
 package board
 
 import id.Id
-import role.{Role, RoleInstance, Werewolf}
+import role.{Role, Werewolf}
 
 import org.javacord.api.entity.user.User
 

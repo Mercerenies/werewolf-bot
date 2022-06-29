@@ -5,7 +5,7 @@ package board
 package assignment
 
 import id.Id
-import role.{Role, RoleInstance}
+import role.Role
 import util.MultiSet
 
 import org.javacord.api.entity.user.User
