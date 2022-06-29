@@ -129,19 +129,6 @@ object ParanormalInvestigator extends Role {
     override def defaultWinCondition: WinCondition =
       TownWinCondition
 
-    override def toSnapshot: RoleSnapshot =
-      copiedRole match {
-        case None => SimpleRoleSnapshot(this.role)
-        case Some(instance) => CopiedRoleSnapshot(instance.winCondition)
-      }
-
-  }
-
-  // Role snapshot for a PI who has copied a wincon from someone else.
-  private class CopiedRoleSnapshot(private val winCondition: WinCondition) extends RoleSnapshot {
-
-    override def name: String = s"Paranormal Investigator [${winCondition.snapshotSummary}]"
-
   }
 
   private val customChoiceFormatter: ChoiceFormatter[Either[NoValue, (NamedUser, Option[NamedUser])]] = {

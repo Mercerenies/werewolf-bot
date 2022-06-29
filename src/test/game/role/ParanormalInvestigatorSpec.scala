@@ -146,7 +146,7 @@ class ParanormalInvestigatorSpec extends GameplayUnitSpec {
     history.toList should have length (2)
     filtered should have length (1)
     filtered(0).displayText(SampleUserMapping(5)) should include (mockName(3))
-    filtered(0).displayText(SampleUserMapping(5)) should include regex ("(?i)werewolf")
+    filtered(0).displayText(SampleUserMapping(5)) should include regex ("(?i)dream wolf")
 
   }
 

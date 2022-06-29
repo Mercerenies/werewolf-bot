@@ -8,7 +8,7 @@ import name.NamedEntity
 import util.Cell
 import night.{NightMessageHandler, NoInputNightMessageHandler}
 import board.Board
-import board.snapshot.{RoleSnapshot, SimpleRoleSnapshot}
+import board.snapshot.{RoleSnapshot, SimpleRoleSnapshot, CopiedRoleSnapshot}
 import response.FeedbackMessage
 import wincon.WinCondition
 import context.GameContext
@@ -51,6 +51,10 @@ trait CopyingRoleInstance extends RoleInstance {
   override def votePhaseAction(userId: Id[User]): VotesContext[Boolean] =
     copiedRole.fold(false.point[VotesContext]) { _.votePhaseAction(userId) }
 
-  override def toSnapshot: RoleSnapshot
+  override def toSnapshot: RoleSnapshot =
+    copiedRole match {
+      case None => SimpleRoleSnapshot(this.role)
+      case Some(copied) => CopiedRoleSnapshot(this.role, copied.toSnapshot)
+    }
 
 }
