@@ -108,81 +108,99 @@ class BodyguardSpec extends GameplayUnitSpec {
 
   }
 
-/*
-  it should "kill multiple targets if multiple hunters are killed" in {
+  it should "not kill a second majority if there is no second majority" in {
     val board = createBoard(
       left = Werewolf,
       middle = Werewolf,
       right = Tanner,
-      playerCards = List(Villager, Villager, Villager, Villager, Hunter, Hunter),
+      playerCards = List(Villager, Villager, Villager, Villager, Bodyguard),
     )
-    val votes = votals(0 -> 4, 1 -> 4, 2 -> 5, 3 -> 5, 4 -> 0, 5 -> 1)
+    val votes = votals(0 -> 1, 1 -> 0, 2 -> 0, 3 -> 0, 4 -> 0)
     val (deaths, history) = runVotes(board, votes)
 
-    deaths.dead should equal (List(0, 1, 4, 5)) (after being unordered)
-    deaths.`protected` should equal (List()) (after being unordered)
-
-    history.toVector should have length (2)
-    history.toVector(0).displayText(SampleUserMapping(6)) should include (mockName(0))
-    history.toVector(1).displayText(SampleUserMapping(6)) should include (mockName(1))
-
-  }
-
-  it should "kill one target if one of multiple hunters is killed" in {
-    val board = createBoard(
-      left = Werewolf,
-      middle = Werewolf,
-      right = Tanner,
-      playerCards = List(Villager, Villager, Villager, Villager, Hunter, Hunter),
-    )
-    val votes = votals(0 -> 5, 1 -> 5, 2 -> 5, 3 -> 5, 4 -> 0, 5 -> 1)
-    val (deaths, history) = runVotes(board, votes)
-
-    deaths.dead should equal (List(1, 5)) (after being unordered)
-    deaths.`protected` should equal (List()) (after being unordered)
+    deaths.dead should equal (List()) (after being unordered)
+    deaths.`protected` should equal (List(0)) (after being unordered)
 
     history.toVector should have length (1)
-    history.toVector(0).displayText(SampleUserMapping(6)) should include (mockName(1))
+    history.toVector(0).displayText(SampleUserMapping(5)) should include (mockName(0))
 
   }
 
-  it should "kill a chain of targets if hunters point at each other" in {
+  it should "not kill a third majority" in {
     val board = createBoard(
       left = Werewolf,
       middle = Werewolf,
       right = Tanner,
-      playerCards = List(Villager, Villager, Villager, Hunter, Hunter, Hunter),
+      playerCards = List(Villager, Villager, Villager, Villager, Villager, Villager, Villager, Bodyguard, Bodyguard),
     )
-    val votes = votals(0 -> 4, 1 -> 4, 2 -> 4, 3 -> 5, 4 -> 3, 5 -> 0)
+    val votes = votals(0 -> 2, 1 -> 2, 2 -> 1, 3 -> 1, 4 -> 0, 5 -> 0, 6 -> 0, 7 -> 0, 8 -> 1)
     val (deaths, history) = runVotes(board, votes)
 
-    deaths.dead should equal (List(0, 3, 4, 5)) (after being unordered)
-    deaths.`protected` should equal (List()) (after being unordered)
+    deaths.dead should equal (List()) (after being unordered)
+    deaths.`protected` should equal (List(0, 1)) (after being unordered)
 
     history.toVector should have length (3)
-    history.toVector(0).displayText(SampleUserMapping(6)) should include (mockName(3))
-    history.toVector(1).displayText(SampleUserMapping(6)) should include (mockName(5))
-    history.toVector(2).displayText(SampleUserMapping(6)) should include (mockName(0))
+    history.toVector(0).displayText(SampleUserMapping(9)) should include (mockName(0)) // 0 is protected
+    history.toVector(1).displayText(SampleUserMapping(9)) should include (mockName(1)) // second majority dies
+    history.toVector(2).displayText(SampleUserMapping(9)) should include (mockName(1)) // 1 is protected
 
   }
 
-  it should "kill a chain of targets if hunters point at each other in a cycle" in {
+  it should "protect the hunter's target if the hunter is killed" in {
     val board = createBoard(
       left = Werewolf,
       middle = Werewolf,
       right = Tanner,
-      playerCards = List(Villager, Villager, Villager, Hunter, Hunter, Hunter),
+      playerCards = List(Villager, Villager, Villager, Villager, Villager, Hunter, Bodyguard),
     )
-    val votes = votals(0 -> 4, 1 -> 4, 2 -> 4, 3 -> 5, 4 -> 3, 5 -> 4)
+    val votes = votals(0 -> 5, 1 -> 5, 2 -> 5, 3 -> 0, 4 -> 0, 5 -> 1, 6 -> 1)
     val (deaths, history) = runVotes(board, votes)
 
-    deaths.dead should equal (List(3, 4, 5)) (after being unordered)
-    deaths.`protected` should equal (List()) (after being unordered)
+    deaths.dead should equal (List(5)) (after being unordered)
+    deaths.`protected` should equal (List(1)) (after being unordered)
 
     history.toVector should have length (2)
-    history.toVector(0).displayText(SampleUserMapping(6)) should include (mockName(3))
-    history.toVector(1).displayText(SampleUserMapping(6)) should include (mockName(5))
+    history.toVector(0).displayText(SampleUserMapping(7)) should include (mockName(1)) // Hunter kills 1
+    history.toVector(1).displayText(SampleUserMapping(7)) should include (mockName(1)) // Bodyguard protects 1
 
   }
- */
+
+  it should "block a hunter kill if the hunter is protected" in {
+    val board = createBoard(
+      left = Werewolf,
+      middle = Werewolf,
+      right = Tanner,
+      playerCards = List(Villager, Villager, Villager, Villager, Villager, Hunter, Bodyguard),
+    )
+    val votes = votals(0 -> 5, 1 -> 5, 2 -> 5, 3 -> 5, 4 -> 5, 5 -> 0, 6 -> 5)
+    val (deaths, history) = runVotes(board, votes)
+
+    deaths.dead should equal (List()) (after being unordered)
+    deaths.`protected` should equal (List(5)) (after being unordered)
+
+    history.toVector should have length (1)
+    history.toVector(0).displayText(SampleUserMapping(7)) should include (mockName(5)) // Bodyguard protects 5
+
+  }
+
+  it should "act independently of the hunter in case of unrelated targets" in {
+    val board = createBoard(
+      left = Werewolf,
+      middle = Werewolf,
+      right = Tanner,
+      playerCards = List(Villager, Villager, Villager, Villager, Villager, Villager, Hunter, Bodyguard, Villager, Villager),
+    )
+    val votes = votals(0 -> 4, 1 -> 4, 2 -> 9, 3 -> 6, 4 -> 6, 5 -> 6, 6 -> 0, 7 -> 4, 8 -> 2, 9 -> 2)
+    val (deaths, history) = runVotes(board, votes)
+
+    deaths.dead should equal (List(0, 2, 6)) (after being unordered)
+    deaths.`protected` should equal (List(4)) (after being unordered)
+
+    history.toVector should have length (3)
+    history.toVector(0).displayText(SampleUserMapping(7)) should include (mockName(4)) // Bodyguard protects 4
+    history.toVector(1).displayText(SampleUserMapping(7)) should include (mockName(2)) // Second majority
+    history.toVector(2).displayText(SampleUserMapping(7)) should include (mockName(0)) // Hunter kills 0
+
+  }
+
 }
