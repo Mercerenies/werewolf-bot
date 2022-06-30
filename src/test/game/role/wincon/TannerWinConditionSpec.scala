@@ -14,6 +14,8 @@ import org.javacord.api.entity.user.User
 
 class TannerWinConditionSpec extends UnitSpec {
 
+  import FluffyRipper.{Fluffy, Ripper}
+
   "The tanner win condition" should "count as a tanner win if the tanner dies" in {
     val endgame = createEndgame(
       left = Villager,
@@ -186,6 +188,32 @@ class TannerWinConditionSpec extends UnitSpec {
     )
     endgame.board(id(4)).asInstanceOf[ParanormalInvestigator.Instance].copiedRole =
       Some(Tanner.createInstance(SampleUserMapping(5), Some(id(4))))
+
+    WinCondition.determineWinners(endgame) should equal (List(0, 1, 4)) (after being unordered)
+
+  }
+
+  it should "count as a tanner / town win if the tanner dies and Fluffy dies too" in {
+    val endgame = createEndgame(
+      left = Villager,
+      middle = Villager,
+      right = Villager,
+      playerCards = List(Villager, Villager, Fluffy, Ripper, Tanner),
+      deadPlayers = List(2, 4),
+    )
+
+    WinCondition.determineWinners(endgame) should equal (List(0, 1, 4)) (after being unordered)
+
+  }
+
+  it should "count as a tanner / town win if the tanner dies and Ripper dies too" in {
+    val endgame = createEndgame(
+      left = Villager,
+      middle = Villager,
+      right = Villager,
+      playerCards = List(Villager, Villager, Fluffy, Ripper, Tanner),
+      deadPlayers = List(3, 4),
+    )
 
     WinCondition.determineWinners(endgame) should equal (List(0, 1, 4)) (after being unordered)
 
