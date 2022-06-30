@@ -88,4 +88,7 @@ object ActionPerformedRecord {
       case Position.Player(p) => position(p)
     }
 
+  def direction(dir: Direction)(using HtmlFragment, ImplicitUserMapping): Unit =
+    b.attr("class" := "game-entity game-entity-table-direction") { t(dir.name) }
+
 }
