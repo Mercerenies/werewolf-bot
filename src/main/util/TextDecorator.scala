@@ -26,4 +26,7 @@ object TextDecorator {
   val strikeout = fromMessageDecoration(MessageDecoration.STRIKEOUT)
   val underline = fromMessageDecoration(MessageDecoration.UNDERLINE)
 
+  def bulletedList(items: List[String]): String =
+    items.map { "• " ++ _ }.mkString("\n")
+
 }

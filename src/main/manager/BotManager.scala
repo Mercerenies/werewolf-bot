@@ -4,6 +4,7 @@ package manager
 
 import command.{CommandList, Command}
 import event.{GamesReactionListener, GamesMessageListener, GamesDirectMessageListener}
+import game.role.RoleCommands
 
 import org.javacord.api.DiscordApi
 
@@ -20,7 +21,9 @@ final class BotManager(
   private val games = GamesManager(api)
 
   private val commands = CommandList(
-    Command.Sub("wolfie", "Base for Werewolf-related commands")(games.commands: _*),
+    Command.Sub("wolfie", "Base for Werewolf-related commands")(
+      (RoleCommands.ListCommand :: games.commands): _*,
+    ),
   )
 
   private val commandManager = commands.register(api)
