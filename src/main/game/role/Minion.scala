@@ -4,7 +4,7 @@ package game
 package role
 
 import id.{Id, UserMapping}
-import instance.RoleInstance
+import instance.{RoleInstance, WerewolfRoleInstance}
 import util.TextDecorator.*
 import util.Grammar
 import wincon.{WinCondition, MinionWinCondition}
@@ -36,7 +36,7 @@ object Minion extends Role {
       for {
         board <- GameContext.getBoard
         message <- {
-          val werewolfIds = Werewolf.findWerewolfIds(board)
+          val werewolfIds = WerewolfRoleInstance.findWerewolfIds(board)
           if (werewolfIds.isEmpty) {
             // No werewolves, so show a special message.
             for {
@@ -47,7 +47,7 @@ object Minion extends Role {
               FeedbackMessage("There are " + bold("no werewolves") + " at this time.")
             }
           } else {
-            Werewolf.shareWerewolfTeam(mapping, this, userId, werewolfIds)
+            WerewolfRoleInstance.shareWerewolfTeam(mapping, this, userId, werewolfIds)
           }
         }
       } yield {

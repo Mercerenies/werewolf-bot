@@ -5,7 +5,7 @@ package role
 
 import logging.Logging
 import name.NoValue
-import instance.RoleInstance
+import instance.{RoleInstance, WerewolfRoleInstance}
 import id.{Id, UserMapping}
 import util.Grammar
 import util.TextDecorator.*
@@ -28,7 +28,7 @@ final class FluffyRipper private(
   val target: GroupedRoleIdentity,
 ) extends Role {
 
-  override class Instance(private val mapping: UserMapping) extends RoleInstance {
+  override class Instance(private val mapping: UserMapping) extends WerewolfRoleInstance(mapping) {
     import Instance.logger
 
     override val role: FluffyRipper.this.type = FluffyRipper.this
@@ -36,37 +36,11 @@ final class FluffyRipper private(
     override val coherenceProof =
       summon[this.type <:< role.Instance]
 
-    override val nightHandler: NightMessageHandler =
-      NoInputNightMessageHandler
-
-    override def nightAction(userId: Id[User]): GameContext[FeedbackMessage] = {
-      import ActionPerformedRecord.*
-      for {
-        board <- GameContext.getBoard
-        message <- {
-          val werewolfIds = Werewolf.findWerewolfIds(board)
-          val werewolfNames = werewolfIds.map { mapping.nameOf(_) }.sorted
-          val werewolfNamesList = Grammar.conjunctionList(werewolfNames)
-          for {
-            _ <- GameContext.record(ActionPerformedRecord(this.toSnapshot, userId) {
-              t("was informed that the werewolf team consists of ")
-              b { t(werewolfNamesList) }
-              t(".")
-            })
-          } yield {
-            FeedbackMessage("The werewolf team consists of " + bold(werewolfNamesList) + ".")
-          }
-        }
-      } yield {
-        message
-      }
-    }
-
-    override val winCondition: WinCondition =
+    override def winCondition: WinCondition =
       FluffyRipperWinCondition(owner = FluffyRipper.this, target = target)
 
     override def seenAs: List[GroupedRoleIdentity] =
-      List(GroupedRoleIdentity.Werewolf, identity)
+      identity :: super.seenAs
 
   }
 

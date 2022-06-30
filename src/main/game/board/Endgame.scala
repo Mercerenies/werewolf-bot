@@ -4,7 +4,8 @@ package game
 package board
 
 import id.Id
-import role.{Role, Werewolf}
+import role.Role
+import role.instance.WerewolfRoleInstance
 
 import org.javacord.api.entity.user.User
 
@@ -17,7 +18,7 @@ final class Endgame(
 ) {
 
   def werewolves: List[Id[User]] =
-    Werewolf.findWerewolfIds(board)
+    WerewolfRoleInstance.findWerewolfIds(board)
 
   def anyWerewolvesDied: Boolean =
     !(werewolves.toSet & deaths.toSet).isEmpty
