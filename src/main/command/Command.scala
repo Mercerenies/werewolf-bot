@@ -22,6 +22,7 @@ object Command {
   case class Term(
     override val name: String,
     override val description: String,
+    val arguments: List[SlashCommandOption] = Nil,
   )(
     val perform: (SlashCommandInteraction) => Unit,
   ) extends Command {
@@ -30,7 +31,7 @@ object Command {
       SlashCommand.`with`(name, description)
 
     override def toCommandOption: SlashCommandOption =
-      SlashCommandOption.create(SlashCommandOptionType.SUB_COMMAND, name, description)
+      SlashCommandOption.createWithOptions(SlashCommandOptionType.SUB_COMMAND, name, description, arguments.asJava)
 
     override def invoke(interaction: SlashCommandInteraction, namedArgs: List[String]) =
       perform(interaction)

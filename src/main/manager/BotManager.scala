@@ -22,7 +22,7 @@ final class BotManager(
 
   private val commands = CommandList(
     Command.Sub("wolfie", "Base for Werewolf-related commands")(
-      (RoleCommands.ListCommand :: games.commands): _*,
+      (RoleCommands.ListCommand :: RoleCommands.DescribeCommand :: games.commands): _*,
     ),
   )
 
