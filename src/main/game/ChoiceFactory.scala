@@ -56,4 +56,7 @@ final class ChoiceFactory(namedUsers: List[NamedUser]) {
       case Some(userId) => oneOrTwoPlayersNotSelf(userId)
     }
 
+  def direction: Choice[Direction] =
+    oneOf(Direction.all)
+
 }
