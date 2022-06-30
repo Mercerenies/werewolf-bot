@@ -58,6 +58,12 @@ case class PlayerOrder(
   def rightOf(id: Id[User]): Id[User] =
     getWrapped(indexOfChecked(id) + 1)
 
+  def sideOf(id: Id[User], dir: Direction): Id[User] =
+    dir match {
+      case Direction.Left => leftOf(id)
+      case Direction.Right => rightOf(id)
+    }
+
   def adjacentPlayers(id: Id[User]): (Id[User], Id[User]) =
     (leftOf(id), rightOf(id))
 
