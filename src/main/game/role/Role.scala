@@ -68,6 +68,7 @@ object Role {
     Seer,
     Sheep,
     Tanner,
+    Thing,
     Troublemaker,
     Villager,
     Werewolf,
