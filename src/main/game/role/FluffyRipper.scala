@@ -63,7 +63,7 @@ final class FluffyRipper private(
     this.Instance(mapping)
 
   override val introBlurb: String =
-    "You are " + bold(name) + ". You count as a werewolf and will be informed of the other werewolves."
+    "You are " + bold(name) + ". You count as a werewolf and will be informed of the other werewolves. Like a werewolf, you may choose a center card to view if there are no other werewolves."
 
   override def inspiration: Inspiration =
     Inspiration.Custom
