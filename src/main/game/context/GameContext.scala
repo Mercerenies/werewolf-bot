@@ -6,6 +6,7 @@ package context
 import id.Id
 import board.{Board, Position, PlayerOrder}
 import record.{RecordedGameHistory, GameRecord, SnapshotRecord}
+import response.FeedbackMessage
 
 import org.javacord.api.entity.user.User
 
@@ -31,6 +32,7 @@ final class GameContext[A] private(
       board = state.board,
       history = history ++ newHistory,
       revealedCards = state.revealedCards,
+      playerFeedback = state.playerFeedback,
       result = a,
     )
   }
@@ -81,6 +83,12 @@ object GameContext {
 
   def revealCard(pos: Position): GameContext[Unit] =
     GameContext(StateT.modify { _.withRevealed(pos) })
+
+  def feedback(user: Id[User], message: FeedbackMessage): GameContext[Unit] =
+    GameContext(StateT.modify { _.feedback(user, message) })
+
+  def feedback(user: Id[User], first: String, rest: String*): GameContext[Unit] =
+    feedback(user, FeedbackMessage.messages(first :: rest.toList))
 
   val recordCurrentBoard: GameContext[Unit] =
     for {

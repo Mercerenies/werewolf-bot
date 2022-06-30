@@ -34,8 +34,8 @@ object Bodyguard extends Role {
     override val nightHandler: NightMessageHandler =
       NoInputNightMessageHandler
 
-    override def nightAction(userId: Id[User]): GameContext[FeedbackMessage] =
-      FeedbackMessage.none.point
+    override def nightAction(userId: Id[User]): GameContext[Unit] =
+      ().point
 
     override def votePhaseAction(userId: Id[User]): VotesContext[Boolean] =
       import ActionPerformedRecord.*

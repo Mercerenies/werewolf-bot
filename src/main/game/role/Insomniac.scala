@@ -41,7 +41,7 @@ object Insomniac extends Role {
     override val nightHandler: NightMessageHandler =
       NoInputNightMessageHandler
 
-    override def nightAction(userId: Id[User]): GameContext[FeedbackMessage] = {
+    override def nightAction(userId: Id[User]): GameContext[Unit] = {
       import ActionPerformedRecord.*
       for {
         board <- GameContext.getBoard
@@ -57,8 +57,9 @@ object Insomniac extends Role {
             FeedbackMessage(s"You awake to find that your role card is ${bold(insomniacCard.name)}.")
           }
         }
+        _ <- GameContext.feedback(userId, mainMessage)
       } yield {
-        mainMessage
+        ()
       }
     }
 

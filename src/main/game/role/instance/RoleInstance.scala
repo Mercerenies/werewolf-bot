@@ -46,7 +46,7 @@ trait RoleInstance {
 
   def votesPrecedence: Int = VotesPrecedence.NO_ACTION
 
-  def nightAction(userId: Id[User]): GameContext[FeedbackMessage]
+  def nightAction(userId: Id[User]): GameContext[Unit]
 
   def winCondition: WinCondition
 

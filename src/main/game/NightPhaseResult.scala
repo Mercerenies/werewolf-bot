@@ -19,11 +19,11 @@ case class NightPhaseResult(
 
 object NightPhaseResult {
 
-  def fromContextResult(result: ContextResult[Iterable[(Id[User], FeedbackMessage)]]): NightPhaseResult =
+  def fromContextResult[U](result: ContextResult[U]): NightPhaseResult =
     NightPhaseResult(
       board = result.board,
       history = result.history,
-      feedback = result.result.toMap,
+      feedback = result.playerFeedback.withDefault(_ => FeedbackMessage.none),
       revealedCards = result.revealedCards,
     )
 

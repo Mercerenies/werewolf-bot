@@ -17,9 +17,9 @@ object NightPhaseEvaluator {
 
   def evaluate(board: Board, order: PlayerOrder, records: RecordedGameHistory): NightPhaseResult = {
     val instances = board.playerRoleInstances.sortBy { (_, roleInstance) => - roleInstance.role.precedence }
-    val computation: GameContext[List[(Id[User], FeedbackMessage)]] = instances.traverse { (userId, roleInstance) =>
-      roleInstance.nightAction(userId).map { (userId, _) }
-    }
+    val computation: GameContext[Unit] = instances.traverse { (userId, roleInstance) =>
+      roleInstance.nightAction(userId)
+    }.void
     val contextResult = computation.run(board, order, records)
     NightPhaseResult.fromContextResult(contextResult)
   }

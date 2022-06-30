@@ -52,7 +52,7 @@ object ParanormalInvestigator extends Role {
       nightHandlerImpl
 
     // Returns feedback and also whether or not to continue
-    private def lookAt(userId: Id[User], target: Id[User]): GameContext[(FeedbackMessage, Boolean)] = {
+    private def lookAt(userId: Id[User], target: Id[User]): GameContext[Boolean] = {
       import ActionPerformedRecord.*
       for {
         board <- GameContext.getBoard
@@ -84,48 +84,47 @@ object ParanormalInvestigator extends Role {
             t(".")
           })
         }
-      } yield {
-        val baseMessage = FeedbackMessage(s"The card in front of ${bold(mapping.nameOf(target))} is ${bold(viewedRole.name)}.")
-        val message = if (shouldCopyWincon) {
-          baseMessage ++ FeedbackMessage(bold("You have copied that card."), newRoleInstance.role.introBlurb, newRoleInstance.winCondition.blurb)
-        } else {
-          baseMessage
+        _ <- GameContext.feedback(userId, s"The card in front of ${bold(mapping.nameOf(target))} is ${bold(viewedRole.name)}.")
+        _ <- whenM(shouldCopyWincon) {
+          GameContext.feedback(userId, bold("You have copied that card."), newRoleInstance.role.introBlurb, newRoleInstance.winCondition.blurb)
         }
-        (message, !shouldCopyWincon)
+      } yield {
+        !shouldCopyWincon
       }
     }
 
-    override def nightAction(userId: Id[User]): GameContext[FeedbackMessage] = {
+    override def nightAction(userId: Id[User]): GameContext[Unit] = {
       import ActionPerformedRecord.*
       val playerChoice = nightHandlerImpl.currentChoice
       for {
         board <- GameContext.getBoard
-        message <- playerChoice match {
+        _ <- playerChoice match {
           case None => {
             for {
               _ <- GameContext.record(ActionPerformedRecord(this.toSnapshot, userId) {
                 t("chose not to look at any cards.")
               })
+              _ <- GameContext.feedback(userId, "You elected not to look at any cards.")
             } yield {
-              FeedbackMessage(s"You elected not to look at any cards.")
+              ()
             }
           }
           case Some((first, optSecond)) => {
             lookAt(userId, first.id) >>= {
-              case (firstMessage, true) if optSecond.isDefined => {
-                lookAt(userId, optSecond.get.id) map { (secondMessage, _) => firstMessage ++ secondMessage }
+              case true if optSecond.isDefined => {
+                lookAt(userId, optSecond.get.id).void
               }
-              case (firstMessage, _) => {
+              case _ => {
                 // In this case, either we saw a non-town card or we
                 // chose not to look at a second card. In either case,
                 // don't continue.
-                firstMessage.point
+                ().point
               }
             }
           }
         }
       } yield {
-        message
+        ()
       }
     }
 

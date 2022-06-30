@@ -6,6 +6,7 @@ package context
 import board.{Board, Position}
 import id.Id
 import record.RecordedGameHistory
+import response.FeedbackMessage
 
 import org.javacord.api.entity.user.User
 
@@ -17,6 +18,8 @@ case class ContextResult[+A](
   val history: RecordedGameHistory,
   // The set of revealed cards.
   val revealedCards: Set[Position],
+  // The feedback to all players.
+  val playerFeedback: Map[Id[User], FeedbackMessage],
   // The monadic result.
   val result: A,
 )

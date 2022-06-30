@@ -32,7 +32,7 @@ object Sheep extends Role {
     override val nightHandler: NightMessageHandler =
       NoInputNightMessageHandler
 
-    override def nightAction(userId: Id[User]): GameContext[FeedbackMessage] = {
+    override def nightAction(userId: Id[User]): GameContext[Unit] = {
       import ActionPerformedRecord.*
       for {
         board <- GameContext.getBoard
@@ -57,8 +57,9 @@ object Sheep extends Role {
             }
           }
         }
+        _ <- GameContext.feedback(userId, message)
       } yield {
-        message
+        ()
       }
     }
 

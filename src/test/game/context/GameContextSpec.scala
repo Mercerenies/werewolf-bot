@@ -8,6 +8,7 @@ import board.{Board, Position, TablePosition, PlayerOrder}
 import id.{Id, UserMapping}
 import role.*
 import record.{RecordedGameHistory, GameRecord}
+import response.FeedbackMessage
 import util.html.HtmlFragment
 
 import scalaz.{Id => _, *}
@@ -37,7 +38,7 @@ class GameContextSpec extends UnitSpec {
   "The GameContext monad" should "provide access to the underlying board when asked" in {
     val board = sampleBoard()
 
-    val ContextResult(b1, history, _, b2) = GameContext.getBoard.run(board, sampleIds, RecordedGameHistory.empty)
+    val ContextResult(b1, history, _, _, b2) = GameContext.getBoard.run(board, sampleIds, RecordedGameHistory.empty)
     history.toVector shouldBe empty
     b1 should be (board)
     b2 should be (board)
@@ -47,7 +48,7 @@ class GameContextSpec extends UnitSpec {
   it should "provide access to the underlying user ID list when asked" in {
     val board = sampleBoard()
 
-    val ContextResult(s, history, _, ids) = GameContext.getPlayerOrder.run(board, sampleIds, RecordedGameHistory.empty)
+    val ContextResult(s, history, _, _, ids) = GameContext.getPlayerOrder.run(board, sampleIds, RecordedGameHistory.empty)
     history.toVector shouldBe empty
     s should be (board)
     ids should be (sampleIds)
@@ -64,7 +65,7 @@ class GameContextSpec extends UnitSpec {
     } yield {
       (originalBoard, modifiedBoard)
     }
-    val ContextResult(finalState, history, _, (originalBoard, modifiedBoard)) = m.run(board1, sampleIds, RecordedGameHistory.empty)
+    val ContextResult(finalState, history, _, _, (originalBoard, modifiedBoard)) = m.run(board1, sampleIds, RecordedGameHistory.empty)
     history.toVector shouldBe empty
     finalState should be (board2)
     modifiedBoard should be (board2)
@@ -81,7 +82,7 @@ class GameContextSpec extends UnitSpec {
     } yield {
       (originalBoard, modifiedBoard)
     }
-    val ContextResult(finalState, history, _, (originalBoard, modifiedBoard)) = m.run(board1, sampleIds, RecordedGameHistory.empty)
+    val ContextResult(finalState, history, _, _, (originalBoard, modifiedBoard)) = m.run(board1, sampleIds, RecordedGameHistory.empty)
     history.toVector shouldBe empty
     finalState should be (board2)
     modifiedBoard should be (board2)
@@ -159,6 +160,29 @@ class GameContextSpec extends UnitSpec {
 
     val result = m.run(sampleBoard(), sampleIds, RecordedGameHistory.empty)
     result.history.toList should be (List(gameEvent1, gameEvent2, CensoredGameRecord(gameEvent3), CensoredGameRecord(gameEvent4), gameEvent5, gameEvent6))
+
+  }
+
+  it should "record feedback directed at players" in {
+    val board = sampleBoard()
+
+    val feedback1 = FeedbackMessage("feedback1")
+    val feedback2a = FeedbackMessage("feedback2a")
+    val feedback2b = FeedbackMessage("feedback2b")
+
+    val m = for {
+      _ <- GameContext.feedback(Id.fromLong(1), feedback1)
+      _ <- GameContext.feedback(Id.fromLong(2), feedback2a)
+      _ <- GameContext.feedback(Id.fromLong(2), feedback2b)
+    } yield {
+      ()
+    }
+
+    val result = m.run(sampleBoard(), sampleIds, RecordedGameHistory.empty)
+    result.playerFeedback should be (Map(
+      Id.fromLong(1) -> feedback1,
+      Id.fromLong(2) -> (feedback2a ++ feedback2b),
+    ))
 
   }
 

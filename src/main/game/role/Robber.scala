@@ -49,7 +49,7 @@ object Robber extends Role {
     override val nightHandler: NightMessageHandler =
       nightHandlerImpl
 
-    override def nightAction(userId: Id[User]): GameContext[FeedbackMessage] = {
+    override def nightAction(userId: Id[User]): GameContext[Unit] = {
       import ActionPerformedRecord.*
       val playerChoice = nightHandlerImpl.currentChoice
       for {
@@ -82,8 +82,9 @@ object Robber extends Role {
             }
           }
         }
+        _ <- GameContext.feedback(userId, message)
       } yield {
-        message
+        ()
       }
     }
 

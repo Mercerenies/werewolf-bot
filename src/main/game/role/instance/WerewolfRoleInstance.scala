@@ -53,7 +53,7 @@ trait WerewolfRoleInstance(private val mapping: UserMapping) extends RoleInstanc
   override def nightHandler: NightMessageHandler =
     nightHandlerImpl
 
-  override def nightAction(userId: Id[User]): GameContext[FeedbackMessage] = {
+  override def nightAction(userId: Id[User]): GameContext[Unit] = {
     import ActionPerformedRecord.*
     import WerewolfRoleInstance.{shareWerewolfTeam, viewCenterCard, findWerewolfIds}
     val tablePos = nightHandlerImpl.currentChoice
@@ -68,8 +68,9 @@ trait WerewolfRoleInstance(private val mapping: UserMapping) extends RoleInstanc
           shareWerewolfTeam(mapping, this, userId, werewolfIds)
         }
       }
+      _ <- GameContext.feedback(userId, message)
     } yield {
-      message
+      ()
     }
   }
 

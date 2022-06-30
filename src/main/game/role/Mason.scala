@@ -38,11 +38,11 @@ object Mason extends Role {
     override val nightHandler: NightMessageHandler =
       NoInputNightMessageHandler
 
-    override def nightAction(userId: Id[User]): GameContext[FeedbackMessage] = {
+    override def nightAction(userId: Id[User]): GameContext[Unit] = {
       import ActionPerformedRecord.*
       for {
         board <- GameContext.getBoard
-        message <- {
+        _ <- {
           val masonIds = findMasonIds(board)
           if (masonIds.length <= 1) {
             for {
@@ -50,8 +50,9 @@ object Mason extends Role {
                 t("was informed that they are the ")
                 b { t("only mason") }
               })
+              _ <- GameContext.feedback(userId, "You are the " + bold("only mason") + ".")
             } yield {
-              FeedbackMessage("You are the " + bold("only mason") + ".")
+              ()
             }
           } else {
             val masonNames = masonIds.map { mapping.nameOf(_) }.sorted
@@ -61,13 +62,14 @@ object Mason extends Role {
                 t("was informed that the werewolf team consists of ")
                 b { t(masonNamesList) }
               })
+              _ <- GameContext.feedback(userId, "The mason team consists of " + bold(masonNamesList) + ".")
             } yield {
-              FeedbackMessage("The mason team consists of " + bold(masonNamesList) + ".")
+              ()
             }
           }
         }
       } yield {
-        message
+        ()
       }
     }
 

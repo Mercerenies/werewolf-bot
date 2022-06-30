@@ -48,7 +48,7 @@ object Drunk extends Role {
     override val nightHandler: NightMessageHandler =
       nightHandlerImpl
 
-    override def nightAction(userId: Id[User]): GameContext[FeedbackMessage] = {
+    override def nightAction(userId: Id[User]): GameContext[Unit] = {
       import ActionPerformedRecord.*
       val (playerChoice, forgotMessage) = nightHandlerImpl.currentChoice match {
         case None => (TablePosition.Left, FeedbackMessage("Assuming you copied the " + bold("left card") + "."))
@@ -70,8 +70,9 @@ object Drunk extends Role {
             FeedbackMessage(s"You have swapped your card with the ${bold(playerChoice.name)} card.")
           }
         }
+        _ <- GameContext.feedback(userId, forgotMessage ++ mainMessage)
       } yield {
-        forgotMessage ++ mainMessage
+        ()
       }
     }
 
