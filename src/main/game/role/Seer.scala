@@ -17,6 +17,7 @@ import choice.syntax.*
 import parser.assignment.NamedUser
 import context.GameContext
 import record.ActionPerformedRecord
+import source.{Inspiration, SourceMaterial}
 
 import org.javacord.api.entity.user.User
 
@@ -127,5 +128,8 @@ object Seer extends Role {
 
   override val introBlurb: String =
     "You are the " + bold("Seer") + ". You may look at two cards in the center, or one card in front of another player."
+
+  override def inspiration: Inspiration =
+    Inspiration.LiftedFrom(SourceMaterial.Werewolf)
 
 }

@@ -19,6 +19,7 @@ import choice.syntax.*
 import parser.assignment.NamedUser
 import context.GameContext
 import record.ActionPerformedRecord
+import source.{Inspiration, SourceMaterial}
 
 import org.javacord.api.entity.user.User
 
@@ -165,5 +166,8 @@ object ParanormalInvestigator extends Role {
 
   override val introBlurb: String =
     "You are the " + bold("Paranormal Investigator") + ". You may look at up to two other players' cards. If you look at a non-town card, you must stop looking, and your win condition becomes that of the card you looked at."
+
+  override def inspiration: Inspiration =
+    Inspiration.LiftedFrom(SourceMaterial.Daybreak)
 
 }

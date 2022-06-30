@@ -17,6 +17,7 @@ import choice.syntax.*
 import parser.assignment.NamedUser
 import context.GameContext
 import record.ActionPerformedRecord
+import source.{Inspiration, SourceMaterial}
 
 import org.javacord.api.entity.user.User
 
@@ -108,5 +109,8 @@ object Witch extends Role {
 
   override val introBlurb: String =
     "You are the " + bold("Witch") + ". You may view a center card and, if you do, you must choose a player to swap that card with. You do not view the player's card in the process."
+
+  override def inspiration: Inspiration =
+    Inspiration.LiftedFrom(SourceMaterial.Daybreak)
 
 }

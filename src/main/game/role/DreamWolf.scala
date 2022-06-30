@@ -16,6 +16,7 @@ import response.FeedbackMessage
 import context.GameContext
 import choice.syntax.*
 import record.ActionPerformedRecord
+import source.{Inspiration, SourceMaterial}
 
 import org.javacord.api.entity.user.User
 
@@ -68,5 +69,8 @@ object DreamWolf extends Role {
 
   override val introBlurb: String =
     "You are a " + bold("Dream Wolf") + ". You are a member of the werewolf team but you do not know who the other werewolves (if any) are. They are aware of you."
+
+  override def inspiration: Inspiration =
+    Inspiration.LiftedFrom(SourceMaterial.Daybreak)
 
 }

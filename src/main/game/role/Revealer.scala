@@ -17,6 +17,7 @@ import choice.syntax.*
 import parser.assignment.NamedUser
 import context.GameContext
 import record.ActionPerformedRecord
+import source.{Inspiration, SourceMaterial}
 
 import org.javacord.api.entity.user.User
 
@@ -119,5 +120,8 @@ object Revealer extends Role {
 
   override val introBlurb: String =
     "You are the " + bold("Revealer") + ". You may choose to look at a card in front of a player. If that card is town-aligned, the card remains face-up and will be revealed publicly at day start."
+
+  override def inspiration: Inspiration =
+    Inspiration.LiftedFrom(SourceMaterial.Daybreak)
 
 }

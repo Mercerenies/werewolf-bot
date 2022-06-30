@@ -13,6 +13,7 @@ import response.FeedbackMessage
 import context.GameContext
 import votes.context.VotesContext
 import record.ActionPerformedRecord
+import source.{Inspiration, SourceMaterial}
 
 import org.javacord.api.entity.user.User
 
@@ -79,5 +80,8 @@ object Hunter extends Role {
 
   override val introBlurb: String =
     "You are the " + bold("Hunter") + ". If you die, then whoever you vote for dies as well."
+
+  override def inspiration: Inspiration =
+    Inspiration.LiftedFrom(SourceMaterial.Werewolf)
 
 }

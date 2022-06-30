@@ -13,6 +13,7 @@ import board.{Board, PlayerOrder}
 import response.FeedbackMessage
 import context.GameContext
 import record.ActionPerformedRecord
+import source.{Inspiration, SourceMaterial}
 
 import org.javacord.api.entity.user.User
 
@@ -81,6 +82,9 @@ object Sheep extends Role {
 
   override val introBlurb: String =
     "You are the " + bold("Sheep") + ". You will be told if there is a werewolf to the immediate left or right of you."
+
+  override def inspiration: Inspiration =
+    Inspiration.InspiredBy("Cow", SourceMaterial.Alien)
 
   def isWerewolfAdjacent(board: Board, order: PlayerOrder, user: Id[User]): Boolean =
     order.adjacentPlayers(user).toList.exists { playerId =>

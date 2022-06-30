@@ -16,6 +16,7 @@ import response.FeedbackMessage
 import context.GameContext
 import choice.syntax.*
 import record.ActionPerformedRecord
+import source.{Inspiration, SourceMaterial}
 
 import org.javacord.api.entity.user.User
 
@@ -106,4 +107,6 @@ object Mason extends Role {
       userId
     }
 
+  override def inspiration: Inspiration =
+    Inspiration.LiftedFrom(SourceMaterial.Werewolf)
 }

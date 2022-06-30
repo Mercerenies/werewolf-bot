@@ -16,6 +16,7 @@ import response.FeedbackMessage
 import context.GameContext
 import choice.syntax.*
 import record.ActionPerformedRecord
+import source.{Inspiration, SourceMaterial}
 
 import org.javacord.api.entity.user.User
 
@@ -63,6 +64,9 @@ final class FluffyRipper private(
 
   override val introBlurb: String =
     "You are " + bold(name) + ". You count as a werewolf and will be informed of the other werewolves."
+
+  override def inspiration: Inspiration =
+    Inspiration.Custom
 
 }
 

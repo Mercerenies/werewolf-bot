@@ -11,6 +11,7 @@ import night.{NightMessageHandler, NoInputNightMessageHandler}
 import board.Board
 import response.FeedbackMessage
 import context.GameContext
+import source.{Inspiration, SourceMaterial}
 
 import org.javacord.api.entity.user.User
 
@@ -52,5 +53,8 @@ object Villager extends Role {
 
   override val introBlurb: String =
     "You are a " + bold("Villager") + ". You have no special abilities to activate."
+
+  override def inspiration: Inspiration =
+    Inspiration.LiftedFrom(SourceMaterial.Werewolf)
 
 }

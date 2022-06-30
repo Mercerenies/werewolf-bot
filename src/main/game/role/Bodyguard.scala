@@ -15,6 +15,7 @@ import context.GameContext
 import votes.Votals
 import votes.context.VotesContext
 import record.ActionPerformedRecord
+import source.{Inspiration, SourceMaterial}
 
 import org.javacord.api.entity.user.User
 
@@ -93,6 +94,9 @@ object Bodyguard extends Role {
 
   override val introBlurb: String =
     "You are the " + bold("Bodyguard") + ". Whoever you vote for is incapable of dying. If the player you vote has the majority of votes, then whoever has the second-most dies instead."
+
+  override def inspiration: Inspiration =
+    Inspiration.LiftedFrom(SourceMaterial.Daybreak)
 
   private def secondMostMajority[A](votals: Votals[A]): List[A] = {
     val majority = votals.majority

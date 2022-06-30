@@ -17,6 +17,7 @@ import choice.syntax.*
 import parser.assignment.NamedUser
 import context.GameContext
 import record.ActionPerformedRecord
+import source.{Inspiration, SourceMaterial}
 
 import org.javacord.api.entity.user.User
 
@@ -94,5 +95,8 @@ object Drunk extends Role {
 
   override val introBlurb: String =
     "You are the " + bold("Drunk") + ". You must select a center card. Your card will be swapped with that center card. You do not get to see either card in the process."
+
+  override def inspiration: Inspiration =
+    Inspiration.LiftedFrom(SourceMaterial.Werewolf)
 
 }

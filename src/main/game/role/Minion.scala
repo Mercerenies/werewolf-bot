@@ -13,6 +13,7 @@ import board.Board
 import response.FeedbackMessage
 import context.GameContext
 import record.ActionPerformedRecord
+import source.{Inspiration, SourceMaterial}
 
 import org.javacord.api.entity.user.User
 
@@ -75,5 +76,8 @@ object Minion extends Role {
 
   override val introBlurb: String =
     "You are the " + bold("Minion") + ". You will be informed of who the werewolves are, and you win if they win. You are not a werewolf. If there are no werewolves, you may win with the town."
+
+  override def inspiration: Inspiration =
+    Inspiration.LiftedFrom(SourceMaterial.Werewolf)
 
 }

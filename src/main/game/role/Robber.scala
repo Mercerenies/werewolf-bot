@@ -17,6 +17,7 @@ import choice.syntax.*
 import parser.assignment.NamedUser
 import context.GameContext
 import record.ActionPerformedRecord
+import source.{Inspiration, SourceMaterial}
 
 import org.javacord.api.entity.user.User
 
@@ -106,5 +107,8 @@ object Robber extends Role {
 
   override val introBlurb: String =
     "You are the " + bold("Robber") + ". You may select a player and swap your card with their own, looking at your new card in the process."
+
+  override def inspiration: Inspiration =
+    Inspiration.LiftedFrom(SourceMaterial.Werewolf)
 
 }

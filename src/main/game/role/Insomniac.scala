@@ -17,6 +17,7 @@ import choice.syntax.*
 import parser.assignment.NamedUser
 import context.GameContext
 import record.ActionPerformedRecord
+import source.{Inspiration, SourceMaterial}
 
 import org.javacord.api.entity.user.User
 
@@ -82,4 +83,6 @@ object Insomniac extends Role {
   override val introBlurb: String =
     "You are the " + bold("Insomniac") + ". At the end of the night, you will be informed of which role you have."
 
+  override def inspiration: Inspiration =
+    Inspiration.LiftedFrom(SourceMaterial.Werewolf)
 }

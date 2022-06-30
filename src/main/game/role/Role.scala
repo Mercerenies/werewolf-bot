@@ -8,6 +8,7 @@ import id.{Id, UserMapping}
 import instance.RoleInstance
 import util.TextDecorator.*
 import wincon.WinCondition
+import source.{Inspiration, SourceMaterial}
 
 import org.javacord.api.entity.user.User
 
@@ -41,6 +42,8 @@ trait Role extends NamedEntity {
   def createInstance(mapping: UserMapping, initialUser: Option[Id[User]]): this.Instance
 
   def introBlurb: String
+
+  def inspiration: Inspiration
 
 }
 

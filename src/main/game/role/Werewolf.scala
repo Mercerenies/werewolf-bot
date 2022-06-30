@@ -16,6 +16,7 @@ import response.FeedbackMessage
 import context.GameContext
 import choice.syntax.*
 import record.ActionPerformedRecord
+import source.{Inspiration, SourceMaterial}
 
 import org.javacord.api.entity.user.User
 
@@ -51,5 +52,8 @@ object Werewolf extends Role {
 
   override val introBlurb: String =
     "You are a " + bold("Werewolf") + ". You will be informed of who the other werewolves are. If there are no other werewolves, you may look at a card in the center of the table."
+
+  override def inspiration: Inspiration =
+    Inspiration.LiftedFrom(SourceMaterial.Werewolf)
 
 }
