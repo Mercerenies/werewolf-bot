@@ -39,7 +39,7 @@ object VotingEvaluator {
     //
     // Q.E.D
     val action = allIterations(board, order, order.length + 1)
-    val VotesContextResult(finalRoster, history, _) = action.run(votes, initialRoster, RecordedGameHistory.empty)
+    val VotesContextResult(finalRoster, history, _) = action.run(board, votes, initialRoster, RecordedGameHistory.empty)
 
     (finalRoster, history)
   }

@@ -6,6 +6,7 @@ package context
 
 import record.{RecordedGameHistory, GameRecord, SnapshotRecord}
 import id.Id
+import board.Board
 
 import org.javacord.api.entity.user.User
 
@@ -36,8 +37,8 @@ final class VotesContext[A] private(
   private val impl: StateT[VotesContextState, Writer[RecordedGameHistory, _], A],
 ) {
 
-  def run(votals: Votals[Id[User]], roster: DeathRoster[Id[User]], history: RecordedGameHistory): VotesContextResult[A] = {
-    val wba = impl(VotesContextState(votals, roster))
+  def run(board: Board, votals: Votals[Id[User]], roster: DeathRoster[Id[User]], history: RecordedGameHistory): VotesContextResult[A] = {
+    val wba = impl(VotesContextState(votals, roster, board))
     val (newHistory, (state, a)) = wba.run
     // Note: We ignore state.votals, since none of the public
     // functions in this file modify that, so it's effectively a
@@ -58,6 +59,9 @@ object VotesContext {
 
   val getVotals: VotesContext[Votals[Id[User]]] =
     VotesContext(StateT.gets { _.votals })
+
+  val getBoard: VotesContext[Board] =
+    VotesContext(StateT.gets { _.board })
 
   // Note: The caveats at the top of this file apply to .perform as
   // well. The action performed by a call to this function should be
