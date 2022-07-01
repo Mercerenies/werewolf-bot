@@ -53,6 +53,7 @@ object Role {
 
   val all: List[Role] = List(
     Bodyguard,
+    Cursed,
     DreamWolf,
     Drunk,
     Exposer,

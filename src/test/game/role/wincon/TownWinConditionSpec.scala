@@ -79,4 +79,58 @@ class TownWinConditionSpec extends UnitSpec {
 
   }
 
+  it should "count a town + unturned Cursed victory if no one dies and there are no werewolves" in {
+    val endgame = createEndgame(
+      left = Villager,
+      middle = Villager,
+      right = Villager,
+      playerCards = List(Villager, Villager, Villager, Villager, Cursed),
+      deadPlayers = List(),
+    )
+
+    WinCondition.determineWinners(endgame) should equal (List(0, 1, 2, 3, 4)) (after being unordered)
+
+  }
+
+  it should "count a town + unturned Cursed victory if a werewolf dies" in {
+    val endgame = createEndgame(
+      left = Villager,
+      middle = Villager,
+      right = Villager,
+      playerCards = List(Villager, Villager, Villager, Villager, Cursed, Werewolf),
+      deadPlayers = List(5),
+    )
+
+    WinCondition.determineWinners(endgame) should equal (List(0, 1, 2, 3, 4)) (after being unordered)
+
+  }
+
+  it should "count a town victory if a werewolf dies, in a game with a turned Cursed" in {
+    val endgame = createEndgame(
+      left = Villager,
+      middle = Villager,
+      right = Villager,
+      playerCards = List(Villager, Villager, Villager, Villager, Cursed, Werewolf),
+      deadPlayers = List(5),
+    )
+    endgame.board(Id.fromLong(4)).asInstanceOf[Cursed.Instance].turnToWerewolf()
+
+    WinCondition.determineWinners(endgame) should equal (List(0, 1, 2, 3)) (after being unordered)
+
+  }
+
+  it should "count a town victory if a turned Cursed dies" in {
+    val endgame = createEndgame(
+      left = Villager,
+      middle = Villager,
+      right = Villager,
+      playerCards = List(Villager, Villager, Villager, Villager, Cursed, Werewolf),
+      deadPlayers = List(4),
+    )
+    endgame.board(Id.fromLong(4)).asInstanceOf[Cursed.Instance].turnToWerewolf()
+
+    WinCondition.determineWinners(endgame) should equal (List(0, 1, 2, 3)) (after being unordered)
+
+  }
+
 }

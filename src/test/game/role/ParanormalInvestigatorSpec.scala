@@ -245,4 +245,19 @@ class ParanormalInvestigatorSpec extends GameplayUnitSpec {
 
   }
 
+  it should "not copy a Cursed player" in {
+    val board = createBoard(
+      left = Villager,
+      middle = Werewolf,
+      right = Villager,
+      playerCards = List(Villager, Werewolf, ParanormalInvestigator, Cursed, Tanner),
+    )
+    val (finalBoard, _, feedback, _) = playGame(board, List("", "", mockName(3) + " " + mockName(4), "", ""))
+    finalBoard should be (board)
+
+    finalBoard(id(2)).winCondition should be (TannerWinCondition)
+    finalBoard(id(2)).seenAs should be (List())
+
+  }
+
 }
