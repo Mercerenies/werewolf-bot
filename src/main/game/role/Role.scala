@@ -61,6 +61,7 @@ object Role {
     Insomniac,
     Mason,
     Minion,
+    MysticWolf,
     ParanormalInvestigator,
     Revealer,
     Ripper,
