@@ -49,7 +49,7 @@ object MysticWolf extends Role {
         _ <- {
           val werewolfIds = findWerewolfIds(board)
           if (werewolfIds.length <= 1) {
-            // There's one werewolf, so look at the center card.
+            // There's one werewolf. Mystic Wolf does not look in the center.
             for {
               _ <- GameContext.record(ActionPerformedRecord(this.toSnapshot, userId) {
                 t("is the ")
@@ -61,7 +61,7 @@ object MysticWolf extends Role {
               ()
           }
           } else {
-            shareWerewolfTeam(mapping, this, userId, werewolfIds)
+            shareWerewolfTeam(mapping, this, userId)
           }
         }
       } yield {

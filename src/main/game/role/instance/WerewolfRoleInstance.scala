@@ -74,7 +74,7 @@ trait WerewolfRoleInstance(private val mapping: UserMapping) extends RoleInstanc
             ()
           }
         } else {
-          shareWerewolfTeam(mapping, this, userId, werewolfIds)
+          shareWerewolfTeam(mapping, this, userId)
         }
       }
     } yield {
@@ -111,11 +111,13 @@ trait WerewolfRoleInstance(private val mapping: UserMapping) extends RoleInstanc
 
 object WerewolfRoleInstance {
 
-  def shareWerewolfTeam(mapping: UserMapping, instance: RoleInstance, userId: Id[User], werewolfIds: Iterable[Id[User]]): GameContext[Unit] = {
+  def shareWerewolfTeam(mapping: UserMapping, instance: RoleInstance, userId: Id[User]): GameContext[Unit] = {
     import ActionPerformedRecord.*
-    val names = werewolfIds.toList.map { mapping.nameOf(_) }.sorted
-    val namesList = Grammar.conjunctionList(names)
     for {
+      board <- GameContext.getBoard
+      werewolfIds = findWerewolfIds(board)
+      names = werewolfIds.toList.map { mapping.nameOf(_) }.sorted
+      namesList = Grammar.conjunctionList(names)
       _ <- GameContext.record(ActionPerformedRecord(instance.toSnapshot, userId) {
         t("was informed that the werewolf team consists of ")
         b { t(namesList) }

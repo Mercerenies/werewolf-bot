@@ -49,7 +49,7 @@ object Minion extends Role {
               ()
             }
           } else {
-            WerewolfRoleInstance.shareWerewolfTeam(mapping, this, userId, werewolfIds)
+            WerewolfRoleInstance.shareWerewolfTeam(mapping, this, userId)
           }
         }
       } yield {

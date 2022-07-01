@@ -131,13 +131,37 @@ class ParanormalInvestigatorSpec extends GameplayUnitSpec {
       left = Villager,
       middle = Werewolf,
       right = Villager,
-      playerCards = List(Villager, Villager, ParanormalInvestigator, DreamWolf, Tanner),
+      playerCards = List(Villager, Villager, ParanormalInvestigator, Werewolf, Tanner),
     )
     val (finalBoard, history, feedback, _) = playGame(board, List("", "", mockName(3), "", ""))
     finalBoard should be (board)
 
     finalBoard(id(2)).winCondition should be (WerewolfWinCondition)
     finalBoard(id(2)).seenAs should be (List(GroupedRoleIdentity.Werewolf))
+
+    feedback(id(2)).mkString should include (mockName(3))
+    feedback(id(2)).mkString should include regex ("(?i)werewolf")
+
+    val filtered = filterRecords(history)
+    history.toList should have length (4)
+    filtered should have length (3)
+    filtered(2).displayText(SampleUserMapping(5)) should include (mockName(3))
+    filtered(2).displayText(SampleUserMapping(5)) should include regex ("(?i)werewolf")
+
+  }
+
+  it should "transform into a Dream Wolf if one is observed" in {
+    val board = createBoard(
+      left = Villager,
+      middle = Werewolf,
+      right = Villager,
+      playerCards = List(Villager, Villager, ParanormalInvestigator, DreamWolf, Tanner),
+    )
+    val (finalBoard, history, feedback, _) = playGame(board, List("", "", mockName(3), "", ""))
+    finalBoard should be (board)
+
+    finalBoard(id(2)).winCondition should be (WerewolfWinCondition)
+    finalBoard(id(2)).seenAs should be (List(GroupedRoleIdentity.Werewolf, GroupedRoleIdentity.DreamWolf))
 
     feedback(id(2)).mkString should include (mockName(3))
     feedback(id(2)).mkString should include regex ("(?i)werewolf")
