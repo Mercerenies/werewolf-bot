@@ -33,17 +33,25 @@ object TestGameRunner {
 
     val playerIds = playerActions.indices.map(id).toList
 
+    // Run the dusk phase.
+    val NightPhaseResult(initialBoard, duskHistory, duskResponses, duskRevealedCards) = NightPhaseEvaluator.evaluate(board, NightPhase.Dusk, PlayerOrder(playerIds), RecordedGameHistory.empty)
+    // There are no roles that reveal cards at dusk, so assert that
+    // here.
+    assert(duskRevealedCards.isEmpty, s"The following cards were revealed at dusk: ${duskRevealedCards}")
+
     // Now send out all of the night actions (this mutates the
     // RoleInstance objects in the board)
     playerIds zip playerActions foreach { (playerId, nightAction) =>
-      val nightHandler = board(playerId).nightHandler
+      val nightHandler = initialBoard(playerId).nightHandler
       nightHandler.onDirectMessage(nightAction)
     }
 
     // Once all night actions have been collected, run the night
     // phase and collect feedback objects.
-    val NightPhaseResult(finalBoard, history, responses, revealedCards) = NightPhaseEvaluator.evaluate(board, PlayerOrder(playerIds), RecordedGameHistory.empty)
-    (finalBoard, history, responses.toMap, revealedCards)
+    val NightPhaseResult(finalBoard, history, responses, revealedCards) = NightPhaseEvaluator.evaluate(initialBoard, NightPhase.Night, PlayerOrder(playerIds), duskHistory)
+
+    val allResponses = util.merge(duskResponses, responses) { _ ++ _ }
+    (finalBoard, history, allResponses, revealedCards)
   }
 
   // Game simulator. Takes center cards and a list of players given by

@@ -32,11 +32,11 @@ object Minion extends Role {
     override val nightHandler: NightMessageHandler =
       NoInputNightMessageHandler
 
-    override def nightAction(userId: Id[User]): GameContext[Unit] = {
+    override def duskAction(userId: Id[User]): GameContext[Unit] = {
       import ActionPerformedRecord.*
       for {
         board <- GameContext.getBoard
-        message <- {
+        _ <- {
           val werewolfIds = WerewolfRoleInstance.findWerewolfIds(board)
           if (werewolfIds.isEmpty) {
             // No werewolves, so show a special message.
@@ -44,18 +44,21 @@ object Minion extends Role {
               _ <- GameContext.record(ActionPerformedRecord(this.toSnapshot, userId) {
                 t("was informed that there is no werewolf team.")
               })
+              _ <- GameContext.feedback(userId, "There are " + bold("no werewolves") + " at this time.")
             } yield {
-              FeedbackMessage("There are " + bold("no werewolves") + " at this time.")
+              ()
             }
           } else {
             WerewolfRoleInstance.shareWerewolfTeam(mapping, this, userId, werewolfIds)
           }
         }
-        _ <- GameContext.feedback(userId, message)
       } yield {
         ()
       }
     }
+
+    override def nightAction(userId: Id[User]): GameContext[Unit] =
+      ().point
 
     override val winCondition: WinCondition =
       MinionWinCondition

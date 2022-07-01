@@ -143,12 +143,7 @@ object RoleListState extends Logging[RoleListState] {
 
   private def sendInitialDirectMessage(server: Server, user: User, roleInstance: RoleInstance)(using ExecutionContext): Future[Unit] = {
     val username = user.getDisplayName(server)
-    for {
-      _ <- user.sendMessage(roleInstance.fullIntroMessage(username)).asScala
-      _ <- user.sendMessage(roleInstance.nightHandler.initialNightMessage).asScala
-    } yield {
-      ()
-    }
+    user.sendMessage(roleInstance.fullIntroMessage(username)).asScala.void
   }
 
 }

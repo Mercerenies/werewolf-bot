@@ -107,9 +107,12 @@ class WerewolfSpec extends GameplayUnitSpec {
     feedback(id(2)) should be (FeedbackMessage.none)
 
     val filtered = filterRecords(history)
-    filtered should have length (1)
-    filtered(0).displayText(SampleUserMapping(3)) should include regex ("(?i)right")
-    filtered(0).displayText(SampleUserMapping(3)) should include regex ("(?i)tanner")
+    filtered should have length (2)
+    filtered(0).displayText(SampleUserMapping(3)) should include regex ("(?i)solo")
+    filtered(0).displayText(SampleUserMapping(3)) should not include regex ("(?i)left|middle|right|tanner|villager")
+    filtered(1).displayText(SampleUserMapping(3)) should include regex ("(?i)solo")
+    filtered(1).displayText(SampleUserMapping(3)) should include regex ("(?i)right")
+    filtered(1).displayText(SampleUserMapping(3)) should include regex ("(?i)tanner")
 
   }
 
@@ -128,8 +131,9 @@ class WerewolfSpec extends GameplayUnitSpec {
     feedback(id(2)) should be (FeedbackMessage.none)
 
     val filtered = filterRecords(history)
-    filtered should have length (1)
+    filtered should have length (2)
     filtered(0).displayText(SampleUserMapping(3)) should not include regex ("(?i)left|middle|right|tanner|villager")
+    filtered(1).displayText(SampleUserMapping(3)) should not include regex ("(?i)left|middle|right|tanner|villager")
 
   }
 

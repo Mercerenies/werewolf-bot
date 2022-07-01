@@ -46,6 +46,11 @@ trait RoleInstance {
 
   def votesPrecedence: Int = VotesPrecedence.NO_ACTION
 
+  // The vast majority of roles do nothing at dusk, so the default
+  // implementation does nothing.
+  def duskAction(userId: Id[User]): GameContext[Unit] =
+    ().point
+
   def nightAction(userId: Id[User]): GameContext[Unit]
 
   def winCondition: WinCondition
