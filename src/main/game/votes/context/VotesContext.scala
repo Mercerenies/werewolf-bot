@@ -59,6 +59,15 @@ object VotesContext {
   val getVotals: VotesContext[Votals[Id[User]]] =
     VotesContext(StateT.gets { _.votals })
 
+  // Note: The caveats at the top of this file apply to .perform as
+  // well. The action performed by a call to this function should be
+  // idempotent and irreversible.
+  def perform[A](arg: => A): VotesContext[A] =
+    VotesContext(StateT { s =>
+      val result = arg
+      (s, result).point
+    })
+
   def updatePlayer(user: Id[User], deathStatus: DeathStatus): VotesContext[Boolean] =
     for {
       roster <- getDeathRoster
