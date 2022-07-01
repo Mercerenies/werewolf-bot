@@ -10,6 +10,7 @@ import org.scalatestplus.mockito.MockitoSugar
 import id.{UserMapping, Id}
 import state.NightPhaseState
 import response.FeedbackMessage
+import night.{ChoiceMessageHandler, NoInputNightMessageHandler}
 import board.{Board, TablePosition, Position}
 
 class FluffyRipperSpec extends GameplayUnitSpec {
@@ -198,6 +199,80 @@ class FluffyRipperSpec extends GameplayUnitSpec {
     feedback(id(0)) should be (FeedbackMessage.none)
     feedback(id(1)).mkString should not include regex ("(?i)tanner|villager|left|middle|right")
     feedback(id(2)) should be (FeedbackMessage.none)
+
+  }
+
+  it should "ask for input from a solo Fluffy" in {
+    val board = createBoard(
+      left = Villager,
+      middle = Villager,
+      right = Tanner,
+      playerCards = List(Villager, Fluffy, Villager),
+    )
+    val (finalBoard, _, feedback, _) = playGame(board, List("", "none", ""))
+    finalBoard should be (board)
+
+    finalBoard(id(1)).nightHandler shouldBe a [ChoiceMessageHandler[?, ?]]
+
+  }
+
+  it should "ask for input from a solo Ripper" in {
+    val board = createBoard(
+      left = Villager,
+      middle = Villager,
+      right = Tanner,
+      playerCards = List(Villager, Ripper, Villager),
+    )
+    val (finalBoard, _, feedback, _) = playGame(board, List("", "none", ""))
+    finalBoard should be (board)
+
+    finalBoard(id(1)).nightHandler shouldBe a [ChoiceMessageHandler[?, ?]]
+
+  }
+
+  it should "ask for no input from a Fluffy/werewolf team" in {
+    val board = createBoard(
+      left = Villager,
+      middle = Villager,
+      right = Tanner,
+      playerCards = List(Villager, Fluffy, Werewolf),
+    )
+    val (finalBoard, _, feedback, _) = playGame(board, List("", "none", ""))
+    finalBoard should be (board)
+
+    finalBoard(id(1)).nightHandler should be (NoInputNightMessageHandler)
+    finalBoard(id(2)).nightHandler should be (NoInputNightMessageHandler)
+
+  }
+
+  it should "ask for no input from a Ripper/werewolf team" in {
+    val board = createBoard(
+      left = Villager,
+      middle = Villager,
+      right = Tanner,
+      playerCards = List(Villager, Ripper, Werewolf),
+    )
+    val (finalBoard, _, feedback, _) = playGame(board, List("", "none", ""))
+    finalBoard should be (board)
+
+    finalBoard(id(1)).nightHandler should be (NoInputNightMessageHandler)
+    finalBoard(id(2)).nightHandler should be (NoInputNightMessageHandler)
+
+  }
+
+  it should "ask for no input from a Fluffy/Ripper/werewolf team" in {
+    val board = createBoard(
+      left = Villager,
+      middle = Villager,
+      right = Tanner,
+      playerCards = List(Villager, Fluffy, Ripper, Werewolf),
+    )
+    val (finalBoard, _, feedback, _) = playGame(board, List("", "none", ""))
+    finalBoard should be (board)
+
+    finalBoard(id(1)).nightHandler should be (NoInputNightMessageHandler)
+    finalBoard(id(2)).nightHandler should be (NoInputNightMessageHandler)
+    finalBoard(id(3)).nightHandler should be (NoInputNightMessageHandler)
 
   }
 
