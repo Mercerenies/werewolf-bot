@@ -62,3 +62,12 @@ def tr(a: String, b: String): Map[Char, Char] = {
   }
   (a zip b).toMap
 }
+
+def merge[K, V](m1: Map[K, V], m2: Map[K, V])(merge: (V, V) => V): Map[K, V] =
+  m2.foldLeft(m1) { (m, kv) =>
+    val (k, v) = kv
+    m.get(k) match {
+      case None => m + ((k, v))
+      case Some(v0) => m + ((k, merge(v0, v)))
+    }
+  }
