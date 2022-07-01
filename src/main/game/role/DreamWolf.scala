@@ -70,7 +70,7 @@ object DreamWolf extends Role {
     DreamWolf.Instance(mapping)
 
   override val introBlurb: String =
-    "You are a " + bold("Dream Wolf") + ". You are a member of the werewolf team but you do not know who the other werewolves (if any) are. They are aware of you."
+    "You are the " + bold("Dream Wolf") + ". You are a member of the werewolf team but you do not know who the other werewolves (if any) are. They are aware of you."
 
   override def inspiration: Inspiration =
     Inspiration.LiftedFrom(SourceMaterial.Daybreak)
