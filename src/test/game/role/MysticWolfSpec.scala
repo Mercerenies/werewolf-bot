@@ -111,4 +111,25 @@ class MysticWolfSpec extends GameplayUnitSpec {
 
   }
 
+  it should "see the original cards correctly even if observing a drunk" in {
+    val board = createBoard(
+      left = Villager,
+      middle = Werewolf,
+      right = Tanner,
+      playerCards = List(Drunk, MysticWolf, Tanner),
+    )
+    val (finalBoard, _, feedback, _) = playGame(board, List("middle", mockName(0), ""))
+
+    finalBoard(TablePosition.Left).role should be (Villager)
+    finalBoard(TablePosition.Middle).role should be (Drunk)
+    finalBoard(TablePosition.Right).role should be (Tanner)
+    finalBoard(id(0)).role should be (Werewolf)
+    finalBoard(id(1)).role should be (MysticWolf)
+    finalBoard(id(2)).role should be (Tanner)
+
+    feedback(id(1)).mkString should include (mockName(0))
+    feedback(id(1)).mkString should include regex "(?i)drunk"
+
+  }
+
 }
