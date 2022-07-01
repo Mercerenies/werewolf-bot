@@ -169,4 +169,11 @@ object WerewolfRoleInstance {
       userId
     }
 
+  def findDreamWolfIds(board: Board): List[Id[User]] =
+    board.playerRoleInstances.filter { (_, instance) =>
+      instance.seenAs.contains(GroupedRoleIdentity.DreamWolf)
+    }.map { (userId, _) =>
+      userId
+    }
+
 }

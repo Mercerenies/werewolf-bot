@@ -14,4 +14,7 @@ enum GroupedRoleIdentity(val name: String) {
   case Fluffy extends GroupedRoleIdentity("Fluffy")
   // Ripper, the target of Fluffy's win condition.
   case Ripper extends GroupedRoleIdentity("Ripper")
+  // Dream Wolf, identified specially to the remaining werewolves so
+  // that they know who is unaware of their partners.
+  case DreamWolf extends GroupedRoleIdentity("Dream Wolf")
 }

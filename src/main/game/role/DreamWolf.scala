@@ -47,7 +47,7 @@ object DreamWolf extends Role {
       WerewolfWinCondition
 
     override def seenAs: List[GroupedRoleIdentity] =
-      List(GroupedRoleIdentity.Werewolf)
+      List(GroupedRoleIdentity.Werewolf, GroupedRoleIdentity.DreamWolf)
 
   }
 
@@ -62,7 +62,7 @@ object DreamWolf extends Role {
   override val baseWinCondition: WinCondition = WerewolfWinCondition
 
   override def baseSeenAs: List[GroupedRoleIdentity] =
-    List(GroupedRoleIdentity.Werewolf)
+    List(GroupedRoleIdentity.Werewolf, GroupedRoleIdentity.DreamWolf)
 
   override val precedence: Int = Precedence.NO_ACTION
 
