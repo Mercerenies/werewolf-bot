@@ -93,7 +93,7 @@ object Troublemaker extends Role {
 
   override val name: String = "Troublemaker"
 
-  override val aliases: List[String] = List("TM", "Trouble")
+  override val aliases: List[String] = List()
 
   override val baseAlignment: Alignment = Alignment.Town
 
