@@ -72,8 +72,7 @@ final class RoleListState(
       bold("Welcome to One Night Ultimate Werewolf") + "\n\n" +
         "The following players are participating (in order): " + playerList + "\n" +
         "The following roles are in play: " + roleListSorted + "\n" +
-        bold("I am sending each player's role via DM now.") + "\n" +
-        bold(s"It is nighttime. Day will begin in ${gameProperties.nightPhaseLength}.")
+        bold("I am sending each player's role via DM now.")
     }
 
   // TODO Default message if you ping the bot in a channel that
@@ -107,7 +106,7 @@ final class RoleListState(
       _ <- channel.sendMessage(startMessage).asScala
       _ <- RoleListState.sendAllInitialDirectMessages(mgr.api, server, board)
     } yield {
-      val newState = NightPhaseState(gameProperties, playerOrder, board)
+      val newState = DuskPhaseState(gameProperties, playerOrder, board)
       mgr.updateGame(channelId, newState)
       ()
     }

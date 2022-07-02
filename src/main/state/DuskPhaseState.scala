@@ -39,26 +39,44 @@ import scala.concurrent.{Future, ExecutionContext}
 import scalaz.{Id => _, *}
 import Scalaz.{Id => _, *}
 
-final class NightPhaseState(
+final class DuskPhaseState(
   _gameProperties: GameProperties,
   _playerOrder: PlayerOrder,
   _initialBoard: Board,
-  override val initialHistory: RecordedGameHistory,
 )(
   using ExecutionContext,
 ) extends NighttimePhaseState(_gameProperties, _playerOrder, _initialBoard) {
 
-  import NightPhaseState.logger
+  import DuskPhaseState.logger
   import scalaz.EitherT.eitherTHoist
 
-  override val phase = NightPhase.Night
+  override val initialHistory: RecordedGameHistory =
+    RecordedGameHistory(SnapshotRecord(initialBoard.toSnapshot(playerOrder)))
 
   override val startMessage: String =
-      bold(s"It is nighttime. Day will begin in ${gameProperties.nightPhaseLength}.")
+      bold(s"It is now dusk. Night will begin in ${gameProperties.nightPhaseLength}.")
+
+  override val phase = NightPhase.Dusk
 
   override def nextState(result: NightPhaseResult): GameState =
-    DayPhaseState(gameProperties, playerOrder, result.board, result.history, result.revealedCards)
+    NightPhaseState(gameProperties, playerOrder, result.board, result.history)
+
+  override def onEnterState(mgr: GamesManager): Unit = {
+    if (DuskPhaseState.needsDuskPhase(initialBoard.roles)) {
+      // Run the dusk phase like normal
+      super.onEnterState(mgr)
+    } else {
+      // Skip the dusk phase and just run it passively
+      endOfNight(mgr)
+    }
+  }
 
 }
 
-object NightPhaseState extends Logging[NightPhaseState]
+object DuskPhaseState extends Logging[DuskPhaseState] {
+
+  private def needsDuskPhase(roles: List[Role]): Boolean =
+    /////
+    false
+
+}
