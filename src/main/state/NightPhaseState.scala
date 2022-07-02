@@ -41,144 +41,20 @@ import Scalaz.{Id => _, *}
 
 final class NightPhaseState(
   _gameProperties: GameProperties,
-  override val playerOrder: PlayerOrder,
-  initialBoard: Board,
+  _playerOrder: PlayerOrder,
+  _initialBoard: Board,
 )(
   using ExecutionContext,
-) extends GameState(_gameProperties) with SchedulingState with WithUserMapping {
+) extends NighttimePhaseState(_gameProperties, _playerOrder, _initialBoard) {
 
   import NightPhaseState.logger
   import scalaz.EitherT.eitherTHoist
 
-  override val listeningPlayerList: List[Id[User]] =
-    playerOrder.toList
+  override val phase = NightPhase.Night
 
-  private val playerNightHandlers: Cell[Map[Id[User], NightMessageHandler]] =
-    Cell(Map())
-
-  private val initialGameHistory: Cell[RecordedGameHistory] =
-    Cell(
-      RecordedGameHistory(SnapshotRecord(initialBoard.toSnapshot(playerOrder))),
-    )
-
-  private val boardCell: Cell[Board] =
-    Cell(initialBoard)
-
-  override def onDirectMessageCreate(mgr: GamesManager, user: User, message: Message): Unit = {
-    playerNightHandlers.value.get(Id(user)) match {
-      case None => {
-        // If this message occurs, NightPhaseState has misreported
-        // listeningPlayerList and this is a bug.
-        logger.error(s"Trying to process DM from ${user} but I don't know what to do.")
-      }
-      case Some(nightHandler) => {
-        val response = nightHandler.onDirectMessage(message.getContent)
-        response.respondTo(mgr.api, message)
-      }
-    }
-  }
-
-  override def onStartGame(mgr: GamesManager, interaction: SlashCommandInteraction): Future[CommandResponse[Unit]] =
-    Future.successful(CommandResponse.ephemeral("It is currently night in this game.").void)
-
-  override def onEnterState(mgr: GamesManager): Unit = {
-
-    for {
-      userMapping <- getUserMapping(mgr.api)
-      // Perform dusk actions
-      result <- NightPhaseState.evaluateDuskPhaseAndSend(initialGameHistory.value, userMapping, playerOrder, boardCell.value)
-    } {
-      initialGameHistory.modify { _ ++ result.history }
-      boardCell.value = result.board
-
-      // Setup night handlers
-      this.playerNightHandlers.value = Map.from(boardCell.value.playerRoleInstances.map { (k, v) => (k, v.nightHandler) })
-      result.board.playerRoleInstances.toList.traverse { (userId, roleInstance) =>
-        for {
-          user <- mgr.api.getUser(userId)
-          username = userMapping.nameOf(userId)
-          _ <- user.sendMessage(roleInstance.nightHandler.initialNightMessage).asScala
-        } yield {
-          ()
-        }
-      }
-
-      // Schedule midnight reminder
-      gameProperties.nightPhaseReminderTime.foreach { time =>
-        schedule(mgr, time.toDuration) { () =>
-          sendNightReminder(mgr)
-        }
-      }
-
-      // Schedule end of night phase
-      schedule(mgr, gameProperties.nightPhaseLength.toDuration) { () =>
-        endOfNight(mgr)
-      }
-
-    }
-
-  }
-
-  private def sendNightReminder(mgr: GamesManager): Unit = {
-    for {
-      _ <- Future.traverse(playerNightHandlers.value) { (playerId, handler) =>
-        mgr.api.getUser(playerId).flatMap { NightPhaseState.sendNightReminderTo(mgr.api, _, handler) }
-      }
-    } yield {
-      ()
-    }
-  }
-
-  private def endOfNight(mgr: GamesManager): Unit = {
-    for {
-      userMapping <- getUserMapping(mgr.api)
-      result <- NightPhaseState.evaluateNightPhaseAndSend(initialGameHistory.value, userMapping, playerOrder, boardCell.value)
-    } yield {
-      val newState = DayPhaseState(gameProperties, playerOrder, result.board, result.history, result.revealedCards)
-      mgr.updateGame(channelId, newState)
-    }
-  }
-
-  override def onStatusCommand(mgr: GamesManager, interaction: SlashCommandInteraction): Future[CommandResponse[Unit]] =
-    Future.successful {
-      CommandResponse.simple("This Werewolf game is currently " + bold("in the night phase") + ".").void
-    }
+  override def nextState(result: NightPhaseResult): GameState =
+    DayPhaseState(gameProperties, playerOrder, result.board, result.history, result.revealedCards)
 
 }
 
-object NightPhaseState extends Logging[NightPhaseState] {
-
-  private def sendNightReminderTo(api: DiscordApi, player: User, handler: NightMessageHandler)(using ExecutionContext): Future[Unit] = {
-    handler.midnightReminder match {
-      case None =>
-        Future.successful(())
-      case Some(message) =>
-        player.sendMessage(message).asScala.map { _ => () }
-    }
-  }
-
-  def evaluateDuskPhaseAndSend(
-    initialHistory: RecordedGameHistory,
-    mapping: UserMapping,
-    order: PlayerOrder,
-    board: Board,
-  )(
-    using ExecutionContext,
-  ): Future[NightPhaseResult] = {
-    val result = NightPhaseEvaluator.evaluate(board, NightPhase.Dusk, order, initialHistory)
-    result.sendFeedback(mapping) >| result
-  }
-
-  def evaluateNightPhaseAndSend(
-    initialHistory: RecordedGameHistory,
-    mapping: UserMapping,
-    order: PlayerOrder,
-    board: Board,
-  )(
-    using ExecutionContext,
-  ): Future[NightPhaseResult] = {
-    val result = NightPhaseEvaluator.evaluate(board, NightPhase.Night, order, initialHistory)
-    result.sendFeedback(mapping) >| result
-  }
-
-}
+object NightPhaseState extends Logging[NightPhaseState]
