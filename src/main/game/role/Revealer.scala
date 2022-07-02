@@ -58,7 +58,7 @@ object Revealer extends Role {
           case None => {
             for {
               _ <- GameContext.record(ActionPerformedRecord(this.toSnapshot, userId) {
-                t("chose not to reveal any cards.")
+                t("chose not to reveal any cards")
               })
             } yield {
               FeedbackMessage(s"You elected to reveal no cards.")
@@ -75,7 +75,6 @@ object Revealer extends Role {
                   playerName(player.id)
                   t(", which was ")
                   roleName(role)
-                  t(".")
                 })
               } else {
                 GameContext.record(ActionPerformedRecord(this.toSnapshot, userId) {
@@ -83,7 +82,7 @@ object Revealer extends Role {
                   playerName(player.id)
                   t(", which was ")
                   roleName(role)
-                  t(". The card was flipped back over, as it is not a town card.")
+                  t(". The card was flipped back over, as it is not a town card")
                 })
               }
             } yield {

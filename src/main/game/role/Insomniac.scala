@@ -51,7 +51,6 @@ object Insomniac extends Role {
             _ <- GameContext.record(ActionPerformedRecord(this.toSnapshot, userId) {
               t("was informed that their card is now ")
               roleName(insomniacCard)
-              t(".")
             })
           } yield {
             FeedbackMessage(s"You awake to find that your role card is ${bold(insomniacCard.name)}.")

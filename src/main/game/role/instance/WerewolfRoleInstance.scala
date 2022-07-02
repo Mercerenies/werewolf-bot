@@ -67,7 +67,7 @@ trait WerewolfRoleInstance(private val mapping: UserMapping) extends RoleInstanc
             _ <- GameContext.record(ActionPerformedRecord(this.toSnapshot, userId) {
               t("is the ")
               b { t("solo werewolf") }
-              t(" and may choose to look at a center card.")
+              t(" and may choose to look at a center card")
             })
             _ <- GameContext.feedback(userId, "You are the " + bold("solo werewolf") + ". You may look at a center card.")
           } yield {
@@ -121,7 +121,6 @@ object WerewolfRoleInstance {
       _ <- GameContext.record(ActionPerformedRecord(instance.toSnapshot, userId) {
         t("was informed that the werewolf team consists of ")
         b { t(namesList) }
-        t(".")
       })
       _ <- GameContext.feedback(userId, "The werewolf team consists of " + bold(namesList) + ".")
       _ <- whenM(anyDreamWolves(board)) { shareDreamWolfTeam(mapping, instance, userId) }
@@ -144,7 +143,7 @@ object WerewolfRoleInstance {
       namesList = Grammar.conjunctionList(names)
       _ <- GameContext.record(ActionPerformedRecord(instance.toSnapshot, userId) {
         if (dreamWolfIds.isEmpty) {
-          t("was informed that there are no Dream Wolves.")
+          t("was informed that there are no Dream Wolves")
         } else {
           t("was informed that the following players are Dream Wolves: ")
           b { t(namesList) }

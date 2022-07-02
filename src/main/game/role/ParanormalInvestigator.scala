@@ -66,7 +66,7 @@ object ParanormalInvestigator extends Role {
               playerName(target)
               t(", saw ")
               roleName(viewedRole)
-              t(", and copied their win condition and alignment.")
+              t(", and copied their win condition and alignment")
             })
             _ <- GameContext.perform {
               this.copiedRole = Some(newRoleInstance)
@@ -81,7 +81,6 @@ object ParanormalInvestigator extends Role {
             playerName(target)
             t(" and saw ")
             roleName(viewedRole)
-            t(".")
           })
         }
         _ <- GameContext.feedback(userId, s"The card in front of ${bold(mapping.nameOf(target))} is ${bold(viewedRole.name)}.")
@@ -102,7 +101,7 @@ object ParanormalInvestigator extends Role {
           case None => {
             for {
               _ <- GameContext.record(ActionPerformedRecord(this.toSnapshot, userId) {
-                t("chose not to look at any cards.")
+                t("chose not to look at any cards")
               })
               _ <- GameContext.feedback(userId, "You elected not to look at any cards.")
             } yield {

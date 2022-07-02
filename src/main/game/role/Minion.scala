@@ -42,7 +42,7 @@ object Minion extends Role {
             // No werewolves, so show a special message.
             for {
               _ <- GameContext.record(ActionPerformedRecord(this.toSnapshot, userId) {
-                t("was informed that there is no werewolf team.")
+                t("was informed that there is no werewolf team")
               })
               _ <- GameContext.feedback(userId, "There are " + bold("no werewolves") + " at this time.")
             } yield {

@@ -59,7 +59,7 @@ object Thing extends Role {
           case None => {
             for {
               _ <- GameContext.record(ActionPerformedRecord(this.toSnapshot, userId) {
-                t("chose not to bump anyone.")
+                t("chose not to bump anyone")
               })
               _ <- GameContext.feedback(userId, "You chose not to bump anyone.")
             } yield {
@@ -74,7 +74,6 @@ object Thing extends Role {
                 playerName(adjacentPlayer)
                 t(", the player to their immediate ")
                 direction(dir)
-                t(".")
               })
               _ <- GameContext.feedback(userId, s"You bumped the player to your ${bold(dir.name)}, ${bold(mapping.nameOf(adjacentPlayer))}.")
               boldThing = bold("Thing")

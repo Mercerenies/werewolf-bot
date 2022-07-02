@@ -58,7 +58,7 @@ object Witch extends Role {
           case None => {
             for {
               _ <- GameContext.record(ActionPerformedRecord(this.toSnapshot, userId) {
-                t("chose not to swap anyone.")
+                t("chose not to swap anyone")
               })
             } yield {
               FeedbackMessage(s"You elected to take no action.")
@@ -76,7 +76,6 @@ object Witch extends Role {
                 roleName(centerCard)
                 t(" and swapped it with the card in front of ")
                 playerName(player.id)
-                t(".")
               })
               _ <- GameContext.recordCurrentBoard
             } yield {

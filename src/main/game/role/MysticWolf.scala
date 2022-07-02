@@ -54,7 +54,6 @@ object MysticWolf extends Role {
               _ <- GameContext.record(ActionPerformedRecord(this.toSnapshot, userId) {
                 t("is the ")
                 b { t("solo werewolf") }
-                t(".")
               })
               _ <- GameContext.feedback(userId, "You are the " + bold("solo werewolf") + ".")
             } yield {

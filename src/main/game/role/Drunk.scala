@@ -63,7 +63,7 @@ object Drunk extends Role {
             _ <- GameContext.record(ActionPerformedRecord(this.toSnapshot, userId) {
               t("swapped their own card with the ")
               position(playerChoice)
-              t(" card.")
+              t(" card")
             })
             _ <- GameContext.recordCurrentBoard
           } yield {

@@ -58,7 +58,7 @@ object Troublemaker extends Role {
           case None => {
             for {
               _ <- GameContext.record(ActionPerformedRecord(this.toSnapshot, userId) {
-                t("chose not to swap any cards.")
+                t("chose not to swap any cards")
               })
             } yield {
               FeedbackMessage(s"You elected to swap nobody's cards.")

@@ -74,7 +74,6 @@ object Robber extends Role {
                 playerName(a.id)
                 t(" and saw that their new card was ")
                 roleName(stolenCard)
-                t(".")
               })
               _ <- GameContext.recordCurrentBoard
             } yield {

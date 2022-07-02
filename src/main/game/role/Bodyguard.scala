@@ -53,7 +53,6 @@ object Bodyguard extends Role {
           VotesContext.record(ActionPerformedRecord(this.toSnapshot, userId) {
             t("has protected ")
             playerName(bodyguardTarget)
-            t(".")
           })
         }
         _ <- whenM(modified && votals.majority.contains(bodyguardTarget)) {
@@ -64,7 +63,7 @@ object Bodyguard extends Role {
               VotesContext.record(ActionPerformedRecord(this.toSnapshot, userId) {
                 t("has protected the majority, so ")
                 b { t(secondMajorityNames) }
-                t(" will die instead.")
+                t(" will die instead")
               })
             }
         }

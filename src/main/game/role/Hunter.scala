@@ -51,7 +51,7 @@ object Hunter extends Role {
           VotesContext.record(ActionPerformedRecord(this.toSnapshot, userId) {
             t("is going to be killed and takes ")
             playerName(hunterTarget)
-            t(" with them.")
+            t(" with them")
           })
         }
       } yield {

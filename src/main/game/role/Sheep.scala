@@ -42,7 +42,7 @@ object Sheep extends Role {
           if (seesWerewolves) {
             for {
               _ <- GameContext.record(ActionPerformedRecord(this.toSnapshot, userId) {
-                t("was informed that there is at least one werewolf adjacent to them.")
+                t("was informed that there is at least one werewolf adjacent to them")
               })
             } yield {
               FeedbackMessage("There is " + bold("at least one werewolf") + " adjacent to you.")
@@ -50,7 +50,7 @@ object Sheep extends Role {
           } else {
             for {
               _ <- GameContext.record(ActionPerformedRecord(this.toSnapshot, userId) {
-                t("was informed that there are no werewolves adjacent to them.")
+                t("was informed that there are no werewolves adjacent to them")
               })
             } yield {
               FeedbackMessage("There are " + bold("no werewolves") + " adjacent to you.")

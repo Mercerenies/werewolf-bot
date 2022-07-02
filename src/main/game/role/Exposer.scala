@@ -58,7 +58,7 @@ object Exposer extends Role {
           case None => {
             for {
               _ <- GameContext.record(ActionPerformedRecord(this.toSnapshot, userId) {
-                t("chose not to expose any cards.")
+                t("chose not to expose any cards")
               })
             } yield {
               FeedbackMessage(s"You elected to expose no cards.")
@@ -73,7 +73,6 @@ object Exposer extends Role {
                 position(pos)
                 t(" card, which was ")
                 roleName(centerCard)
-                t(".")
               })
             } yield {
               FeedbackMessage(s"You flipped over the ${bold(pos.name)} card, revealing that it was ${bold(centerCard.name)}.")
