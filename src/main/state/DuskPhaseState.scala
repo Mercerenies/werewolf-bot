@@ -62,7 +62,7 @@ final class DuskPhaseState(
     NightPhaseState(gameProperties, playerOrder, result.board, result.history)
 
   override def onEnterState(mgr: GamesManager): Unit = {
-    if (DuskPhaseState.needsDuskPhase(initialBoard.roles)) {
+    if (DuskPhaseState.requiresDuskPhase(initialBoard.roles)) {
       // Run the dusk phase like normal
       super.onEnterState(mgr)
     } else {
@@ -75,8 +75,7 @@ final class DuskPhaseState(
 
 object DuskPhaseState extends Logging[DuskPhaseState] {
 
-  private def needsDuskPhase(roles: List[Role]): Boolean =
-    /////
-    false
+  def requiresDuskPhase(roles: List[Role]): Boolean =
+    roles.exists { _.requiresDuskPhase }
 
 }

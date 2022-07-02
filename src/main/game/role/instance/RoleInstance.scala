@@ -6,7 +6,7 @@ package instance
 
 import id.{Id, UserMapping}
 import name.NamedEntity
-import night.NightMessageHandler
+import night.{NightMessageHandler, NoInputNightMessageHandler}
 import board.Board
 import board.snapshot.{RoleSnapshot, SimpleRoleSnapshot}
 import response.FeedbackMessage
@@ -39,6 +39,9 @@ trait RoleInstance {
   // Definition: An instance x of RoleInstance is said to be coherent
   // if x is of type x.role.Instance.
   val coherenceProof: this.type <:< this.role.Instance
+
+  def duskHandler: NightMessageHandler =
+    NoInputNightMessageHandler
 
   def nightHandler: NightMessageHandler
 

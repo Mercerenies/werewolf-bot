@@ -35,6 +35,9 @@ trait CopyingRoleInstance extends RoleInstance {
     copiedRoleCell.value = value
   }
 
+  override def duskHandler: NightMessageHandler =
+    copiedRole.fold(NoInputNightMessageHandler) { _.duskHandler }
+
   override def duskAction(userId: Id[User]): GameContext[Unit] =
     copiedRole.fold(().point[GameContext]) { _.duskAction(userId) }
 

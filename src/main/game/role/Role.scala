@@ -43,6 +43,8 @@ trait Role extends NamedEntity {
 
   def inspiration: Inspiration
 
+  def requiresDuskPhase: Boolean = false
+
 }
 
 object Role {

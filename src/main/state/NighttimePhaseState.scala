@@ -62,18 +62,18 @@ abstract class NighttimePhaseState(
   override val listeningPlayerList: List[Id[User]] =
     playerOrder.toList
 
-  private val playerNightHandlers: Cell[Map[Id[User], NightMessageHandler]] =
+  private val playerHandlers: Cell[Map[Id[User], NightMessageHandler]] =
     Cell(Map())
 
   override def onDirectMessageCreate(mgr: GamesManager, user: User, message: Message): Unit = {
-    playerNightHandlers.value.get(Id(user)) match {
+    playerHandlers.value.get(Id(user)) match {
       case None => {
         // If this message occurs, NighttimePhaseState has misreported
         // listeningPlayerList and this is a bug.
         logger.error(s"Trying to process DM from ${user} but I don't know what to do.")
       }
-      case Some(nightHandler) => {
-        val response = nightHandler.onDirectMessage(message.getContent)
+      case Some(handler) => {
+        val response = handler.onDirectMessage(message.getContent)
         response.respondTo(mgr.api, message)
       }
     }
@@ -91,12 +91,14 @@ abstract class NighttimePhaseState(
       _ <- channel.sendMessage(startMessage).asScala
     } {
       // Setup night handlers
-      this.playerNightHandlers.value = Map.from(initialBoard.playerRoleInstances.map { (k, v) => (k, v.nightHandler) })
+      this.playerHandlers.value = Map.from(initialBoard.playerRoleInstances.map { (k, v) =>
+        (k, phase.getHandler(v))
+      })
       initialBoard.playerRoleInstances.toList.traverse { (userId, roleInstance) =>
         for {
           user <- mgr.api.getUser(userId)
           username = userMapping.nameOf(userId)
-          _ <- user.sendMessage(roleInstance.nightHandler.initialNightMessage).asScala
+          _ <- user.sendMessage(phase.getHandler(roleInstance).initialNightMessage).asScala
         } yield {
           ()
         }
@@ -120,7 +122,7 @@ abstract class NighttimePhaseState(
 
   private def sendNightReminder(mgr: GamesManager): Unit = {
     for {
-      _ <- Future.traverse(playerNightHandlers.value) { (playerId, handler) =>
+      _ <- Future.traverse(playerHandlers.value) { (playerId, handler) =>
         mgr.api.getUser(playerId).flatMap { NighttimePhaseState.sendNightReminderTo(mgr.api, _, handler) }
       }
     } yield {

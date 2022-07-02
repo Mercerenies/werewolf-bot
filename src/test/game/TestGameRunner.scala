@@ -33,6 +33,13 @@ object TestGameRunner {
 
     val playerIds = playerActions.indices.map(id).toList
 
+    // Send out all of the dusk actions (this mutates the
+    // RoleInstance objects in the board)
+    playerIds zip playerActions foreach { (playerId, duskAction) =>
+      val duskHandler = board(playerId).duskHandler
+      duskHandler.onDirectMessage(duskAction)
+    }
+
     // Run the dusk phase.
     val NightPhaseResult(initialBoard, duskHistory, duskResponses, duskRevealedCards) = NightPhaseEvaluator.evaluate(board, NightPhase.Dusk, PlayerOrder(playerIds), RecordedGameHistory.empty)
     // There are no roles that reveal cards at dusk, so assert that
