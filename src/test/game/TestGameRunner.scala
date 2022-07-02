@@ -28,14 +28,24 @@ object TestGameRunner {
   // Game simulator. Takes a board and list of player night DMs.
   def playGame(
     board: Board,
-    playerActions: List[String],
+    playerActions: List[String | (String, String)],
   ): (Board, RecordedGameHistory, Map[Id[User], FeedbackMessage], Set[Position]) = {
+
+    val duskActions: List[String] = playerActions.map {
+      case (dusk, _) => dusk
+      case _ => ""
+    }
+
+    val nightActions: List[String] = playerActions.map {
+      case (_, night) => night
+      case night: String => night
+    }
 
     val playerIds = playerActions.indices.map(id).toList
 
     // Send out all of the dusk actions (this mutates the
     // RoleInstance objects in the board)
-    playerIds zip playerActions foreach { (playerId, duskAction) =>
+    playerIds zip duskActions foreach { (playerId, duskAction) =>
       val duskHandler = board(playerId).duskHandler
       duskHandler.onDirectMessage(duskAction)
     }
@@ -48,7 +58,7 @@ object TestGameRunner {
 
     // Now send out all of the night actions (this mutates the
     // RoleInstance objects in the board)
-    playerIds zip playerActions foreach { (playerId, nightAction) =>
+    playerIds zip nightActions foreach { (playerId, nightAction) =>
       val nightHandler = initialBoard(playerId).nightHandler
       nightHandler.onDirectMessage(nightAction)
     }
