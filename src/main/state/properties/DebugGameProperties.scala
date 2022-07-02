@@ -19,13 +19,17 @@ case class DebugGameProperties(
   override val hostId: Id[User],
 ) extends GameProperties {
 
+  override val duskPhaseLength: TimePeriod = TimePeriod.seconds(20)
+
+  override val duskPhaseReminderTime: Option[TimePeriod] = Some(TimePeriod.seconds(10))
+
   override val nightPhaseLength: TimePeriod = TimePeriod.seconds(20)
+
+  override val nightPhaseReminderTime: Option[TimePeriod] = Some(TimePeriod.seconds(10))
 
   override val dayPhaseLength: TimePeriod = TimePeriod.seconds(30)
 
   override val votePhaseLength: TimePeriod = TimePeriod.seconds(20)
-
-  override val nightPhaseReminderTime: Option[TimePeriod] = Some(TimePeriod.seconds(10))
 
   def recordExporter(api: DiscordApi): RecordExporter = {
     val channel = api.getServerTextChannel(channelId)
