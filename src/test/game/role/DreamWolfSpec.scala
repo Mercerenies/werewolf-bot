@@ -49,7 +49,93 @@ class DreamWolfSpec extends GameplayUnitSpec {
     feedback(id(2)) should be (FeedbackMessage.none)
 
     val filtered = filterRecords(history)
-    filtered should have length (2) // Dream wolf doesn't get a message.
+    filtered should have length (4) // Dream wolf doesn't get a message.
+
+    // First message is to player 0 and indicates the werewolf team
+    filtered(0).displayText(SampleUserMapping(3)) should include (mockName(0))
+    filtered(0).displayText(SampleUserMapping(3)) should include (mockName(1))
+    filtered(0).displayText(SampleUserMapping(3)) should include (mockName(2))
+
+    // Second message is to player 0 and indicates the dream wolf
+    filtered(1).displayText(SampleUserMapping(3)) should include regex ("(?i)dream wolves")
+    filtered(1).displayText(SampleUserMapping(3)) should include (mockName(2))
+
+    // Third message is to player 1 and indicates the werewolf team
+    filtered(2).displayText(SampleUserMapping(3)) should include (mockName(0))
+    filtered(2).displayText(SampleUserMapping(3)) should include (mockName(1))
+    filtered(2).displayText(SampleUserMapping(3)) should include (mockName(2))
+
+    // Fourthmessage is to player 0 and indicates the dream wolf
+    filtered(3).displayText(SampleUserMapping(3)) should include regex ("(?i)dream wolves")
+    filtered(3).displayText(SampleUserMapping(3)) should include (mockName(2))
+
+  }
+
+  it should "mention a dream wolf message if there are dream wolf cards in the center" in {
+    val board = createBoard(
+      left = Werewolf,
+      middle = DreamWolf,
+      right = Tanner,
+      playerCards = List(Werewolf, Werewolf, Villager),
+    )
+    val (finalBoard, history, feedback, _) = playGame(board, List("", "", ""))
+    finalBoard should be (board)
+
+    feedback(id(0)).mkString should include regex ("(?i)dream wol(f|ves)")
+    feedback(id(1)).mkString should include regex ("(?i)dream wol(f|ves)")
+    feedback(id(2)) should be (FeedbackMessage.none)
+
+    val filtered = filterRecords(history)
+    filtered should have length (4)
+
+    // Second message is to player 0 and indicates the (lack of) dream wolves
+    filtered(1).displayText(SampleUserMapping(3)) should include regex ("(?i)dream wol(f|ves)")
+    filtered(1).displayText(SampleUserMapping(3)) should not include (mockName(1))
+    filtered(1).displayText(SampleUserMapping(3)) should not include (mockName(2))
+
+    // Fourth message is to player 0 and indicates the (lack of) dream wolves
+    filtered(3).displayText(SampleUserMapping(3)) should include regex ("(?i)dream wol(f|ves)")
+    filtered(3).displayText(SampleUserMapping(3)) should not include (mockName(0))
+    filtered(3).displayText(SampleUserMapping(3)) should not include (mockName(2))
+
+  }
+
+  it should "mention a dream wolf team to a non- dream wolf" in {
+    val board = createBoard(
+      left = Werewolf,
+      middle = Werewolf,
+      right = Tanner,
+      playerCards = List(Werewolf, DreamWolf, DreamWolf),
+    )
+    val (finalBoard, history, feedback, _) = playGame(board, List("", "", ""))
+    finalBoard should be (board)
+
+    val feedback0 = feedback(id(0)).toList
+    feedback0 should have length (2)
+
+    feedback0(0) should include (mockName(0))
+    feedback0(0) should include (mockName(1))
+    feedback0(0) should include (mockName(2))
+    feedback0(1) should include regex ("(?i)dream wolves")
+    feedback0(1) should not include (mockName(0))
+    feedback0(1) should include (mockName(1))
+    feedback0(1) should include (mockName(2))
+
+    feedback(id(1)) should be (FeedbackMessage.none)
+    feedback(id(2)) should be (FeedbackMessage.none)
+
+    val filtered = filterRecords(history)
+    filtered should have length (2) // Dream wolves don't get a message.
+
+    // First message is to player 0 and indicates the werewolf team
+    filtered(0).displayText(SampleUserMapping(3)) should include (mockName(0))
+    filtered(0).displayText(SampleUserMapping(3)) should include (mockName(1))
+    filtered(0).displayText(SampleUserMapping(3)) should include (mockName(2))
+
+    // Second message is to player 0 and indicates the dream wolf
+    filtered(1).displayText(SampleUserMapping(3)) should include regex ("(?i)dream wolves")
+    filtered(1).displayText(SampleUserMapping(3)) should include (mockName(1))
+    filtered(1).displayText(SampleUserMapping(3)) should include (mockName(2))
 
   }
 

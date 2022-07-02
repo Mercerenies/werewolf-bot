@@ -72,6 +72,22 @@ class WerewolfSpec extends GameplayUnitSpec {
 
   }
 
+  it should "not mention dream wolves if there are none in the game at all" in {
+    val board = createBoard(
+      left = Werewolf,
+      middle = Werewolf,
+      right = Tanner,
+      playerCards = List(Werewolf, Werewolf, Werewolf),
+    )
+    val (finalBoard, history, feedback, _) = playGame(board, List("", "", ""))
+    finalBoard should be (board)
+
+    feedback(id(0)).mkString should not include ("(?i)dream wol(f|ves)")
+    feedback(id(1)).mkString should not include ("(?i)dream wol(f|ves)")
+    feedback(id(2)).mkString should not include ("(?i)dream wol(f|ves)")
+
+  }
+
   it should "inform only the werewolves of their teammates" in {
     val board = createBoard(
       left = Werewolf,

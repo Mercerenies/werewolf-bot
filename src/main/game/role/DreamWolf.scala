@@ -23,8 +23,6 @@ import org.javacord.api.entity.user.User
 import scalaz.{Id => _, *}
 import Scalaz.{Id => _, *}
 
-// TODO A werewolf team should be informed of who the dream wolf is
-// (makes strategizing way easier)
 object DreamWolf extends Role {
 
   override class Instance(private val mapping: UserMapping) extends RoleInstance {

@@ -124,6 +124,38 @@ object WerewolfRoleInstance {
         t(".")
       })
       _ <- GameContext.feedback(userId, "The werewolf team consists of " + bold(namesList) + ".")
+      _ <- whenM(anyDreamWolves(board)) { shareDreamWolfTeam(mapping, instance, userId) }
+    } yield {
+      ()
+    }
+  }
+
+  // Returns true if there's any dream wolf role cards in the game at
+  // all, regardless of position.
+  private def anyDreamWolves(board: Board): Boolean =
+    board.roles.any { _.baseSeenAs.contains(GroupedRoleIdentity.DreamWolf) }
+
+  private def shareDreamWolfTeam(mapping: UserMapping, instance: RoleInstance, userId: Id[User]): GameContext[Unit] = {
+    import ActionPerformedRecord.*
+    for {
+      board <- GameContext.getBoard
+      dreamWolfIds = findDreamWolfIds(board)
+      names = dreamWolfIds.toList.map { mapping.nameOf(_) }.sorted
+      namesList = Grammar.conjunctionList(names)
+      _ <- GameContext.record(ActionPerformedRecord(instance.toSnapshot, userId) {
+        if (dreamWolfIds.isEmpty) {
+          t("was informed that there are no Dream Wolves.")
+        } else {
+          t("was informed that the following players are Dream Wolves: ")
+          b { t(namesList) }
+        }
+      })
+      message = dreamWolfIds.length match {
+        case 0 => "There are " + bold("no Dream Wolves") + "."
+        case 1 => bold(namesList) + " is a " + bold("Dream Wolf") + "."
+        case _ => bold(namesList) + " are " + bold("Dream Wolves") + "."
+      }
+      _ <- GameContext.feedback(userId, message)
     } yield {
       ()
     }
