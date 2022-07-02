@@ -35,6 +35,8 @@ object Drunk extends Role {
 
     override val role: Drunk.type = Drunk.this
 
+    override val precedence: Int = Precedence.DRUNK
+
     override val coherenceProof =
       summon[this.type <:< role.Instance]
 
@@ -88,8 +90,6 @@ object Drunk extends Role {
   override val baseAlignment: Alignment = Alignment.Town
 
   override val baseWinCondition: WinCondition = TownWinCondition
-
-  override val precedence: Int = Precedence.DRUNK
 
   override def createInstance(mapping: UserMapping, initialUserId: Option[Id[User]]): this.Instance =
     Drunk.Instance(mapping, initialUserId)

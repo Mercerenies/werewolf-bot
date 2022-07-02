@@ -24,6 +24,8 @@ object Villager extends Role {
 
     override val role: Villager.type = Villager.this
 
+    override val precedence: Int = Precedence.NO_ACTION
+
     override val coherenceProof =
       summon[this.type <:< role.Instance]
 
@@ -45,8 +47,6 @@ object Villager extends Role {
   override val baseAlignment: Alignment = Alignment.Town
 
   override val baseWinCondition: WinCondition = TownWinCondition
-
-  override val precedence: Int = Precedence.NO_ACTION
 
   override def createInstance(mapping: UserMapping, initialUserId: Option[Id[User]]): this.Instance =
     Villager.Instance()

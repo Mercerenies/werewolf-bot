@@ -30,6 +30,8 @@ object MysticWolf extends Role {
 
     override val role: MysticWolf.type = MysticWolf.this
 
+    override val precedence: Int = Precedence.MYSTIC_WOLF
+
     override val coherenceProof =
       summon[this.type <:< role.Instance]
 
@@ -118,8 +120,6 @@ object MysticWolf extends Role {
   override val baseAlignment: Alignment = Alignment.Werewolf
 
   override val baseWinCondition: WinCondition = WerewolfWinCondition
-
-  override val precedence: Int = Precedence.MYSTIC_WOLF
 
   override def baseSeenAs: List[GroupedRoleIdentity] =
     List(GroupedRoleIdentity.Werewolf)

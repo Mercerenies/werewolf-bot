@@ -41,6 +41,8 @@ object Seer extends Role {
 
     override val role: Seer.type = Seer.this
 
+    override val precedence: Int = Precedence.SEER
+
     override val coherenceProof =
       summon[this.type <:< role.Instance]
 
@@ -121,8 +123,6 @@ object Seer extends Role {
   override val baseAlignment: Alignment = Alignment.Town
 
   override val baseWinCondition: WinCondition = TownWinCondition
-
-  override val precedence: Int = Precedence.SEER
 
   override def createInstance(mapping: UserMapping, initialUserId: Option[Id[User]]): this.Instance =
     Seer.Instance(mapping, initialUserId)

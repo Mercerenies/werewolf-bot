@@ -26,6 +26,8 @@ object Minion extends Role {
 
     override val role: Minion.type = Minion.this
 
+    override val precedence: Int = Precedence.MINION
+
     override val coherenceProof =
       summon[this.type <:< role.Instance]
 
@@ -72,8 +74,6 @@ object Minion extends Role {
   override val baseAlignment: Alignment = Alignment.Werewolf
 
   override val baseWinCondition: WinCondition = MinionWinCondition
-
-  override val precedence: Int = Precedence.MINION
 
   override def createInstance(mapping: UserMapping, initialUserId: Option[Id[User]]): this.Instance =
     Minion.Instance(mapping)

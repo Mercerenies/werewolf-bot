@@ -2,7 +2,7 @@
 package com.mercerenies.werewolf
 package state
 
-import id.{Id, Ids}
+import id.{Id, Ids, UserMapping}
 import id.Ids.*
 import util.TextDecorator.*
 import util.Emoji
@@ -64,10 +64,11 @@ final class RoleListState(
 
   private def gameStartMessage(api: DiscordApi, server: Server, roleList: List[Role]): Future[String] =
     for {
+      mapping <- getUserMapping(api)
       players <- playerOrder.toList.traverse { api.getUser(_) }
     } yield {
       val playerList = players.map(_.getDisplayName(server)).mkString(", ")
-      val roleListSorted = roleList.sortBy(- _.precedence).map(_.name).mkString(", ")
+      val roleListSorted = RoleListState.sortRolesByBasePrecedence(mapping, roleList).map(_.name).mkString(", ")
       bold("Welcome to One Night Ultimate Werewolf") + "\n\n" +
         "The following players are participating (in order): " + playerList + "\n" +
         "The following roles are in play: " + roleListSorted + "\n" +
@@ -145,5 +146,19 @@ object RoleListState extends Logging[RoleListState] {
     val username = user.getDisplayName(server)
     user.sendMessage(roleInstance.fullIntroMessage(username)).asScala.void
   }
+
+  private def sortRolesByBasePrecedence(mapping: UserMapping, roles: List[Role]): List[Role] =
+    roles.map { role =>
+      // Create temporary role instances (based on the real user
+      // mapping) in order to get precedences.
+      role.createInstance(mapping, None)
+    }.sortBy { instance =>
+      // Sort by night precedence first, then by voting precedence
+      // (higher precedence goes first).
+      (- instance.precedence, - instance.votesPrecedence)
+    }.map { instance =>
+      // We only want the roles, not the (mocked) instances.
+      instance.role
+    }
 
 }

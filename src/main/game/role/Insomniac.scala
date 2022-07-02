@@ -35,6 +35,8 @@ object Insomniac extends Role {
 
     override val role: Insomniac.type = Insomniac.this
 
+    override val precedence: Int = Precedence.INSOMNIAC
+
     override val coherenceProof =
       summon[this.type <:< role.Instance]
 
@@ -74,8 +76,6 @@ object Insomniac extends Role {
   override val baseAlignment: Alignment = Alignment.Town
 
   override val baseWinCondition: WinCondition = TownWinCondition
-
-  override val precedence: Int = Precedence.INSOMNIAC
 
   override def createInstance(mapping: UserMapping, initialUserId: Option[Id[User]]): this.Instance =
     Insomniac.Instance(mapping, initialUserId)

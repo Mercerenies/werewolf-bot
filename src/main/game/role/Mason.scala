@@ -32,6 +32,8 @@ object Mason extends Role {
 
     override val role: Mason.type = Mason.this
 
+    override val precedence: Int = Precedence.MASON
+
     override val coherenceProof =
       summon[this.type <:< role.Instance]
 
@@ -90,8 +92,6 @@ object Mason extends Role {
   override val baseAlignment: Alignment = Alignment.Town
 
   override val baseWinCondition: WinCondition = TownWinCondition
-
-  override val precedence: Int = Precedence.MASON
 
   override def baseSeenAs: List[GroupedRoleIdentity] =
     List(GroupedRoleIdentity.Mason)

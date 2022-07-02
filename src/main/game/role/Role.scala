@@ -16,8 +16,6 @@ trait Role extends NamedEntity {
 
   type Instance <: RoleInstance
 
-  def precedence: Int
-
   // A role's base alignment, without modifications from the night
   // actions. For example, a doppelganger always shows its
   // baseAlignment as ThirdParty, ignoring whatever role it's copied.

@@ -32,6 +32,8 @@ object DreamWolf extends Role {
 
     override val role: DreamWolf.type = DreamWolf.this
 
+    override val precedence: Int = Precedence.NO_ACTION
+
     override val coherenceProof =
       summon[this.type <:< role.Instance]
 
@@ -61,8 +63,6 @@ object DreamWolf extends Role {
 
   override def baseSeenAs: List[GroupedRoleIdentity] =
     List(GroupedRoleIdentity.Werewolf, GroupedRoleIdentity.DreamWolf)
-
-  override val precedence: Int = Precedence.NO_ACTION
 
   override def createInstance(mapping: UserMapping, initialUserId: Option[Id[User]]): this.Instance =
     DreamWolf.Instance(mapping)

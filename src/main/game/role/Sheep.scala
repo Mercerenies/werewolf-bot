@@ -26,6 +26,8 @@ object Sheep extends Role {
 
     override val role: Sheep.type = Sheep.this
 
+    override val precedence: Int = Precedence.SHEEP
+
     override val coherenceProof =
       summon[this.type <:< role.Instance]
 
@@ -75,8 +77,6 @@ object Sheep extends Role {
   override val baseAlignment: Alignment = Alignment.Town
 
   override val baseWinCondition: WinCondition = TownWinCondition
-
-  override val precedence: Int = Precedence.SHEEP
 
   override def createInstance(mapping: UserMapping, initialUserId: Option[Id[User]]): this.Instance =
     Sheep.Instance(mapping)

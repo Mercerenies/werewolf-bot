@@ -37,6 +37,8 @@ object ParanormalInvestigator extends Role {
 
     override val role: ParanormalInvestigator.type = ParanormalInvestigator.this
 
+    override val precedence: Int = Precedence.PARANORMAL_INVESTIGATOR
+
     override val coherenceProof =
       summon[this.type <:< role.Instance]
 
@@ -156,8 +158,6 @@ object ParanormalInvestigator extends Role {
   override val baseAlignment: Alignment = Alignment.Town
 
   override val baseWinCondition: WinCondition = TownWinCondition
-
-  override val precedence: Int = Precedence.PARANORMAL_INVESTIGATOR
 
   override def createInstance(mapping: UserMapping, initialUserId: Option[Id[User]]): this.Instance =
     ParanormalInvestigator.Instance(mapping, initialUserId)

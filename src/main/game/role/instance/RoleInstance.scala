@@ -42,6 +42,8 @@ trait RoleInstance {
 
   def nightHandler: NightMessageHandler
 
+  def precedence: Int
+
   val role: Role
 
   def votesPrecedence: Int = VotesPrecedence.NO_ACTION

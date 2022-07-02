@@ -29,6 +29,8 @@ object Werewolf extends Role {
 
     override val role: Werewolf.type = Werewolf.this
 
+    override val precedence: Int = Precedence.WEREWOLF
+
     override val coherenceProof =
       summon[this.type <:< role.Instance]
 
@@ -41,8 +43,6 @@ object Werewolf extends Role {
   override val baseAlignment: Alignment = Alignment.Werewolf
 
   override val baseWinCondition: WinCondition = WerewolfWinCondition
-
-  override val precedence: Int = Precedence.WEREWOLF
 
   override def baseSeenAs: List[GroupedRoleIdentity] =
     List(GroupedRoleIdentity.Werewolf)

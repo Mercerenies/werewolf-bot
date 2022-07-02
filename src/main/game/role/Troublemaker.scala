@@ -35,6 +35,8 @@ object Troublemaker extends Role {
 
     override val role: Troublemaker.type = Troublemaker.this
 
+    override val precedence: Int = Precedence.TROUBLEMAKER
+
     override val coherenceProof =
       summon[this.type <:< role.Instance]
 
@@ -98,8 +100,6 @@ object Troublemaker extends Role {
   override val baseAlignment: Alignment = Alignment.Town
 
   override val baseWinCondition: WinCondition = TownWinCondition
-
-  override val precedence: Int = Precedence.TROUBLEMAKER
 
   override def createInstance(mapping: UserMapping, initialUserId: Option[Id[User]]): this.Instance =
     Troublemaker.Instance(mapping, initialUserId)

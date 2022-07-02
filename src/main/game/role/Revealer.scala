@@ -35,6 +35,8 @@ object Revealer extends Role {
 
     override val role: Revealer.type = Revealer.this
 
+    override val precedence: Int = Precedence.REVEALER
+
     override val coherenceProof =
       summon[this.type <:< role.Instance]
 
@@ -112,8 +114,6 @@ object Revealer extends Role {
   override val baseAlignment: Alignment = Alignment.Town
 
   override val baseWinCondition: WinCondition = TownWinCondition
-
-  override val precedence: Int = Precedence.REVEALER
 
   override def createInstance(mapping: UserMapping, initialUserId: Option[Id[User]]): this.Instance =
     Revealer.Instance(mapping, initialUserId)

@@ -35,6 +35,8 @@ object Exposer extends Role {
 
     override val role: Exposer.type = Exposer.this
 
+    override val precedence: Int = Precedence.EXPOSER
+
     override val coherenceProof =
       summon[this.type <:< role.Instance]
 
@@ -97,8 +99,6 @@ object Exposer extends Role {
   override val baseAlignment: Alignment = Alignment.Town
 
   override val baseWinCondition: WinCondition = TownWinCondition
-
-  override val precedence: Int = Precedence.EXPOSER
 
   override def createInstance(mapping: UserMapping, initialUserId: Option[Id[User]]): this.Instance =
     Exposer.Instance(mapping, initialUserId)

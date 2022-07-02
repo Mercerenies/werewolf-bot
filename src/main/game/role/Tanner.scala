@@ -24,6 +24,8 @@ object Tanner extends Role {
 
     override val role: Tanner.type = Tanner.this
 
+    override val precedence: Int = Precedence.NO_ACTION
+
     override val coherenceProof =
       summon[this.type <:< role.Instance]
 
@@ -45,8 +47,6 @@ object Tanner extends Role {
   override val baseAlignment: Alignment = Alignment.ThirdParty
 
   override val baseWinCondition: WinCondition = TannerWinCondition
-
-  override val precedence: Int = Precedence.NO_ACTION
 
   override def createInstance(mapping: UserMapping, initialUserId: Option[Id[User]]): this.Instance =
     Tanner.Instance()

@@ -34,6 +34,8 @@ final class FluffyRipper private(
 
     override val role: FluffyRipper.this.type = FluffyRipper.this
 
+    override val precedence: Int = Precedence.WEREWOLF
+
     override val coherenceProof =
       summon[this.type <:< role.Instance]
 
@@ -53,8 +55,6 @@ final class FluffyRipper private(
 
   override val baseWinCondition: WinCondition =
     FluffyRipperWinCondition(owner = this, target = target)
-
-  override val precedence: Int = Precedence.WEREWOLF
 
   override def baseSeenAs: List[GroupedRoleIdentity] =
     List(GroupedRoleIdentity.Werewolf, identity)

@@ -35,6 +35,8 @@ object Thing extends Role {
 
     override val role: Thing.type = Thing.this
 
+    override val precedence: Int = Precedence.THING
+
     override val coherenceProof =
       summon[this.type <:< role.Instance]
 
@@ -100,8 +102,6 @@ object Thing extends Role {
   override val baseAlignment: Alignment = Alignment.Town
 
   override val baseWinCondition: WinCondition = TownWinCondition
-
-  override val precedence: Int = Precedence.THING
 
   override def createInstance(mapping: UserMapping, initialUserId: Option[Id[User]]): this.Instance =
     Thing.Instance(mapping, initialUserId)
