@@ -33,7 +33,6 @@ trait ChoiceMessageHandler[A, B] extends NightMessageHandler {
   override def onDirectMessage(board: Board, messageContents: String): MessageResponse =
     options.parse(messageContents) match {
       case Left(_) => {
-        // TODO Better, more specific error messages
         ReplyResponse(message)
       }
       case Right(x) => {
