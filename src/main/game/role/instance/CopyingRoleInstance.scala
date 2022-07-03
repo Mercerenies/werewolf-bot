@@ -35,14 +35,24 @@ trait CopyingRoleInstance extends RoleInstance {
     copiedRoleCell.value = value
   }
 
+  def censored[A](action: GameContext[A]): GameContext[A] =
+    action.censorRecords { history =>
+      history.map { record =>
+        record.mapActor { _ => this.toSnapshot }
+      }
+    }
+
   override def duskHandler: NightMessageHandler =
     copiedRole.fold(NoInputNightMessageHandler) { _.duskHandler }
 
   override def duskAction(userId: Id[User]): GameContext[Unit] =
-    copiedRole.fold(().point[GameContext]) { _.duskAction(userId) }
+    copiedRole.fold(().point[GameContext]) { inst => censored(inst.duskAction(userId)) }
 
   override def nightHandler: NightMessageHandler =
     copiedRole.fold(NoInputNightMessageHandler) { _.nightHandler }
+
+  override def nightAction(userId: Id[User]): GameContext[Unit] =
+    copiedRole.fold(().point[GameContext]) { inst => censored(inst.nightAction(userId)) }
 
   override def votesPrecedence: Int =
     copiedRole.fold(VotesPrecedence.NO_ACTION) { _.votesPrecedence }
