@@ -188,4 +188,41 @@ class RevealerSpec extends GameplayUnitSpec {
 
   }
 
+  it should "receive feedback and reveal a card publicly when a copy-revealer acts" in {
+    val board = createBoard(
+      left = Villager,
+      middle = Werewolf,
+      right = Revealer,
+      playerCards = List(Villager, Villager, Copycat),
+    )
+    val (finalBoard, history, feedback, reveals) = playGame(board, List("", "", ("right", mockName(1))))
+    finalBoard should be (board)
+
+    feedback(id(0)) should be (FeedbackMessage.none)
+    feedback(id(1)) should be (FeedbackMessage.none)
+    feedback(id(2)).mkString should include (mockName(1))
+    feedback(id(2)).mkString should include regex ("(?i)villager")
+
+    reveals should be (Set(Position.Player(id(1))))
+
+  }
+
+  it should "refuse to reveal the card if a copy-revealer sees a werewolf" in {
+    val board = createBoard(
+      left = Villager,
+      middle = Werewolf,
+      right = Revealer,
+      playerCards = List(Villager, Werewolf, Copycat),
+    )
+    val (finalBoard, history, feedback, reveals) = playGame(board, List("", "", ("right", mockName(1))))
+    finalBoard should be (board)
+
+    feedback(id(0)) should be (FeedbackMessage.none)
+    feedback(id(2)).mkString should include (mockName(1))
+    feedback(id(2)).mkString should include regex ("(?i)werewolf")
+
+    reveals shouldBe empty
+
+  }
+
 }

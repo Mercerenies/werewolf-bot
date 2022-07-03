@@ -310,6 +310,64 @@ class ParanormalInvestigatorSpec extends GameplayUnitSpec {
 
   }
 
-  ///// Copy-PI tests, then all the later roles (in the alphabet), then win con tests against copycat
+  it should "allow a copy-PI to look at the indicated cards" in {
+    val board = createBoard(
+      left = Villager,
+      middle = Werewolf,
+      right = ParanormalInvestigator,
+      playerCards = List(Villager, Copycat, DreamWolf, Tanner),
+    )
+    val (finalBoard, history, feedback, _) = playGame(board, List("", ("right", mockName(0) + " " + mockName(2)), "", ""))
+    finalBoard should be (board)
+
+    finalBoard(id(1)).winCondition should be (WerewolfWinCondition)
+    finalBoard(id(1)).seenAs should be (List(GroupedRoleIdentity.Werewolf, GroupedRoleIdentity.DreamWolf))
+
+    feedback(id(0)) should be (FeedbackMessage.none)
+    feedback(id(1)).mkString should include (mockName(0))
+    feedback(id(1)).mkString should include (mockName(2))
+    feedback(id(1)).mkString should include regex ("(?i)villager")
+    feedback(id(1)).mkString should include regex ("(?i)dream wolf")
+    feedback(id(2)) should be (FeedbackMessage.none)
+    feedback(id(3)) should be (FeedbackMessage.none)
+
+    val filtered = filterRecords(history)
+    history.toList should have length (4)
+    filtered should have length (3)
+    filtered(1).displayText(SampleUserMapping(4)) should include (mockName(0))
+    filtered(1).displayText(SampleUserMapping(4)) should include regex ("(?i)villager")
+    filtered(2).displayText(SampleUserMapping(4)) should include (mockName(2))
+    filtered(2).displayText(SampleUserMapping(4)) should include regex ("(?i)dream wolf")
+
+    finalBoard(id(1)).toSnapshot.name should be ("Copycat [Paranormal Investigator [Dream Wolf]]")
+
+  }
+
+  it should "allow a PI to look at and copy a neutral Copycat" in {
+    val board = createBoard(
+      left = Villager,
+      middle = Werewolf,
+      right = ParanormalInvestigator,
+      playerCards = List(Villager, Copycat, ParanormalInvestigator, Tanner),
+    )
+    val (finalBoard, _, feedback, _) = playGame(board, List("", ("middle", ""), mockName(1) + " " + mockName(3), ""))
+    finalBoard should be (board)
+
+    finalBoard(id(1)).winCondition should be (WerewolfWinCondition)
+    finalBoard(id(1)).seenAs should be (List(GroupedRoleIdentity.Werewolf))
+
+    finalBoard(id(2)).winCondition should be (TownWinCondition)
+    finalBoard(id(2)).seenAs should be (List())
+
+    feedback(id(0)) should be (FeedbackMessage.none)
+    feedback(id(1)).mkString should include regex ("(?i)werewolf")
+    feedback(id(2)).mkString should include regex ("(?i)copycat")
+    feedback(id(2)).mkString should not include regex ("(?i)tanner") // Copied the copycat, so we don't see the tanner
+    feedback(id(2)).mkString should include (mockName(1))
+    feedback(id(3)) should be (FeedbackMessage.none)
+
+    finalBoard(id(2)).toSnapshot.name should be ("Paranormal Investigator [Copycat]")
+
+  }
 
 }

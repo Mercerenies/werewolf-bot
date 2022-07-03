@@ -106,7 +106,7 @@ object Copycat extends Role {
 
   override val aliases: List[String] = List()
 
-  override val baseAlignment: Alignment = Alignment.Town
+  override val baseAlignment: Alignment = Alignment.ThirdParty
 
   override val baseWinCondition: WinCondition = TownWinCondition
 
