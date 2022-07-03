@@ -73,7 +73,7 @@ abstract class NighttimePhaseState(
         logger.error(s"Trying to process DM from ${user} but I don't know what to do.")
       }
       case Some(handler) => {
-        val response = handler.onDirectMessage(message.getContent)
+        val response = handler.onDirectMessage(initialBoard, message.getContent)
         response.respondTo(mgr.api, message)
       }
     }

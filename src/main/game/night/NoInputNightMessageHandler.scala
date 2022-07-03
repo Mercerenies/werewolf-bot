@@ -5,6 +5,7 @@ package night
 
 import response.{MessageResponse, NoResponse}
 import util.TextDecorator.*
+import board.Board
 
 object NoInputNightMessageHandler extends NightMessageHandler {
 
@@ -14,7 +15,7 @@ object NoInputNightMessageHandler extends NightMessageHandler {
   def midnightReminder: Option[String] =
     None
 
-  def onDirectMessage(messageContents: String): MessageResponse =
+  def onDirectMessage(board: Board, messageContents: String): MessageResponse =
     NoResponse
 
 }

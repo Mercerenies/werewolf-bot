@@ -4,6 +4,7 @@ package game
 package night
 
 import response.MessageResponse
+import board.Board
 
 trait NightMessageHandler {
 
@@ -14,6 +15,6 @@ trait NightMessageHandler {
   // Handle the message, potentially mutating local state to do it,
   // and then return the appropriate reply message (if any) to send
   // back to the user.
-  def onDirectMessage(messageContents: String): MessageResponse
+  def onDirectMessage(board: Board, messageContents: String): MessageResponse
 
 }

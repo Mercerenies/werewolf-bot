@@ -10,6 +10,7 @@ import choice.syntax.*
 import choice.formatter.ChoiceFormatter
 import name.{NamedEntity, NamedEntityMatcher}
 import response.{MessageResponse, ReplyResponse}
+import board.Board
 
 import scalaz.{Choice => _, *}
 import Scalaz.*
@@ -29,7 +30,7 @@ trait ChoiceMessageHandler[A, B] extends NightMessageHandler {
 
   def message: String = s"Please enter ${options.blurb}"
 
-  override def onDirectMessage(messageContents: String): MessageResponse =
+  override def onDirectMessage(board: Board, messageContents: String): MessageResponse =
     options.parse(messageContents) match {
       case Left(_) => {
         // TODO Better, more specific error messages

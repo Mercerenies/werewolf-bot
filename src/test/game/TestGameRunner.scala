@@ -47,7 +47,7 @@ object TestGameRunner {
     // RoleInstance objects in the board)
     playerIds zip duskActions foreach { (playerId, duskAction) =>
       val duskHandler = board(playerId).duskHandler
-      duskHandler.onDirectMessage(duskAction)
+      duskHandler.onDirectMessage(board, duskAction)
     }
 
     // Run the dusk phase.
@@ -60,7 +60,7 @@ object TestGameRunner {
     // RoleInstance objects in the board)
     playerIds zip nightActions foreach { (playerId, nightAction) =>
       val nightHandler = initialBoard(playerId).nightHandler
-      nightHandler.onDirectMessage(nightAction)
+      nightHandler.onDirectMessage(initialBoard, nightAction)
     }
 
     // Once all night actions have been collected, run the night
