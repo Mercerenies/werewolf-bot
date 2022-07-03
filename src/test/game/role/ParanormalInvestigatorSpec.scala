@@ -284,4 +284,32 @@ class ParanormalInvestigatorSpec extends GameplayUnitSpec {
 
   }
 
+  it should "allow a copy-PI to look at the indicated card" in {
+    val board = createBoard(
+      left = Villager,
+      middle = Werewolf,
+      right = ParanormalInvestigator,
+      playerCards = List(Villager, Copycat, DreamWolf, Tanner),
+    )
+    val (finalBoard, history, feedback, _) = playGame(board, List("", ("right", mockName(0)), "", ""))
+    finalBoard should be (board)
+
+    finalBoard(id(1)).winCondition should be (TownWinCondition)
+    finalBoard(id(1)).seenAs should be (Nil)
+
+    feedback(id(0)) should be (FeedbackMessage.none)
+    feedback(id(1)).mkString should include (mockName(0))
+    feedback(id(1)).mkString should include regex ("(?i)villager")
+    feedback(id(3)) should be (FeedbackMessage.none)
+
+    val filtered = filterRecords(history)
+    history.toList should have length (2)
+    filtered should have length (2)
+    filtered(1).displayText(SampleUserMapping(4)) should include (mockName(0))
+    filtered(1).displayText(SampleUserMapping(4)) should include regex ("(?i)villager")
+
+  }
+
+  ///// Copy-PI tests, then all the later roles (in the alphabet), then win con tests against copycat
+
 }
