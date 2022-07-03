@@ -57,6 +57,32 @@ class MasonSpec extends GameplayUnitSpec {
 
   }
 
+  it should "see who the other masons are, including copy-masons" in {
+    val board = createBoard(
+      left = Villager,
+      middle = Werewolf,
+      right = Mason,
+      playerCards = List(Villager, Mason, Copycat),
+    )
+    val (finalBoard, history, feedback, _) = playGame(board, List("", "", ("right", "")))
+    finalBoard should be (board)
+
+    feedback(id(0)) should be (FeedbackMessage.none)
+    feedback(id(1)).mkString should include (mockName(1))
+    feedback(id(1)).mkString should include (mockName(2))
+    feedback(id(2)).mkString should include (mockName(1))
+    feedback(id(2)).mkString should include (mockName(2))
+
+    val filtered = filterRecords(history)
+    filtered should have length (3)
+    // Note: filtered(0) is copycat message
+    filtered(1).displayText(SampleUserMapping(3)) should include (mockName(1))
+    filtered(1).displayText(SampleUserMapping(3)) should include (mockName(2))
+    filtered(2).displayText(SampleUserMapping(3)) should include (mockName(1))
+    filtered(2).displayText(SampleUserMapping(3)) should include (mockName(2))
+
+  }
+
   it should "see who the other masons are before a troublemaker swaps them" in {
     val board = createBoard(
       left = Villager,

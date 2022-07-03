@@ -139,4 +139,32 @@ class MinionSpec extends GameplayUnitSpec {
 
   }
 
+  it should "inform a copy-minion of the werewolf team" in {
+    val board = createBoard(
+      left = Werewolf,
+      middle = Werewolf,
+      right = Minion,
+      playerCards = List(Werewolf, Werewolf, Werewolf, Copycat),
+    )
+    val (finalBoard, _, feedback, _) = playGame(board, List("", "", "", ("right", "")))
+    finalBoard should be (board)
+
+    feedback(id(0)).mkString should include (mockName(0))
+    feedback(id(0)).mkString should include (mockName(1))
+    feedback(id(0)).mkString should include (mockName(2))
+    feedback(id(0)).mkString should not include (mockName(3))
+    feedback(id(1)).mkString should include (mockName(0))
+    feedback(id(1)).mkString should include (mockName(1))
+    feedback(id(1)).mkString should include (mockName(2))
+    feedback(id(1)).mkString should not include (mockName(3))
+    feedback(id(2)).mkString should include (mockName(0))
+    feedback(id(2)).mkString should include (mockName(1))
+    feedback(id(2)).mkString should include (mockName(2))
+    feedback(id(2)).mkString should not include (mockName(3))
+    feedback(id(3)).mkString should include (mockName(0))
+    feedback(id(3)).mkString should include (mockName(1))
+    feedback(id(3)).mkString should include (mockName(2))
+
+  }
+
 }
