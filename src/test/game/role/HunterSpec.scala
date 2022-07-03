@@ -207,4 +207,27 @@ class HunterSpec extends GameplayUnitSpec {
 
   }
 
+  it should "kill a chain of targets if hunters and copy-hunters point at each other in a cycle" in {
+    val board = createBoard(
+      left = Werewolf,
+      middle = Werewolf,
+      right = Tanner,
+      playerCards = List(Villager, Villager, Villager, Hunter, Copycat, Hunter),
+    )
+
+    board(id(4)).asInstanceOf[Copycat.Instance].copiedRole =
+      Some(Hunter.createInstance(SampleUserMapping(6), Some(id(4))))
+
+    val votes = votals(0 -> 4, 1 -> 4, 2 -> 4, 3 -> 5, 4 -> 3, 5 -> 4)
+    val (deaths, history) = runVotes(board, votes)
+
+    deaths.dead should equal (List(3, 4, 5)) (after being unordered)
+    deaths.`protected` should equal (List()) (after being unordered)
+
+    history.toVector should have length (2)
+    history.toVector(0).displayText(SampleUserMapping(6)) should include (mockName(3))
+    history.toVector(1).displayText(SampleUserMapping(6)) should include (mockName(5))
+
+  }
+
 }

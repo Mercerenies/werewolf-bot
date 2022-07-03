@@ -276,4 +276,62 @@ class FluffyRipperSpec extends GameplayUnitSpec {
 
   }
 
+  it should "ask for input from a solo copy-Fluffy" in {
+    val board = createBoard(
+      left = Fluffy,
+      middle = Villager,
+      right = Tanner,
+      playerCards = List(Villager, Copycat, Villager),
+    )
+    val (finalBoard, _, feedback, _) = playGame(board, List("", ("left", ""), ""))
+    finalBoard should be (board)
+
+    finalBoard(id(1)).nightHandler shouldBe a [ChoiceMessageHandler[?, ?]]
+
+  }
+
+  it should "ask for input from a solo copy-Ripper" in {
+    val board = createBoard(
+      left = Villager,
+      middle = Ripper,
+      right = Tanner,
+      playerCards = List(Villager, Copycat, Villager),
+    )
+    val (finalBoard, _, feedback, _) = playGame(board, List("", ("middle", ""), ""))
+    finalBoard should be (board)
+
+    finalBoard(id(1)).nightHandler shouldBe a [ChoiceMessageHandler[?, ?]]
+
+  }
+
+  it should "ask for no input from a Fluffy/copywolf team" in {
+    val board = createBoard(
+      left = Villager,
+      middle = Villager,
+      right = Werewolf,
+      playerCards = List(Villager, Fluffy, Copycat),
+    )
+    val (finalBoard, _, feedback, _) = playGame(board, List("", "", ("right", "")))
+    finalBoard should be (board)
+
+    finalBoard(id(1)).nightHandler should be (NoInputNightMessageHandler)
+    finalBoard(id(2)).nightHandler should be (NoInputNightMessageHandler)
+
+  }
+
+  it should "ask for no input from a Ripper/copywolf team" in {
+    val board = createBoard(
+      left = Villager,
+      middle = Villager,
+      right = Werewolf,
+      playerCards = List(Villager, Ripper, Copycat),
+    )
+    val (finalBoard, _, feedback, _) = playGame(board, List("", "", ("right", "")))
+    finalBoard should be (board)
+
+    finalBoard(id(1)).nightHandler should be (NoInputNightMessageHandler)
+    finalBoard(id(2)).nightHandler should be (NoInputNightMessageHandler)
+
+  }
+
 }

@@ -32,7 +32,11 @@ object Copycat extends Role {
 
     override val role: Copycat.type = Copycat.this
 
-    override val precedence: Int = Precedence.COPYCAT
+    override def duskPrecedence: Int =
+      Precedence.COPYCAT
+
+    override def precedence: Int =
+      copiedRole.fold(Precedence.COPYCAT) { _.precedence }
 
     override val coherenceProof =
       summon[this.type <:< role.Instance]

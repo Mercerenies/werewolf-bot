@@ -232,4 +232,27 @@ class BodyguardSpec extends GameplayUnitSpec {
 
   }
 
+  it should "protect the target and take out the second majority if a copy-bodyguard's target is killed" in {
+    val board = createBoard(
+      left = Werewolf,
+      middle = Bodyguard,
+      right = Tanner,
+      playerCards = List(Villager, Villager, Villager, Villager, Copycat),
+    )
+
+    board(id(4)).asInstanceOf[Copycat.Instance].copiedRole =
+      Some(Bodyguard.createInstance(SampleUserMapping(5), Some(id(4))))
+
+    val votes = votals(0 -> 1, 1 -> 0, 2 -> 0, 3 -> 1, 4 -> 0)
+    val (deaths, history) = runVotes(board, votes)
+
+    deaths.dead should equal (List(1)) (after being unordered)
+    deaths.`protected` should equal (List(0)) (after being unordered)
+
+    history.toVector should have length (2)
+    history.toVector(0).displayText(SampleUserMapping(5)) should include (mockName(0)) // Protection message
+    history.toVector(1).displayText(SampleUserMapping(5)) should include (mockName(1)) // New death message
+
+  }
+
 }

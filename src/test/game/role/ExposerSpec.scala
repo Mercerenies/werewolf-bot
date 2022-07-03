@@ -158,4 +158,43 @@ class ExposerSpec extends GameplayUnitSpec {
 
   }
 
+  it should "receive feedback from a copy-exposer and reveal a card publicly" in {
+    val board = createBoard(
+      left = Villager,
+      middle = Exposer,
+      right = Tanner,
+      playerCards = List(Villager, Villager, Copycat),
+    )
+    val (finalBoard, history, feedback, reveals) = playGame(board, List("", "", ("middle", "right")))
+    finalBoard should be (board)
+
+    feedback(id(0)) should be (FeedbackMessage.none)
+    feedback(id(1)) should be (FeedbackMessage.none)
+    feedback(id(2)).mkString should include regex ("(?i)right")
+    feedback(id(2)).mkString should include regex ("(?i)tanner")
+    feedback(id(2)).mkString should not include regex ("(?i)villager|werewolf")
+
+    reveals should be (Set(Position.right))
+
+  }
+
+  it should "reveal the Exposer card itself if a copy-exposer opts to expose the same card he copied" in {
+    val board = createBoard(
+      left = Villager,
+      middle = Exposer,
+      right = Tanner,
+      playerCards = List(Villager, Villager, Copycat),
+    )
+    val (finalBoard, history, feedback, reveals) = playGame(board, List("", "", ("middle", "middle")))
+    finalBoard should be (board)
+
+    feedback(id(0)) should be (FeedbackMessage.none)
+    feedback(id(1)) should be (FeedbackMessage.none)
+    feedback(id(2)).mkString should include regex ("(?i)middle")
+    feedback(id(2)).mkString should include regex ("(?i)exposer")
+
+    reveals should be (Set(Position.middle))
+
+  }
+
 }

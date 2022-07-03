@@ -18,6 +18,8 @@ sealed trait NightPhase {
 
   def getHandler(roleInstance: RoleInstance): NightMessageHandler
 
+  def getPrecedence(roleInstance: RoleInstance): Int
+
 }
 
 object NightPhase {
@@ -30,6 +32,9 @@ object NightPhase {
     override def getHandler(roleInstance: RoleInstance): NightMessageHandler =
       roleInstance.duskHandler
 
+    def getPrecedence(roleInstance: RoleInstance): Int =
+      roleInstance.duskPrecedence
+
   }
 
   case object Night extends NightPhase {
@@ -39,6 +44,9 @@ object NightPhase {
 
     override def getHandler(roleInstance: RoleInstance): NightMessageHandler =
       roleInstance.nightHandler
+
+    def getPrecedence(roleInstance: RoleInstance): Int =
+      roleInstance.precedence
 
   }
 

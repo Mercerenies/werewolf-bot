@@ -163,4 +163,78 @@ class CopycatSpec extends GameplayUnitSpec {
 
   }
 
+  it should "count as a town card if put into play from the center by a witch" in {
+    val board = createBoard(
+      left = Copycat,
+      middle = Werewolf,
+      right = Villager,
+      playerCards = List(Villager, Villager, DreamWolf, Witch),
+    )
+    val (finalBoard, _, feedback, _) = playGame(board, List("", "", "", "left " + mockName(0)))
+    finalBoard(TablePosition.Left).role should be (Villager)
+    finalBoard(TablePosition.Middle).role should be (Werewolf)
+    finalBoard(TablePosition.Right).role should be (Villager)
+    finalBoard(id(0)).role should be (Copycat)
+    finalBoard(id(1)).role should be (Villager)
+    finalBoard(id(2)).role should be (DreamWolf)
+    finalBoard(id(3)).role should be (Witch)
+
+    finalBoard(id(0)).asInstanceOf[Copycat.Instance].copiedRole.map(_.role) should be (None)
+    finalBoard(id(0)).winCondition should be (TownWinCondition)
+    finalBoard(id(0)).seenAs should be (Nil)
+
+    feedback(id(0)) should be (FeedbackMessage.none)
+    feedback(id(1)) should be (FeedbackMessage.none)
+    feedback(id(2)) should be (FeedbackMessage.none)
+    feedback(id(3)).mkString should include regex ("(?i)left")
+    feedback(id(3)).mkString should include regex ("(?i)copycat")
+    feedback(id(3)).mkString should include (mockName(0))
+
+  }
+
+  it should "count as the copied role if swapped through the center and back out by a witch and a drunk" in {
+    val board = createBoard(
+      left = Tanner,
+      middle = Werewolf,
+      right = Villager,
+      playerCards = List(Copycat, Drunk, DreamWolf, Witch),
+    )
+    val (finalBoard, history, feedback, _) = playGame(board, List(("left", ""), "left", "", "left " + mockName(0)))
+    finalBoard(TablePosition.Left).role should be (Drunk)
+    finalBoard(TablePosition.Middle).role should be (Werewolf)
+    finalBoard(TablePosition.Right).role should be (Villager)
+    finalBoard(id(0)).role should be (Tanner)
+    finalBoard(id(1)).role should be (Copycat)
+    finalBoard(id(2)).role should be (DreamWolf)
+    finalBoard(id(3)).role should be (Witch)
+
+    finalBoard(id(1)).asInstanceOf[Copycat.Instance].copiedRole.map(_.role) should be (Some(Tanner))
+    finalBoard(id(1)).winCondition should be (TannerWinCondition)
+    finalBoard(id(1)).seenAs should be (Nil)
+
+    feedback(id(0)) should be (FeedbackMessage.none) // Copycat only gets interactive feedback
+    feedback(id(1)).mkString should include regex ("(?i)left")
+    feedback(id(2)) should be (FeedbackMessage.none)
+    feedback(id(3)).mkString should include regex ("(?i)left")
+    feedback(id(3)).mkString should include regex ("(?i)tanner")
+    feedback(id(3)).mkString should include (mockName(0))
+
+    val filtered = filterRecords(history)
+    history.toList should have length (5)
+    filtered should have length (3)
+
+    // Copycat copies tanner
+    filtered(0).displayText(SampleUserMapping(4)) should include regex ("(?i)copycat")
+    filtered(0).displayText(SampleUserMapping(4)) should include regex ("(?i)tanner")
+
+    // Witch swaps the copycat and tanner cards
+    filtered(1).displayText(SampleUserMapping(4)) should include (mockName(0))
+    filtered(1).displayText(SampleUserMapping(4)) should include regex ("(?i)tanner")
+
+    // Drunk swaps with the copycat card (which is now treated as a tanner card)
+    filtered(2).displayText(SampleUserMapping(4)) should include regex ("(?i)left")
+    filtered(2).displayText(SampleUserMapping(4)) should not include regex ("(?i)tanner|copycat|witch")
+
+  }
+
 }

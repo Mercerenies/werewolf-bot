@@ -45,6 +45,9 @@ trait RoleInstance {
 
   def nightHandler: NightMessageHandler
 
+  def duskPrecedence: Int =
+    precedence
+
   def precedence: Int
 
   val role: Role

@@ -164,4 +164,80 @@ class InsomniacSpec extends GameplayUnitSpec {
 
   }
 
+  it should "not inform an insomniac of their win condition if they are swapped with a copycat" in {
+    val board = createBoard(
+      left = Villager,
+      middle = Werewolf,
+      right = Tanner,
+      playerCards = List(Copycat, Troublemaker, Insomniac, Werewolf),
+    )
+    val (finalBoard, _, feedback, _) = playGame(board, List(("middle", ""), mockName(0) + " " + mockName(2), "", ""))
+
+    finalBoard(TablePosition.Left).role should be (Villager)
+    finalBoard(TablePosition.Middle).role should be (Werewolf)
+    finalBoard(TablePosition.Right).role should be (Tanner)
+    finalBoard(id(0)).role should be (Insomniac)
+    finalBoard(id(1)).role should be (Troublemaker)
+    finalBoard(id(2)).role should be (Copycat)
+    finalBoard(id(3)).role should be (Werewolf)
+
+    finalBoard(id(0)).winCondition should be (TownWinCondition)
+    finalBoard(id(0)).seenAs should be (Nil)
+
+    finalBoard(id(2)).winCondition should be (WerewolfWinCondition)
+    finalBoard(id(2)).seenAs should be (List(GroupedRoleIdentity.Werewolf))
+
+    feedback(id(2)).mkString should include regex ("(?i)copycat")
+    feedback(id(2)).mkString should not include regex ("(?i)werewolf")
+
+  }
+
+  it should "observe the final role card that the copy-Insomniac has now" in {
+    val board = createBoard(
+      left = Villager,
+      middle = Werewolf,
+      right = Insomniac,
+      playerCards = List(Villager, Villager, Copycat),
+    )
+    val (finalBoard, history, feedback, _) = playGame(board, List("", "", ("right", "")))
+    finalBoard should be (board)
+
+    feedback(id(0)) should be (FeedbackMessage.none)
+    feedback(id(1)) should be (FeedbackMessage.none)
+    feedback(id(2)).mkString should include regex ("(?i)copycat")
+
+    val filtered = filterRecords(history)
+    history.toList should have length (2)
+    filtered should have length (2)
+
+    // Copy message
+    filtered(0).displayText(SampleUserMapping(3)) should include regex ("(?i)insomniac")
+
+    // Insom message
+    filtered(1).displayText(SampleUserMapping(3)) should include regex ("(?i)copycat")
+    filtered(1).displayText(SampleUserMapping(3)) should include regex ("(?i)insomniac")
+
+  }
+
+  it should "inform a copy-insomniac of their new card, even if it has been changed by a troublemaker" in {
+    val board = createBoard(
+      left = Villager,
+      middle = Werewolf,
+      right = Insomniac,
+      playerCards = List(Villager, Troublemaker, Copycat),
+    )
+    val (finalBoard, _, feedback, _) = playGame(board, List("", mockName(0) + " " + mockName(2), ("right", "")))
+
+    finalBoard(TablePosition.Left).role should be (Villager)
+    finalBoard(TablePosition.Middle).role should be (Werewolf)
+    finalBoard(TablePosition.Right).role should be (Insomniac)
+    finalBoard(id(0)).role should be (Copycat)
+    finalBoard(id(1)).role should be (Troublemaker)
+    finalBoard(id(2)).role should be (Villager)
+
+    feedback(id(0)) should be (FeedbackMessage.none)
+    feedback(id(2)).mkString should include regex ("(?i)villager")
+
+  }
+
 }
