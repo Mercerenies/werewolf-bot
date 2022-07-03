@@ -46,6 +46,65 @@ class CopycatSpec extends GameplayUnitSpec {
 
   }
 
+  it should "look at the left card if no feedback is received" in {
+    val board = createBoard(
+      left = Werewolf,
+      middle = Villager,
+      right = Villager,
+      playerCards = List(Villager, Copycat, DreamWolf, Tanner),
+    )
+    val (finalBoard, history, feedback, _) = playGame(board, List("", ("", ""), "", ""))
+    finalBoard should be (board)
+
+    finalBoard(id(1)).asInstanceOf[Copycat.Instance].copiedRole.map(_.role) should be (Some(Werewolf))
+    finalBoard(id(1)).winCondition should be (WerewolfWinCondition)
+    finalBoard(id(1)).seenAs should be (List(GroupedRoleIdentity.Werewolf))
+
+    // If it's a passive copy, then the new role message is part of
+    // FeedbackMessage since it's not interactive.
+    feedback(id(0)) should be (FeedbackMessage.none)
+    feedback(id(1)).mkString should include regex ("(?i)left")
+    feedback(id(1)).mkString should include regex ("(?i)werewolf")
+    feedback(id(1)).mkString should include (mockName(1))
+    feedback(id(1)).mkString should include (mockName(2))
+    feedback(id(2)) should be (FeedbackMessage.none)
+    feedback(id(3)) should be (FeedbackMessage.none)
+
+    val filtered = filterRecords(history)
+    history.toList should have length (3)
+    filtered should have length (3)
+
+    // Copycat copies werewolf
+    filtered(0).displayText(SampleUserMapping(4)) should include regex ("(?i)left")
+    filtered(0).displayText(SampleUserMapping(4)) should include regex ("(?i)werewolf")
+
+    // Copy-werewolf is told about the other werewolf
+    filtered(1).displayText(SampleUserMapping(4)) should include (mockName(1))
+    filtered(1).displayText(SampleUserMapping(4)) should include (mockName(2))
+    filtered(1).displayText(SampleUserMapping(4)) should include regex ("(?i)werewolf")
+
+    // Copy-werewolf is told about the dream wolf
+    filtered(2).displayText(SampleUserMapping(4)) should include (mockName(2))
+    filtered(2).displayText(SampleUserMapping(4)) should include regex ("(?i)dream wol(f|ves)")
+
+  }
+
+  it should "not create an infinite loop if the left card is Copycat and no response is received" in {
+    val board = createBoard(
+      left = Copycat,
+      middle = Villager,
+      right = Villager,
+      playerCards = List(Villager, Copycat, DreamWolf, Tanner),
+    )
+    val (finalBoard, history, feedback, _) = playGame(board, List("", ("", ""), "", ""))
+    finalBoard should be (board)
+
+    // Note: I consider games with two copycat cards invalid, for
+    // basically this reason. If a player forces this game to occur,
+    // all I care is that the game doesn't crash.
+
+  }
+
   it should "receive feedback about the indicated card" in {
     val board = createBoard(
       left = Werewolf,
@@ -54,39 +113,12 @@ class CopycatSpec extends GameplayUnitSpec {
       playerCards = List(Villager, Copycat, DreamWolf, Tanner),
     )
 
+    // Normally, the feedback is interactive. So it won't show up in
+    // the FeedbackMessage and is instead sent directly.
     val response = board(id(1)).asInstanceOf[Copycat.Instance].duskHandler.onDirectMessage(board, "right")
     response shouldBe a [ReplyResponse]
     response.asInstanceOf[ReplyResponse].replyText should include regex ("(?i)right")
     response.asInstanceOf[ReplyResponse].replyText should include regex ("(?i)villager")
-
-  }
-
-/*
-  it should "look at the indicated cards in order, if two are supplied" in {
-    val board = createBoard(
-      left = Villager,
-      middle = Werewolf,
-      right = Villager,
-      playerCards = List(Villager, Villager, ParanormalInvestigator, DreamWolf, Tanner),
-    )
-    val (finalBoard, history, feedback, _) = playGame(board, List("", "", mockName(0) + " " + mockName(1), "", ""))
-    finalBoard should be (board)
-
-    finalBoard(id(2)).winCondition should be (TownWinCondition)
-    finalBoard(id(2)).seenAs should be (Nil)
-
-    feedback(id(2)).mkString should include (mockName(0))
-    feedback(id(2)).mkString should include regex ("(?i)villager")
-    feedback(id(2)).mkString should include (mockName(1))
-    feedback(id(2)).mkString should include regex ("(?i)villager")
-
-    val filtered = filterRecords(history)
-    history.toList should have length (2)
-    filtered should have length (2)
-    filtered(0).displayText(SampleUserMapping(5)) should include (mockName(0))
-    filtered(0).displayText(SampleUserMapping(5)) should include regex ("(?i)villager")
-    filtered(1).displayText(SampleUserMapping(5)) should include (mockName(1))
-    filtered(1).displayText(SampleUserMapping(5)) should include regex ("(?i)villager")
 
   }
 
@@ -95,157 +127,40 @@ class CopycatSpec extends GameplayUnitSpec {
       left = Villager,
       middle = Werewolf,
       right = Villager,
-      playerCards = List(Villager, Villager, ParanormalInvestigator, Werewolf, Tanner),
+      playerCards = List(Villager, Villager, Copycat, Werewolf, Tanner),
     )
-    val (finalBoard, history, feedback, _) = playGame(board, List("", "", mockName(3), "", ""))
+    val (finalBoard, history, feedback, _) = playGame(board, List("", "", ("middle", ""), "", ""))
     finalBoard should be (board)
 
     finalBoard(id(2)).winCondition should be (WerewolfWinCondition)
     finalBoard(id(2)).seenAs should be (List(GroupedRoleIdentity.Werewolf))
 
+    // Werewolf team is informed of the werewolf team, including copycat
+    feedback(id(2)).mkString should include (mockName(2))
     feedback(id(2)).mkString should include (mockName(3))
     feedback(id(2)).mkString should include regex ("(?i)werewolf")
+    feedback(id(3)).mkString should include (mockName(2))
+    feedback(id(3)).mkString should include (mockName(3))
+    feedback(id(3)).mkString should include regex ("(?i)werewolf")
 
     val filtered = filterRecords(history)
-    history.toList should have length (4)
+    history.toList should have length (3)
     filtered should have length (3)
+
+    // Copycat's copy message
+    filtered(0).displayText(SampleUserMapping(5)) should include (mockName(2))
+    filtered(0).displayText(SampleUserMapping(5)) should include regex ("(?i)werewolf")
+
+    // One werewolf is informed of the other
+    filtered(1).displayText(SampleUserMapping(5)) should include (mockName(2))
+    filtered(1).displayText(SampleUserMapping(5)) should include (mockName(3))
+    filtered(1).displayText(SampleUserMapping(5)) should include regex ("(?i)werewolf")
+
+    // The other werewolf is also informed
+    filtered(2).displayText(SampleUserMapping(5)) should include (mockName(2))
     filtered(2).displayText(SampleUserMapping(5)) should include (mockName(3))
     filtered(2).displayText(SampleUserMapping(5)) should include regex ("(?i)werewolf")
 
   }
 
-  it should "transform into a Dream Wolf if one is observed" in {
-    val board = createBoard(
-      left = Villager,
-      middle = Werewolf,
-      right = Villager,
-      playerCards = List(Villager, Villager, ParanormalInvestigator, DreamWolf, Tanner),
-    )
-    val (finalBoard, history, feedback, _) = playGame(board, List("", "", mockName(3), "", ""))
-    finalBoard should be (board)
-
-    finalBoard(id(2)).winCondition should be (WerewolfWinCondition)
-    finalBoard(id(2)).seenAs should be (List(GroupedRoleIdentity.Werewolf, GroupedRoleIdentity.DreamWolf))
-
-    feedback(id(2)).mkString should include (mockName(3))
-    feedback(id(2)).mkString should include regex ("(?i)werewolf")
-
-    val filtered = filterRecords(history)
-    history.toList should have length (2)
-    filtered should have length (1)
-    filtered(0).displayText(SampleUserMapping(5)) should include (mockName(3))
-    filtered(0).displayText(SampleUserMapping(5)) should include regex ("(?i)dream wolf")
-
-  }
-
-  it should "transform into a tanner if one is observed" in {
-    val board = createBoard(
-      left = Villager,
-      middle = Werewolf,
-      right = Villager,
-      playerCards = List(Villager, Villager, ParanormalInvestigator, DreamWolf, Tanner),
-    )
-    val (finalBoard, history, feedback, _) = playGame(board, List("", "", mockName(4), "", ""))
-    finalBoard should be (board)
-
-    finalBoard(id(2)).winCondition should be (TannerWinCondition)
-    finalBoard(id(2)).seenAs should be (List())
-
-    feedback(id(2)).mkString should include (mockName(4))
-    feedback(id(2)).mkString should include regex ("(?i)tanner")
-
-    val filtered = filterRecords(history)
-    history.toList should have length (2)
-    filtered should have length (1)
-    filtered(0).displayText(SampleUserMapping(5)) should include (mockName(4))
-    filtered(0).displayText(SampleUserMapping(5)) should include regex ("(?i)tanner")
-
-  }
-
-  it should "cancel the second action if the first copies a win condition" in {
-    val board = createBoard(
-      left = Villager,
-      middle = Werewolf,
-      right = Villager,
-      playerCards = List(Villager, Villager, ParanormalInvestigator, DreamWolf, Tanner),
-    )
-    val (finalBoard, history, feedback, _) = playGame(board, List("", "", mockName(4) + " " + mockName(0), "", ""))
-    finalBoard should be (board)
-
-    finalBoard(id(2)).winCondition should be (TannerWinCondition)
-    finalBoard(id(2)).seenAs should be (List())
-
-    feedback(id(2)).mkString should include (mockName(4))
-    feedback(id(2)).mkString should include regex ("(?i)tanner")
-
-    val filtered = filterRecords(history)
-    history.toList should have length (2)
-    filtered should have length (1)
-    filtered(0).displayText(SampleUserMapping(5)) should include (mockName(4))
-    filtered(0).displayText(SampleUserMapping(5)) should include regex ("(?i)tanner")
-
-  }
-
-  it should "run both actions if the second action copies a win condition" in {
-    val board = createBoard(
-      left = Villager,
-      middle = Werewolf,
-      right = Villager,
-      playerCards = List(Villager, Villager, ParanormalInvestigator, DreamWolf, Tanner),
-    )
-    val (finalBoard, history, feedback, _) = playGame(board, List("", "", mockName(0) + " " + mockName(4), "", ""))
-    finalBoard should be (board)
-
-    finalBoard(id(2)).winCondition should be (TannerWinCondition)
-    finalBoard(id(2)).seenAs should be (List())
-
-    feedback(id(2)).mkString should include (mockName(0))
-    feedback(id(2)).mkString should include regex ("(?i)villager")
-    feedback(id(2)).mkString should include (mockName(4))
-    feedback(id(2)).mkString should include regex ("(?i)tanner")
-
-    val filtered = filterRecords(history)
-    history.toList should have length (3)
-    filtered should have length (2)
-    filtered(0).displayText(SampleUserMapping(5)) should include (mockName(0))
-    filtered(0).displayText(SampleUserMapping(5)) should include regex ("(?i)villager")
-    filtered(1).displayText(SampleUserMapping(5)) should include (mockName(4))
-    filtered(1).displayText(SampleUserMapping(5)) should include regex ("(?i)tanner")
-
-  }
-
-  it should "not appear in the werewolf team group message, even if they copy a werewolf" in {
-    val board = createBoard(
-      left = Villager,
-      middle = Werewolf,
-      right = Villager,
-      playerCards = List(Villager, Werewolf, ParanormalInvestigator, Werewolf, Tanner),
-    )
-    val (finalBoard, _, feedback, _) = playGame(board, List("", "", mockName(1), "", ""))
-    finalBoard should be (board)
-
-    finalBoard(id(2)).winCondition should be (WerewolfWinCondition)
-    finalBoard(id(2)).seenAs should be (List(GroupedRoleIdentity.Werewolf))
-
-    feedback(id(1)).mkString should include (mockName(1))
-    feedback(id(1)).mkString should not include (mockName(2))
-    feedback(id(1)).mkString should include (mockName(3))
-
-  }
-
-  it should "not copy a Cursed player" in {
-    val board = createBoard(
-      left = Villager,
-      middle = Werewolf,
-      right = Villager,
-      playerCards = List(Villager, Werewolf, ParanormalInvestigator, Cursed, Tanner),
-    )
-    val (finalBoard, _, feedback, _) = playGame(board, List("", "", mockName(3) + " " + mockName(4), "", ""))
-    finalBoard should be (board)
-
-    finalBoard(id(2)).winCondition should be (TannerWinCondition)
-    finalBoard(id(2)).seenAs should be (List())
-
-  }
- */
 }
