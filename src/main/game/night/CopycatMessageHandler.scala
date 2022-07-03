@@ -41,7 +41,7 @@ final class CopycatMessageHandler(
     val copiedRoleInstance = role.createInstance(mapping, initialUserId)
     roleInstance.copiedRole = Some(copiedRoleInstance)
     hasCopied.value = Some(pos)
-    val viewMessage = "You have viewed the " + bold(role.name) + " card."
+    val viewMessage = "The " + bold(pos.name) + " card is the " + bold(role.name) + " card."
     val followupMessage = role.introBlurb + " " +  copiedRoleInstance.winCondition.blurb
     viewMessage + "\n\n" + followupMessage
   }
