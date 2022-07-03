@@ -10,7 +10,8 @@ import util.TextDecorator.*
 import util.Grammar
 import wincon.{WinCondition, TownWinCondition}
 import night.{NightMessageHandler, NoInputNightMessageHandler, CopycatMessageHandler}
-import board.Board
+import board.{Board, TablePosition}
+import board.snapshot.{RoleSnapshot, SimpleRoleSnapshot}
 import response.FeedbackMessage
 import context.GameContext
 import record.ActionPerformedRecord
@@ -42,20 +43,53 @@ object Copycat extends Role {
     override def duskHandler: NightMessageHandler =
       duskHandlerImpl
 
-    override def nightAction(userId: Id[User]): GameContext[Unit] =
-      this.copiedRole match {
-        case None => {
-          // Should not happen; a Copycat who was in play at dusk
-          // should have copied someone, and one put into play by
-          // Witch or Drunk or something shouldn't have been swapped
-          // by this point.
-          logger.error(s"Copycat belonging to ${mapping.nameOf(userId)} (${userId}) has copied nothing in nightAction")
-          ().point
+    override def duskAction(userId: Id[User]): GameContext[Unit] = {
+      // Record which role we copied, and then run its dusk action (if
+      // it happens to be a doppelganger or other dusk role, it will
+      // have something to do here)
+      import ActionPerformedRecord.*
+      for {
+        board <- GameContext.getBoard
+        _ <- whenM (!duskHandlerImpl.hasChoice) {
+          val roleToCopy = board(TablePosition.Left).role
+          for {
+            responseMessage <- GameContext.perform { duskHandlerImpl.copyRole(TablePosition.Left, roleToCopy) }
+            _ <- GameContext.feedback(userId, "Assuming you copied the " + bold("left card") + ".")
+            _ <- GameContext.feedback(userId, responseMessage)
+          } yield {
+            ()
+          }
         }
-        case Some(instance) => {
-          instance.nightAction(userId)
-        }
+        // Note: At this point, the copied role *should* always be
+        // present, so the villager thing is just me being overly
+        // defensive.
+        copiedRoleInstance = copiedRole.getOrElse(Villager.createInstance(mapping, initialUserId))
+        _ <- GameContext.record(ActionPerformedRecord(this.toSnapshot, userId) {
+          t("copied the ")
+          position(duskHandlerImpl.copiedPosition.getOrElse(TablePosition.Left))
+          t(" card and became a ")
+          roleName(copiedRoleInstance.role)
+        })
+        _ <- delegatedDuskAction(userId)
+      } yield {
+        ()
       }
+    }
+
+    private def delegatedDuskAction(userId: Id[User]): GameContext[Unit] = {
+      val copiedRoleInstance = copiedRole.getOrElse(Villager.createInstance(mapping, initialUserId))
+      if (copiedRoleInstance.isInstanceOf[Copycat.Instance]) {
+        // A Copycat has copied a Copycat card in the center of the
+        // board. This should only happen if someone starts a game
+        // with a deliberately contrived setup in an effort to make
+        // this game crash. But we need to *not* delegate in this
+        // case, because if we do then we'll hit an infinite loop if
+        // the Copycat card happens to be in the left position.
+        ().point
+      } else {
+        censored { copiedRoleInstance.duskAction(userId) }
+      }
+    }
 
     override def defaultWinCondition: WinCondition =
       TownWinCondition

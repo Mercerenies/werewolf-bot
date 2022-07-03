@@ -28,8 +28,8 @@ final class CopycatMessageHandler(
   private val choiceFactory: ChoiceFactory =
     ChoiceFactory(mapping.toNamedUsers)
 
-  private val hasCopied: Cell[Boolean] =
-    Cell(false)
+  private val hasCopied: Cell[Option[TablePosition]] =
+    Cell(None)
 
   private val options: Choice[TablePosition] =
     choiceFactory.tablePosition
@@ -37,13 +37,13 @@ final class CopycatMessageHandler(
   def message: String =
     s"Please enter ${options.blurb}.\n\n" + bold("Note:") + " As soon as you make your selection, your choice will be committed."
 
-  def copyRole(role: Role): MessageResponse = {
+  def copyRole(pos: TablePosition, role: Role): String = {
     val copiedRoleInstance = role.createInstance(mapping, initialUserId)
     roleInstance.copiedRole = Some(copiedRoleInstance)
-    hasCopied.value = true
+    hasCopied.value = Some(pos)
     val viewMessage = "You have viewed the " + bold(role.name) + " card."
     val followupMessage = role.introBlurb + " " +  copiedRoleInstance.winCondition.blurb
-    ReplyResponse(viewMessage + "\n\n" + followupMessage)
+    viewMessage + "\n\n" + followupMessage
   }
 
   override def onDirectMessage(board: Board, messageContents: String): MessageResponse = {
@@ -53,7 +53,8 @@ final class CopycatMessageHandler(
       }
       case Right(tablePosition) => {
         val role = board(tablePosition).role
-        this.copyRole(role)
+        val message = this.copyRole(tablePosition, role)
+        ReplyResponse(message)
       }
     }
   }
@@ -68,7 +69,10 @@ final class CopycatMessageHandler(
       Some("Reminder: " + message)
     }
 
-  private def hasChoice: Boolean =
+  def copiedPosition: Option[TablePosition] =
     hasCopied.value
+
+  def hasChoice: Boolean =
+    !hasCopied.value.isEmpty
 
 }

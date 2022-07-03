@@ -58,8 +58,16 @@ final class DuskPhaseState(
 
   override val phase = NightPhase.Dusk
 
-  override def nextState(result: NightPhaseResult): GameState =
+  override def nextState(result: NightPhaseResult): GameState = {
+    val history = if (DuskPhaseState.requiresDuskPhase(initialBoard.roles)) {
+      // If nontrivial things might have happened in the dusk phase,
+      // print out the state of the game board now.
+      result.history + SnapshotRecord(initialBoard.toSnapshot(playerOrder))
+    } else {
+      result.history
+    }
     NightPhaseState(gameProperties, playerOrder, result.board, result.history)
+  }
 
   override def onEnterState(mgr: GamesManager): Unit = {
     if (DuskPhaseState.requiresDuskPhase(initialBoard.roles)) {
