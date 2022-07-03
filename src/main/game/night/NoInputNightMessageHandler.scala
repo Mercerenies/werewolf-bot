@@ -10,7 +10,7 @@ import board.Board
 object NoInputNightMessageHandler extends NightMessageHandler {
 
   def initialNightMessage: String =
-    "I require " + bold("no input") + " from you tonight."
+    "I require " + bold("no input") + " from you right now."
 
   def midnightReminder: Option[String] =
     None
