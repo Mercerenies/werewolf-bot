@@ -184,4 +184,32 @@ class RobberSpec extends GameplayUnitSpec {
 
   }
 
+  it should "allow a copy-robber to act before the troublemaker" in {
+    val board = createBoard(
+      left = Villager,
+      middle = Robber,
+      right = Villager,
+      playerCards = List(Villager, Werewolf, Copycat, Tanner, Troublemaker),
+    )
+    val (finalBoard, history, feedback, _) = playGame(board, List("", "", ("middle", mockName(0)), "", mockName(0) + " " + mockName(1)))
+
+    finalBoard(TablePosition.Left).role should be (Villager)
+    finalBoard(TablePosition.Middle).role should be (Robber)
+    finalBoard(TablePosition.Right).role should be (Villager)
+    finalBoard(id(0)).role should be (Werewolf)
+    finalBoard(id(1)).role should be (Copycat)
+    finalBoard(id(2)).role should be (Villager)
+    finalBoard(id(3)).role should be (Tanner)
+    finalBoard(id(4)).role should be (Troublemaker)
+
+    feedback(id(0)) should be (FeedbackMessage.none)
+    feedback(id(2)).mkString should include (mockName(0))
+    feedback(id(2)).mkString should include regex ("(?i)villager")
+    feedback(id(3)) should be (FeedbackMessage.none)
+    feedback(id(4)).mkString should include (mockName(0))
+    feedback(id(4)).mkString should include (mockName(1))
+    feedback(id(4)).mkString should not include regex ("(?i)werewolf|robber|tanner|villager")
+
+  }
+
 }
